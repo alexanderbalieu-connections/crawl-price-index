@@ -1,0 +1,115 @@
+{
+  "name": "The Crawl Price Index",
+  "description": "Living observatory of the crawl economy: observed pay-per-crawl prices, AI-bot block rates, and paywall signals across the web.",
+  "generated_utc": "2026-08-08T08:53:39.421Z",
+  "cadence": "weekly",
+  "coverage": {
+    "tranco_top_n": 2000,
+    "robots_parsed": 1151,
+    "publisher_panel": 49
+  },
+  "block_rates_top2000": {
+    "CCBot": 19,
+    "GPTBot": 17.9,
+    "Bytespider": 17.5,
+    "ClaudeBot": 16.9,
+    "Google-Extended": 15.4,
+    "meta-externalagent": 14.1,
+    "Amazonbot": 13.3,
+    "Applebot-Extended": 13.3,
+    "PerplexityBot": 11.1,
+    "cohere-ai": 10.3,
+    "Diffbot": 10.2,
+    "anthropic-ai": 9.5,
+    "Claude-Web": 8.3,
+    "ChatGPT-User": 8.2,
+    "Timpibot": 7.5,
+    "OAI-SearchBot": 5.6,
+    "Perplexity-User": 5.5,
+    "AI2Bot": 5.5
+  },
+  "observed_prices": [
+    {
+      "domain": "stackoverflow.com",
+      "crawler": "ClaudeBot",
+      "price_usd": 0.5,
+      "mechanism": "cloudflare-pay-per-crawl",
+      "format": "x402"
+    }
+  ],
+  "signals": {
+    "tollbit_gated": [
+      "www.forbes.com",
+      "www.telegraph.co.uk"
+    ],
+    "licensing_402": [
+      "www.investopedia.com",
+      "www.seriouseats.com",
+      "www.thespruce.com"
+    ],
+    "declares_free": [
+      "www.wired.com"
+    ]
+  },
+  "terms": "Headline figures free to cite with attribution to The Crawl Price Index. Full per-domain history and country editions require subscription.",
+  "license": "CC-BY-4.0 for headline figures",
+  "country_editions": {
+    "Russia": {
+      "sample_n": 41,
+      "any_ai_block_pct": 2.4,
+      "GPTBot": 0.0,
+      "ClaudeBot": 0.0,
+      "Google-Extended": 0.0
+    },
+    "Japan": {
+      "sample_n": 22,
+      "any_ai_block_pct": 18.2,
+      "GPTBot": 9.1,
+      "ClaudeBot": 9.1,
+      "Google-Extended": 13.6
+    },
+    "Germany": {
+      "sample_n": 21,
+      "any_ai_block_pct": 42.9,
+      "GPTBot": 33.3,
+      "ClaudeBot": 23.8,
+      "Google-Extended": 19.0
+    },
+    "France": {
+      "sample_n": 14,
+      "any_ai_block_pct": 71.4,
+      "GPTBot": 42.9,
+      "ClaudeBot": 57.1,
+      "Google-Extended": 50.0
+    },
+    "United Kingdom": {
+      "sample_n": 12,
+      "any_ai_block_pct": 50.0,
+      "GPTBot": 50.0,
+      "ClaudeBot": 41.7,
+      "Google-Extended": 25.0
+    },
+    "Italy": {
+      "sample_n": 12,
+      "any_ai_block_pct": 50.0,
+      "GPTBot": 41.7,
+      "ClaudeBot": 33.3,
+      "Google-Extended": 33.3
+    },
+    "Brazil": {
+      "sample_n": 9,
+      "any_ai_block_pct": 33.3,
+      "GPTBot": 22.2,
+      "ClaudeBot": 33.3,
+      "Google-Extended": 22.2
+    },
+    "Poland": {
+      "sample_n": 9,
+      "any_ai_block_pct": 11.1,
+      "GPTBot": 11.1,
+      "ClaudeBot": 0.0,
+      "Google-Extended": 0.0
+    }
+  },
+  "country_editions_note": "Directional; ccTLD domains with robots.txt in Tranco top 2000. n per country. Enlarges with top-10000 rescan."
+}

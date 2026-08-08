@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Crawl Price Index — what the web charges AI to read it</title>
+<meta name="description" content="A living observatory of the crawl economy: observed pay-per-crawl prices, AI-bot block rates, and paywall signals across the web. Updated weekly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0d0e;        /* near-black base */
+    --panel:#121517;      /* raised panels */
+    --line:#232a2d;       /* hairline */
+    --dim:#6b787d;        /* muted labels */
+    --fg:#d7dee1;         /* body text on dark */
+    --bright:#f2f6f7;     /* headings */
+    --signal:#3cf08a;     /* the one signal color — terminal green */
+    --amber:#f0b23c;      /* gated / caution */
+    --red:#f0553c;        /* 402 / blocked */
+    --blue:#6ba7f0;       /* free / open */
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ink);color:var(--fg);
+    font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:"Spline Sans Mono",ui-monospace,monospace}
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* ---- ticker tape (the signature element) ---- */
+  .tape{position:sticky;top:0;z-index:50;background:#000;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
+  .tape-track{display:inline-block;padding:9px 0;animation:scroll 60s linear infinite}
+  .tape:hover .tape-track{animation-play-state:paused}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .tick{font-family:"Spline Sans Mono",monospace;font-size:12.5px;letter-spacing:.02em;padding:0 22px;display:inline-flex;gap:9px;align-items:baseline}
+  .tick .dom{color:var(--bright)}
+  .tick .tag{font-weight:700}
+  .tick .val{color:var(--dim)}
+  .tag.PRICED{color:var(--signal)} .tag.GATED{color:var(--amber)}
+  .tag.LICENSING{color:var(--amber)} .tag.FREE{color:var(--blue)}
+  .tag.\34 02,.tag[class*="402"]{color:var(--red)}
+  @media(prefers-reduced-motion:reduce){.tape-track{animation:none;white-space:normal;padding:9px 24px}}
+
+  /* ---- hero ---- */
+  header.hero{padding:78px 0 60px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--signal)}
+  h1{font-size:clamp(38px,6vw,68px);line-height:1.02;font-weight:500;color:var(--bright);margin:.35em 0 .3em;letter-spacing:-.015em}
+  h1 em{font-style:italic;color:var(--signal)}
+  .lede{font-size:clamp(18px,2.3vw,23px);color:var(--fg);max-width:33em;margin:0}
+  .asof{margin-top:26px;font-family:"Spline Sans Mono",monospace;font-size:12.5px;color:var(--dim)}
+  .asof b{color:var(--fg);font-weight:600}
+
+  /* ---- big number band ---- */
+  .band{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+  .cell{background:var(--ink);padding:30px 22px}
+  .cell .n{font-family:"Spline Sans Mono",monospace;font-size:clamp(30px,4.4vw,46px);font-weight:600;color:var(--bright);line-height:1}
+  .cell .n.g{color:var(--signal)}
+  .cell .k{font-size:14px;color:var(--dim);margin-top:12px;line-height:1.4}
+  @media(max-width:760px){.band{grid-template-columns:repeat(2,1fr)}}
+
+  section{padding:64px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+  h2{font-size:clamp(26px,3.6vw,38px);font-weight:500;color:var(--bright);letter-spacing:-.01em;margin:0 0 .5em}
+  p.body{max-width:38em;color:var(--fg)}
+  p.body a{color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)}
+
+  /* ---- block-rate table ---- */
+  table{width:100%;border-collapse:collapse;font-family:"Spline Sans Mono",monospace;font-size:14px;margin-top:8px}
+  th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  td.bot{color:var(--bright)}
+  td.num{text-align:right;color:var(--fg)}
+  .bar{position:relative;height:7px;background:#1a1f22;border-radius:2px;overflow:hidden;min-width:120px}
+  .bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--signal);opacity:.85}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+  @media(max-width:760px){.split{grid-template-columns:1fr;gap:28px}}
+
+  /* ---- posture cards ---- */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+  .card{background:var(--panel);border:1px solid var(--line);padding:20px}
+  .card .t{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+  .card .big{font-family:"Spline Sans Mono",monospace;font-size:34px;font-weight:600;color:var(--bright);margin:8px 0 2px}
+  .card .d{font-size:15px;color:var(--fg)}
+  .card.hi{border-color:rgba(60,240,138,.4)}
+  .card.hi .big{color:var(--signal)}
+  @media(max-width:760px){.cards{grid-template-columns:1fr 1fr}}
+
+  /* ---- access / subscribe ---- */
+  .plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+  .plan{background:var(--panel);border:1px solid var(--line);padding:26px}
+  .plan h3{font-family:"Spline Sans Mono",monospace;font-size:15px;letter-spacing:.04em;color:var(--bright);margin:0 0 6px}
+  .plan .price{font-family:"Spline Sans Mono",monospace;font-size:26px;color:var(--signal);margin:6px 0 14px}
+  .plan ul{list-style:none;padding:0;margin:0;font-size:15px}
+  .plan li{padding:6px 0 6px 20px;position:relative;color:var(--fg)}
+  .plan li::before{content:"›";position:absolute;left:0;color:var(--signal)}
+  .btn{display:inline-block;margin-top:18px;font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.04em;padding:11px 18px;border:1px solid var(--signal);color:var(--signal);text-decoration:none}
+  .btn:hover{background:var(--signal);color:#000}
+  @media(max-width:760px){.plans{grid-template-columns:1fr}}
+
+  footer{padding:50px 0 70px;color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:12.5px}
+  footer a{color:var(--fg);text-decoration:none;border-bottom:1px solid var(--line)}
+  .disc{max-width:44em;line-height:1.6;margin-top:10px}
+</style>
+</head>
+<body>
+
+<!-- SIGNATURE: live signal tape -->
+<div class="tape" aria-label="Observed crawl-economy signals">
+  <div class="tape-track" id="tape"></div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">The Crawl Price Index</div>
+    <h1>What the web charges<br>AI to <em>read it</em>.</h1>
+    <p class="lede">The open internet is quietly installing a toll booth for machines. We measure the tolls — observed prices, paywalls, and block rates across the web — and publish them every week.</p>
+    <div class="asof">Baseline scan · <b id="asof">—</b> · <b id="parsed">—</b> domains parsed · Tranco top <b id="topn">—</b></div>
+  </div>
+</header>
+
+<div class="band" id="band"></div>
+
+<section id="prices">
+  <div class="wrap">
+    <div class="kicker">Observed prices · live from crawler-facing responses</div>
+    <h2>Some sites now name a price. Most don't — yet.</h2>
+    <p class="body">When an AI crawler requests a page, a growing number of sites answer with <span class="mono">HTTP 402 Payment Required</span> instead of the content. A few attach an actual number. In this scan, Stack Overflow quoted <b class="mono" style="color:var(--signal)">USD&nbsp;0.50 per crawl</b> to Anthropic's ClaudeBot through Cloudflare's pay-per-crawl, returned in the same <span class="mono">x402</span> settlement format agents use to pay autonomously. That single quote is the leading edge of a market that barely has public prices. We exist to collect them.</p>
+    <div class="cards" id="postureCards" style="margin-top:28px"></div>
+  </div>
+</section>
+
+<section id="gap">
+  <div class="wrap split">
+    <div>
+      <div class="kicker">Block rates · Tranco top 2,000</div>
+      <h2>The open web mostly lets AI in. Publishers mostly don't.</h2>
+      <p class="body">Across the top 2,000 sites on the web, fewer than one in five block any given AI crawler in <span class="mono">robots.txt</span>. Among news and reference publishers, the rate is roughly four to five times higher — the sites whose text models most want are the sites fighting hardest to gate it. And publishers now discriminate <em>between</em> bots: training crawlers get blocked far more than the search bots that still send readers back.</p>
+      <p class="body" style="margin-top:16px">These are the whole-web figures, refreshed weekly. The full per-domain table, publisher panel, and country cuts are in the <a href="#access">data feed</a>.</p>
+    </div>
+    <div>
+      <table id="blockTable" aria-label="AI crawler block rates, top 2000 domains">
+        <thead><tr><th>AI crawler</th><th>Blocked in robots.txt</th><th class="num">Rate</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="signals">
+  <div class="wrap">
+    <div class="kicker">Signal taxonomy · six ways the web says "pay"</div>
+    <h2>The toll booth has many designs.</h2>
+    <p class="body">No standard has won, so the crawl economy speaks in dialects. We fingerprint each one across the web and track its spread. Every dialect below was observed in the current scan.</p>
+    <div class="cards" id="taxCards" style="margin-top:28px;grid-template-columns:repeat(3,1fr)"></div>
+  </div>
+</section>
+
+<section id="access">
+  <div class="wrap">
+    <div class="kicker">Access</div>
+    <h2>Read the index. Or let your machines read it.</h2>
+    <p class="body" style="margin-bottom:18px"><a href="/world.html" style="color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)">→ New: World editions — AI-crawler blocking by country</a></p>
+    <p class="body">Headline numbers are free and meant to be cited. Depth — full per-domain history, the publisher panel, per-country and per-language editions, and the machine-readable feed — is for subscribers. Fittingly, our own data is available to AI agents through pay-per-crawl: the index charges for crawls, in an index of what crawls cost.</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>OBSERVER</h3>
+        <div class="price">Free</div>
+        <ul>
+          <li>Weekly headline block rates</li>
+          <li>Observed price ticker</li>
+          <li>Signal taxonomy overview</li>
+          <li>Cite us — attribution appreciated</li>
+        </ul>
+      </div>
+      <div class="plan" style="border-color:rgba(60,240,138,.4)">
+        <h3>TERMINAL</h3>
+        <div class="price">€79<span style="font-size:14px;color:var(--dim)">/mo</span></div>
+        <ul>
+          <li>Full per-domain dataset + weekly history</li>
+          <li>Publisher panel &amp; per-country editions</li>
+          <li>JSON / CSV feed + API access</li>
+          <li>TollBit &amp; pay-per-crawl adoption tracking</li>
+        </ul>
+        <a class="btn" href="#" id="cta">Request access →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>THE CRAWL PRICE INDEX · <span id="year"></span> · an independent observatory of the machine-readable web</div>
+    <p class="disc">Method: we request <span class="mono">robots.txt</span> and homepages across the Tranco top-N and a fixed publisher panel, under a self-identified research user-agent plus documented crawler identities, and record status codes, headers, and 402 payment signals. We store no page content. Block rates reflect <span class="mono">robots.txt</span> directives, which sites may or may not enforce. Prices reflect what crawler-facing responses disclosed at scan time and change without notice. Not investment, legal, or licensing advice. · <a href="/methodology.html">Full methodology</a> · <a href="/index.json">Data feed</a> · <a href="/llms.txt">llms.txt</a></p>
+  </div>
+</footer>
+
+<script id="data" type="application/json">{"asof": "08 Aug 2026, 08:53 UTC", "robots_parsed": 1151, "tranco_top_n": 2000, "observed_price": "$0.50", "block_gpt": 17.9, "pub_multiple": 3.2, "signal_classes": 6, "ticker": [["stackoverflow.com", "PRICED", "$0.50 / crawl \u00b7 cloudflare"], ["forbes.com", "GATED", "TollBit token wall"], ["telegraph.co.uk", "GATED", "TollBit token wall"], ["investopedia.com", "LICENSING", "402 \u2192 contentlicensing@"], ["seriouseats.com", "LICENSING", "402 \u2192 contentlicensing@"], ["thespruce.com", "LICENSING", "402 \u2192 contentlicensing@"], ["wired.com", "FREE", "declares payment:free"], ["apnews.com", "402", "contact site owner \u00b7 cloudflare"], ["theatlantic.com", "402", "contact site owner \u00b7 cloudflare"], ["independent.co.uk", "402", "payment required \u00b7 claudebot"]], "posture": [{"t": "Priced", "n": "1", "d": "named a per-crawl price in the response", "hi": true}, {"t": "Gated / paywalled", "n": "8", "d": "returned 402 or a token wall to crawlers"}, {"t": "Bot-blocked", "n": "12", "d": "served humans but refused AI user-agents"}], "block_rows": [{"bot": "CCBot", "rate": 19}, {"bot": "GPTBot", "rate": 17.9}, {"bot": "Bytespider", "rate": 17.5}, {"bot": "ClaudeBot", "rate": 16.9}, {"bot": "Google-Extended", "rate": 15.4}, {"bot": "PerplexityBot", "rate": 11.1}, {"bot": "ChatGPT-User", "rate": 8.2}, {"bot": "OAI-SearchBot", "rate": 5.6}], "taxonomy": [{"t": "Cloudflare PPC", "ex": "crawler-price: USD 0.5", "d": "402 with an x402 price quote, settled on Cloudflare rails. Seen: Stack Overflow."}, {"t": "TollBit token", "ex": "x-tollbit-forwarded: true", "d": "402 demanding a marketplace token. Seen: Forbes, Telegraph."}, {"t": "Licensing 402", "ex": "402 \u2192 contentlicensing@", "d": "Payment-required page routing to a sales contact. Seen: People Inc titles."}, {"t": "Declared free", "ex": "payment: free", "d": "Explicit header stating no charge \u2014 a posture signal. Seen: Wired / Cond\u00e9 Nast."}, {"t": "Bot block", "ex": "403 / 406 / 429", "d": "Content to browsers, refusal to AI user-agents. Widespread among news."}, {"t": "robots.txt opt-out", "ex": "Disallow: / for GPTBot", "d": "The declarative layer. Measured across the Tranco top-N every week."}]}</script>
+<script>
+  const D = JSON.parse(document.getElementById('data').textContent);
+  const $ = (s)=>document.querySelector(s);
+
+  // header
+  $('#asof').textContent = D.asof;
+  $('#parsed').textContent = D.robots_parsed.toLocaleString();
+  $('#topn').textContent = D.tranco_top_n.toLocaleString();
+  $('#year').textContent = new Date().getFullYear();
+
+  // ticker (doubled for seamless loop)
+  const tape = $('#tape');
+  const mk = (t)=>`<span class="tick"><span class="dom">${t[0]}</span><span class="tag ${t[1]}">${t[1]}</span><span class="val">${t[2]}</span></span>`;
+  tape.innerHTML = (D.ticker.map(mk).join('')).repeat(2);
+
+  // big number band
+  const band = $('#band');
+  const cells = [
+    {n:D.observed_price, k:'Highest observed pay-per-crawl quote (Stack Overflow → ClaudeBot)', g:true},
+    {n:D.block_gpt+'%', k:'of the top 2,000 web domains block GPTBot in robots.txt'},
+    {n:D.pub_multiple+'×', k:'more sites block OpenAI training bot (GPTBot) than its search bot (OAI-SearchBot)'},
+    {n:D.signal_classes, k:'distinct paywall / pricing signal types observed this scan'},
+  ];
+  band.innerHTML = cells.map(c=>`<div class="cell"><div class="n ${c.g?'g':''}">${c.n}</div><div class="k">${c.k}</div></div>`).join('');
+
+  // posture cards
+  $('#postureCards').innerHTML = D.posture.map(p=>`<div class="card ${p.hi?'hi':''}"><div class="t">${p.t}</div><div class="big">${p.n}</div><div class="d">${p.d}</div></div>`).join('');
+
+  // block table
+  const tb = $('#blockTable tbody');
+  const max = Math.max(...D.block_rows.map(r=>r.rate));
+  tb.innerHTML = D.block_rows.map(r=>`<tr><td class="bot">${r.bot}</td><td><div class="bar"><i style="width:${(r.rate/max*100).toFixed(0)}%"></i></div></td><td class="num">${r.rate}%</td></tr>`).join('');
+
+  // taxonomy cards
+  $('#taxCards').innerHTML = D.taxonomy.map(t=>`<div class="card"><div class="t">${t.t}</div><div class="big" style="font-size:22px">${t.ex}</div><div class="d">${t.d}</div></div>`).join('');
+</script>
+</body>
+</html>

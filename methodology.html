@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methodology — The Crawl Price Index</title>
+<meta name="description" content="How the Crawl Price Index measures pay-per-crawl prices, AI-bot block rates, and paywall signals across the web.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0b0d0e;--panel:#121517;--line:#232a2d;--dim:#6b787d;--fg:#d7dee1;--bright:#f2f6f7;--signal:#3cf08a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.6}
+  .mono{font-family:"Spline Sans Mono",monospace}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  header{padding:60px 0 40px;border-bottom:1px solid var(--line)}
+  .back{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--signal);text-decoration:none}
+  h1{font-size:clamp(30px,5vw,46px);font-weight:500;color:var(--bright);margin:.4em 0 .2em;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:13px}
+  section{padding:36px 0;border-bottom:1px solid var(--line)}
+  h2{font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);margin:0 0 14px}
+  h3{color:var(--bright);font-weight:500;font-size:21px;margin:22px 0 6px}
+  p{max-width:60ch}code{font-family:"Spline Sans Mono",monospace;font-size:.85em;background:var(--panel);padding:1px 6px;border:1px solid var(--line);border-radius:3px;color:var(--fg)}
+  ul{padding-left:20px}li{margin:6px 0}
+  a{color:var(--signal)}
+  .note{background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--signal);padding:16px 18px;font-size:15px;color:var(--fg);margin:18px 0}
+  footer{padding:44px 0 70px;color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="back" href="/">← The Crawl Price Index</a>
+  <h1>Methodology</h1>
+  <div class="sub">How the numbers are made — and what they do and don't mean.</div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <h2>What we collect</h2>
+  <p>Twice a week, we request two things from each domain in scope: its <code>robots.txt</code> file, and its homepage. We record the HTTP status code, response headers, and — only for <code>402</code> and <code>403</code> responses — a short snippet of the body used to classify the paywall type. <strong>We store no article content.</strong> The homepage request is made under several documented identities so we can see whether a site treats a browser, a named AI crawler, and a self-identified research agent differently.</p>
+</section>
+
+<section>
+  <h2>Scope</h2>
+  <ul>
+    <li><strong>Block-rate universe:</strong> the <a href="https://tranco-list.eu">Tranco</a> top-N (research-standard, manipulation-resistant domain ranking). The baseline covers the top 2,000; editions expand this.</li>
+    <li><strong>Publisher panel:</strong> a fixed set of ~50 leading news and reference sites, held constant scan-to-scan so the time series is comparable.</li>
+    <li><strong>Country &amp; language editions:</strong> the same engine segmented by ccTLD and publication language.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>The identities we present</h2>
+  <p>Bulk <code>robots.txt</code> collection uses a single honest, self-identified user-agent with contact information — <code>robots.txt</code> is public by design and meant to be read by agents. The small, fixed publisher panel additionally probes with documented crawler user-agents to observe differential treatment. We do not attempt to defeat bot detection, solve challenges, or impersonate verified crawlers to obtain access we aren't entitled to. A future verified-crawler registration will let us receive genuine price quotes through official channels.</p>
+</section>
+
+<section>
+  <h2>How we classify a signal</h2>
+  <h3>Priced</h3>
+  <p>A <code>402</code> response carrying an explicit price, e.g. Cloudflare pay-per-crawl's <code>crawler-price</code> header and an <code>x402</code>-format body naming an amount and asset.</p>
+  <h3>Marketplace-gated</h3>
+  <p>A <code>402</code> demanding a marketplace token, fingerprinted by headers such as <code>x-tollbit-forwarded</code>.</p>
+  <h3>Licensing 402</h3>
+  <p>A payment-required response routing to a licensing sales contact rather than an automated price.</p>
+  <h3>Declared-free / bot-block / robots.txt opt-out</h3>
+  <p>Respectively: an explicit header stating no charge; content served to browsers but refused to AI user-agents; and the declarative <code>Disallow</code> directives in <code>robots.txt</code>.</p>
+</section>
+
+<section>
+  <h2>Limits &amp; honest caveats</h2>
+  <div class="note">A <code>robots.txt</code> block is a request, not a wall. It records a site's stated preference; it does not prove the site enforces it, and independent research shows a meaningful share of stated blocks go unenforced. Our block-rate figures measure declarations, and we label them as such.</div>
+  <ul>
+    <li>Prices reflect what crawler-facing responses disclosed at scan time and can change without notice.</li>
+    <li>A single scan is a snapshot; the value is in the accumulating weekly series.</li>
+    <li>Live-response signals depend on how a given CDN treats our request IP and identity, which can vary by region and over time.</li>
+    <li>We measure the public surface of the crawl economy; privately negotiated licensing deals are, by nature, not observable here.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Corrections &amp; contact</h2>
+  <p>We publish a dated changelog for methodology changes and correct errors openly. To report an issue, request bulk access, or ask us to verify a signal on your domain: <span class="mono">hello@ (domain TBD)</span>.</p>
+</section>
+
+</div>
+<footer><div class="wrap">THE CRAWL PRICE INDEX · methodology v1 · independent observatory of the machine-readable web</div></footer>
+</body>
+</html>
