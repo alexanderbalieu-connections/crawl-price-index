@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.crawlpriceindex.weekly</string>
+
+  <!-- Runs run-weekly.command, which does: big scan -> rebuild -> git push -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>__FOLDER__/run-weekly.command</string>
+  </array>
+
+  <!-- Every Monday at 06:00. If the Mac was ASLEEP at that time, launchd
+       runs it at the next wake (that's the default catch-up behaviour). -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>6</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+
+  <!-- Don't run more than one at a time -->
+  <key>AbandonProcessGroup</key><false/>
+
+  <!-- Logs so you can check what happened, in the project folder -->
+  <key>StandardOutPath</key>
+  <string>__FOLDER__/scan.log</string>
+  <key>StandardErrorPath</key>
+  <string>__FOLDER__/scan.log</string>
+
+  <key>WorkingDirectory</key>
+  <string>__FOLDER__</string>
+</dict>
+</plist>

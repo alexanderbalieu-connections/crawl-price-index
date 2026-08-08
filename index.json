@@ -1,0 +1,40 @@
+{
+  "name": "The Crawl Price Index",
+  "description": "Living observatory of the crawl economy. Free headline tier — full dataset requires subscription.",
+  "generated_utc": "2026-08-08T23:45:36.084Z",
+  "cadence": "weekly",
+  "coverage": {
+    "tranco_top_n": 50000,
+    "robots_parsed": 26987
+  },
+  "block_rates_top2000": {
+    "GPTBot": 15.3,
+    "CCBot": 14.9,
+    "Bytespider": 14.3,
+    "ClaudeBot": 13.4,
+    "Google-Extended": 12.3,
+    "Amazonbot": 12,
+    "meta-externalagent": 12,
+    "Applebot-Extended": 11.5,
+    "anthropic-ai": 5.6,
+    "PerplexityBot": 5,
+    "cohere-ai": 4.9,
+    "Diffbot": 4.9,
+    "ChatGPT-User": 4.7,
+    "Claude-Web": 4.5,
+    "Timpibot": 3.5,
+    "OAI-SearchBot": 2.9,
+    "AI2Bot": 2.6,
+    "Perplexity-User": 2
+  },
+  "observed_prices_headline": [
+    {
+      "raw": "stackoverflow.com: USD 0.5"
+    }
+  ],
+  "signal_classes_observed": 6,
+  "country_headline": {},
+  "full_dataset": "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
+  "terms": "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",
+  "license": "Headline figures CC-BY-4.0. Full dataset is licensed single-subscriber, redistribution prohibited."
+}

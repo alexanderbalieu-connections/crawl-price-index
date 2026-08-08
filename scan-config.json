@@ -1,0 +1,8 @@
+{
+  "top_n": 50000,
+  "chunk_size": 2500,
+  "concurrency": 10,
+  "base_spacing_ms": 120,
+  "adaptive_backoff": true,
+  "daily_minutes": 180
+}

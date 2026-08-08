@@ -1,0 +1,12 @@
+name = "cpi-api-gate"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+routes = [
+  { pattern = "api.crawlpriceindex.com", custom_domain = true }
+]
+
+kv_namespaces = [
+  { binding = "KEYS", id = "751f021cc9774278a611842cee94534d" },
+  { binding = "DATA", id = "635f62abb4b8430f90f42f441752609e" }
+]

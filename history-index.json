@@ -1,0 +1,9 @@
+{
+  "first_snapshot": "2026-08-08",
+  "latest_snapshot": "2026-08-08",
+  "snapshot_count": 1,
+  "dates": [
+    "2026-08-08"
+  ],
+  "note": "Immutable dated history of the crawl economy. Started 2026-08-08. Deltas and trends derive from this; a competitor who started later cannot reconstruct it."
+}

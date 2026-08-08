@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to Terminal — The Crawl Price Index</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0b0d0e;--panel:#121517;--line:#232a2d;--dim:#6b787d;--fg:#d7dee1;--bright:#f2f6f7;--signal:#3cf08a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}
+  .mono{font-family:"Spline Sans Mono",monospace}
+  .wrap{max-width:560px;padding:40px 28px}
+  .mark{font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--signal)}
+  h1{font-size:clamp(30px,5vw,46px);font-weight:500;color:var(--bright);margin:.4em 0 .3em;letter-spacing:-.01em}
+  p{color:var(--fg);font-size:18px;line-height:1.6;max-width:44ch;margin:0 auto 14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:20px;margin:24px 0;text-align:left}
+  .card .mono{font-size:13px;color:var(--dim);letter-spacing:.04em;text-transform:uppercase}
+  .card a{color:var(--signal);text-decoration:none;font-family:"Spline Sans Mono",monospace;font-size:15px;word-break:break-all}
+  .btn{display:inline-block;margin-top:10px;font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.04em;padding:11px 20px;border:1px solid var(--signal);color:var(--signal);text-decoration:none}
+  .btn:hover{background:var(--signal);color:#000}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="mark">Terminal · access confirmed</div>
+    <h1>You're in.</h1>
+    <p>Thank you for subscribing. Your Terminal access to the full Crawl Price Index — per-domain history, the publisher panel, per-country editions, and the machine-readable feed — is now active.</p>
+    <div class="card">
+      <div class="mono">Your API key is on its way</div>
+      <p style="font-size:14px;color:var(--dim);margin:10px 0 0">Check your email — we've just sent your personal API key to the address on your subscription. Use it to pull the full dataset (with trends &amp; weekly history) from <a href="/">crawlpriceindex.com</a>'s API.</p>
+      <p style="font-size:13px;color:var(--dim);margin:12px 0 0 0" class="mono">GET api.crawlpriceindex.com/v1/dataset?key=YOUR_KEY</p>
+      <p style="font-size:13px;color:var(--dim);margin:12px 0 0">Didn't get it? <a href="/recover.html">Recover your key</a> or write to hello@crawlpriceindex.com. Terms: <a href="/terms.html">single-subscriber licence</a>.</p>
+    </div>
+    <a class="btn" href="/">← Back to the index</a>
+  </div>
+</body>
+</html>

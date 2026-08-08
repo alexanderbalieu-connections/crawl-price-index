@@ -1,0 +1,132 @@
+{
+  "generated_utc": "2026-08-08T23:45:36.084Z",
+  "tranco_top_n": 50000,
+  "robots_parsed": 26987,
+  "block_rates": {
+    "GPTBot": {
+      "blocked": 4117,
+      "rate_pct": 15.3
+    },
+    "CCBot": {
+      "blocked": 4025,
+      "rate_pct": 14.9
+    },
+    "Bytespider": {
+      "blocked": 3850,
+      "rate_pct": 14.3
+    },
+    "ClaudeBot": {
+      "blocked": 3620,
+      "rate_pct": 13.4
+    },
+    "Google-Extended": {
+      "blocked": 3319,
+      "rate_pct": 12.3
+    },
+    "Amazonbot": {
+      "blocked": 3232,
+      "rate_pct": 12
+    },
+    "meta-externalagent": {
+      "blocked": 3229,
+      "rate_pct": 12
+    },
+    "Applebot-Extended": {
+      "blocked": 3111,
+      "rate_pct": 11.5
+    },
+    "anthropic-ai": {
+      "blocked": 1522,
+      "rate_pct": 5.6
+    },
+    "PerplexityBot": {
+      "blocked": 1343,
+      "rate_pct": 5
+    },
+    "cohere-ai": {
+      "blocked": 1335,
+      "rate_pct": 4.9
+    },
+    "Diffbot": {
+      "blocked": 1331,
+      "rate_pct": 4.9
+    },
+    "ChatGPT-User": {
+      "blocked": 1273,
+      "rate_pct": 4.7
+    },
+    "Claude-Web": {
+      "blocked": 1209,
+      "rate_pct": 4.5
+    },
+    "Timpibot": {
+      "blocked": 941,
+      "rate_pct": 3.5
+    },
+    "OAI-SearchBot": {
+      "blocked": 789,
+      "rate_pct": 2.9
+    },
+    "AI2Bot": {
+      "blocked": 690,
+      "rate_pct": 2.6
+    },
+    "Perplexity-User": {
+      "blocked": 542,
+      "rate_pct": 2
+    }
+  },
+  "panel": {
+    "p402": [
+      "apnews.com[claudebot]",
+      "apnews.com[claudebot_maxprice]",
+      "www.theatlantic.com[claudebot]",
+      "www.theatlantic.com[claudebot_maxprice]",
+      "www.forbes.com[gptbot]",
+      "www.forbes.com[claudebot]",
+      "www.forbes.com[claudebot_maxprice]",
+      "www.telegraph.co.uk[browser]",
+      "www.telegraph.co.uk[honest_bot]",
+      "www.independent.co.uk[claudebot]",
+      "www.independent.co.uk[claudebot_maxprice]",
+      "www.thespruce.com[browser]",
+      "www.thespruce.com[gptbot]",
+      "www.thespruce.com[claudebot]",
+      "www.thespruce.com[honest_bot]",
+      "www.thespruce.com[claudebot_maxprice]",
+      "www.seriouseats.com[browser]",
+      "www.seriouseats.com[gptbot]",
+      "www.seriouseats.com[claudebot]",
+      "www.seriouseats.com[honest_bot]",
+      "www.seriouseats.com[claudebot_maxprice]",
+      "www.investopedia.com[browser]",
+      "www.investopedia.com[gptbot]",
+      "www.investopedia.com[claudebot]",
+      "www.investopedia.com[honest_bot]",
+      "www.investopedia.com[claudebot_maxprice]",
+      "stackoverflow.com[claudebot]"
+    ],
+    "prices": [
+      "stackoverflow.com: USD 0.5"
+    ],
+    "tollbit": [
+      "www.forbes.com[gptbot]",
+      "www.forbes.com[claudebot]",
+      "www.forbes.com[claudebot_maxprice]",
+      "www.telegraph.co.uk[browser]",
+      "www.telegraph.co.uk[honest_bot]"
+    ],
+    "paymentHeaders": [
+      "www.wired.com: payment=free",
+      "www.wired.com: payment=free",
+      "www.wired.com: payment=free",
+      "www.wired.com: payment=free",
+      "www.wired.com: payment=free"
+    ],
+    "maxpriceFlips": [
+      "pressgazette.co.uk: claudebot=403 +maxprice=200",
+      "stackoverflow.com: claudebot=402 +maxprice=400"
+    ]
+  },
+  "runtime_s": 5569
+}
