@@ -39,29 +39,6 @@ let spacing = cfg.base_spacing_ms || 120;
 // completes over several days, then rebuild+publish, then a fresh cycle.
 const TIME_BUDGET_MS = (cfg.daily_minutes || 15) * 60 * 1000;
 const PROGRESS = ".scan-progress.json";
-// ---- Web Bot Auth: sign outgoing requests (flag: web_bot_auth) ------------
-try {
-  if (cfg && cfg.web_bot_auth && fs.existsSync(".wba-private.pem")) {
-    const _c = require("crypto");
-    const _priv = _c.createPrivateKey(fs.readFileSync(".wba-private.pem"));
-    const _kid = JSON.parse(fs.readFileSync("wba-directory.json", "utf8")).keys[0].kid;
-    const _agent = "\"" + (cfg.wba_agent || "https://crawlpriceindex.com") + "\"";
-    const _fetch = globalThis.fetch;
-    globalThis.fetch = function (url, opts) {
-      opts = opts || {};
-      try {
-        const u = new URL(typeof url === "string" ? url : String(url));
-        const created = Math.floor(Date.now() / 1000), expires = created + 60;
-        const params = "(\"@authority\" \"signature-agent\");created=" + created + ";expires=" + expires + ";keyid=\"" + _kid + "\";tag=\"web-bot-auth\"";
-        const base = "\"@authority\": " + u.host + "\n" + "\"signature-agent\": " + _agent + "\n" + "\"@signature-params\": " + params;
-        const sig = _c.sign(null, Buffer.from(base), _priv).toString("base64");
-        opts.headers = Object.assign({}, opts.headers, { "Signature-Agent": _agent, "Signature-Input": "sig=" + params, "Signature": "sig=:" + sig + ":" });
-      } catch (e) {}
-      return _fetch(url, opts);
-    };
-    console.log("Web Bot Auth: request signing ENABLED (kid " + _kid.slice(0, 12) + ")");
-  }
-} catch (e) { console.error("Web Bot Auth init skipped:", String(e)); }
 const TDM_PROBE_N = cfg.tdm_probe_top_n || 2000;
 const tdm = { probed: 0, well_known: 0, header: 0, policy: 0 };
 async function probeTDM(domain) {

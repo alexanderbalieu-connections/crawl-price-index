@@ -4,5 +4,7 @@
   "concurrency": 10,
   "base_spacing_ms": 120,
   "adaptive_backoff": true,
-  "daily_minutes": 15
+  "daily_minutes": 15,
+  "web_bot_auth": true,
+  "wba_agent": "https://crawlpriceindex.com"
 }

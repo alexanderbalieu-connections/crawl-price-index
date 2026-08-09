@@ -16,3 +16,5 @@ sample-dataset.json
 *.bak
 *.bak2
 dataset.csv
+.wba-private.pem
+.wba-private.b64
