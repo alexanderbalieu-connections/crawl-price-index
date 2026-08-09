@@ -45,6 +45,10 @@
       "n": 23
     }
   },
+  "enforcement_headline": {
+    "declared_blocks_enforced_pct": 62.1,
+    "panel_checks": 66
+  },
   "full_dataset": "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
   "terms": "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",
   "license": "Headline figures CC-BY-4.0. Full dataset is licensed single-subscriber, redistribution prohibited."

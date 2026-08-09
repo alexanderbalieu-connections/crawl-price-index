@@ -39,6 +39,18 @@ let spacing = cfg.base_spacing_ms || 120;
 // completes over several days, then rebuild+publish, then a fresh cycle.
 const TIME_BUDGET_MS = (cfg.daily_minutes || 15) * 60 * 1000;
 const PROGRESS = ".scan-progress.json";
+const TDM_PROBE_N = cfg.tdm_probe_top_n || 2000;
+const tdm = { probed: 0, well_known: 0, header: 0, policy: 0 };
+async function probeTDM(domain) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch("https://" + domain + "/.well-known/tdmrep.json", { redirect: "follow", signal: ctrl.signal, headers: { "User-Agent": HONEST_UA, Accept: "application/json" } });
+    if (res.status === 200) { const txt = (await res.text()).slice(0, 20000); if (/tdm-?reservation/i.test(txt)) return true; }
+    else { try { res.body?.cancel(); } catch {} }
+  } catch (e) {} finally { clearTimeout(t); }
+  return false;
+}
 const OUT = "scan-robots.csv";
 const fresh = process.argv.includes("--fresh");
 
@@ -72,7 +84,7 @@ async function getRobots(domain) {
     let body = "";
     if (res.status === 200) { try { body = (await res.text()).slice(0, 500000); } catch {} }
     else { try { res.body?.cancel(); } catch {} }
-    return { status: res.status, body };
+    return { status: res.status, body, tdm: res.headers.get("tdm-reservation"), tdmPolicy: res.headers.get("tdm-policy") };
   } catch (e) { return { status: 0, body: "", err: e.name === "AbortError" ? "timeout" : (e.cause?.code || "err") }; }
   finally { clearTimeout(t); }
 }
@@ -152,6 +164,9 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
         const { d, rank } = q.shift();
         const r = await getRobots(d);
         if (r.status === 429 || r.status === 403) pushback++;
+        if (r.tdm != null) tdm.header++;
+        if (r.tdmPolicy != null) tdm.policy++;
+        if (rank <= TDM_PROBE_N) { tdm.probed++; if (await probeTDM(d)) tdm.well_known++; }
         if (r.status === 200 && r.body && !/^\s*</.test(r.body)) {
           fetched++; ok++;
           const v = parseRobots(r.body);
@@ -217,6 +232,8 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
     generated_utc: new Date().toISOString(),
     tranco_top_n: domains.length,
     robots_parsed: fetched,
+    tdmrep: { probed: tdm.probed, well_known: tdm.well_known, header: tdm.header, policy: tdm.policy,
+      adoption_pct: tdm.probed ? +(100 * (tdm.well_known + tdm.header) / tdm.probed).toFixed(2) : null },
     block_rates: Object.fromEntries(
       Object.entries(blockCounts)
         .map(([b, n]) => [b, { blocked: n, rate_pct: +(100 * n / Math.max(fetched, 1)).toFixed(1) }])

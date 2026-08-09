@@ -98,35 +98,6 @@ function classify(d) {
 const posture = {};
 for (const d of panelDomains) { const c = classify(d); posture[c] = (posture[c] || 0) + 1; }
 
-// ---- 2b) enforcement vs declaration (research panel only) -----------------
-// Does a site that DECLARES a block in robots.txt actually REFUSE the bot?
-// Declared = robots.txt says blocked. Enforced = probe returned 4xx/5xx.
-const ENF_MAP = { gptbot: "GPTBot", claudebot: "ClaudeBot" };
-const robotsByDomain = {};
-for (const r of robots) robotsByDomain[r.domain] = r;
-const enforcement = { n: 0, declared: 0, declared_enforced: 0, declared_not_enforced: 0, undeclared_blocked: 0, by_bot: {} };
-for (const d of panelDomains) {
-  const rr = robotsByDomain[d];
-  if (!rr) continue;
-  const rows = byDomain[d] || {};
-  for (const [test, bot] of Object.entries(ENF_MAP)) {
-    const st = parseInt((rows[test] || {}).status || "", 10);
-    if (!st) continue;
-    const declared = rr[bot] === "blocked";
-    const blocked = st >= 400;
-    enforcement.n++;
-    if (!enforcement.by_bot[bot]) enforcement.by_bot[bot] = { declared: 0, enforced: 0, unenforced: 0, silent: 0 };
-    const b = enforcement.by_bot[bot];
-    if (declared) {
-      enforcement.declared++; b.declared++;
-      if (blocked) { enforcement.declared_enforced++; b.enforced++; }
-      else { enforcement.declared_not_enforced++; b.unenforced++; }
-    } else if (blocked) { enforcement.undeclared_blocked++; b.silent++; }
-  }
-}
-enforcement.enforced_pct = enforcement.declared ? +(100 * enforcement.declared_enforced / enforcement.declared).toFixed(1) : null;
-enforcement.note = "Panel-only. Declared = robots.txt directive; enforced = crawler-identified request returned 4xx/5xx. Silent = blocked without declaring.";
-
 // ---- 2) extract observed prices & signal domains --------------------------
 const prices = summary.panel?.prices || [];
 const tollbit = [...new Set((summary.panel?.tollbit || []).map(x => x.split("[")[0]))];
@@ -195,8 +166,6 @@ const publicFeed = {
     return { most_blocking: { country: tc, any_ai_block_pct: td.any_ai, n: td.n },
              least_blocking: { country: bc, any_ai_block_pct: bd.any_ai, n: bd.n } };
   })(),
-  enforcement_headline: enforcement.enforced_pct == null ? {} : { declared_blocks_enforced_pct: enforcement.enforced_pct, panel_checks: enforcement.n },
-  tdmrep_headline: summary.tdmrep ? { adoption_pct: summary.tdmrep.adoption_pct, domains_probed: summary.tdmrep.probed } : {},
   full_dataset: "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
   terms: "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",
   license: "Headline figures CC-BY-4.0. Full dataset is licensed single-subscriber, redistribution prohibited.",
@@ -217,8 +186,6 @@ const paidDataset = {
   country_editions: countryData, // FULL per-country table
   per_domain: robots.filter(r => r.GPTBot && r.GPTBot !== "no_robots")
     .map(r => Object.fromEntries(Object.entries(r))), // the crown jewels: every domain's row
-  enforcement,
-  tdmrep: summary.tdmrep || null,
   gtld_baseline: gtldBaseline,
 };
 fs.writeFileSync("paid-dataset.json", JSON.stringify(paidDataset));
@@ -295,7 +262,6 @@ console.log(`  top price:        ${topPrice}`);
 console.log(`  GPTBot block:     ${gpt}%   asymmetry vs search: ${asymmetry}x`);
 console.log(`  countries:        ${worldRows.length}  (gTLD baseline ${gtldBaseline}%)`);
 console.log(`  ticker signals:   ${indexPayload.ticker.length}`);
-console.log(`  enforcement:      ${enforcement.enforced_pct == null ? "n/a" : enforcement.enforced_pct + "% of declared blocks actually enforced (" + enforcement.n + " checks)"}`);
 console.log("Updated: index.json, index.html, world.html");
 
 // ---- 7) extend the time-series & recompute trends (the moat) ---------------
