@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%230b0d0e%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%233cf08a%27/%3E%3C/svg%3E">
 <title>The Crawl Price Index — what the web charges AI to read it</title>
 <meta name="description" content="A living observatory of the crawl economy: observed pay-per-crawl prices, AI-bot block rates, and paywall signals across the web. Updated weekly.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -101,11 +100,6 @@
   .plan li::before{content:"›";position:absolute;left:0;color:var(--signal)}
   .btn{display:inline-block;margin-top:18px;font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.04em;padding:11px 18px;border:1px solid var(--signal);color:var(--signal);text-decoration:none}
   .btn:hover{background:var(--signal);color:#000}
-  .cta-row{display:flex;gap:14px;align-items:stretch;margin-top:32px;flex-wrap:wrap}
-  .cta-row .btn{margin-top:0;font-size:14px;padding:0 24px;display:inline-flex;align-items:center}
-  .btn-solid{font-family:"Spline Sans Mono",monospace;font-size:14px;font-weight:600;letter-spacing:.04em;padding:0 26px;height:52px;background:var(--signal);color:#000;text-decoration:none;display:inline-flex;align-items:center}
-  .btn-solid:hover{background:#5df7a1}
-  .cta-note{margin-top:14px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
   @media(max-width:760px){.plans{grid-template-columns:1fr}}
 
   footer{padding:50px 0 70px;color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:12.5px}
@@ -126,11 +120,6 @@
     <h1>What the web charges<br>AI to <em>read it</em>.</h1>
     <p class="lede">The open internet is quietly installing a toll booth for machines. We measure the tolls — observed prices, paywalls, and block rates across the web — and publish them every week.</p>
     <div class="asof">Baseline scan · <b id="asof">—</b> · <b id="parsed">—</b> domains parsed · Tranco top <b id="topn">—</b></div>
-    <div class="cta-row">
-      <a class="btn-solid" href="#access" id="cta-hero">Subscribe — €79/mo →</a>
-      <a class="btn" href="#access">What's included ↓</a>
-    </div>
-    <div class="cta-note">Full per-domain dataset · weekly history · API access · key by email in seconds · cancel anytime</div>
   </div>
 </header>
 
@@ -185,19 +174,6 @@
   </div>
 </section>
 
-<section id="why">
-  <div class="wrap">
-    <div class="kicker">Why this exists · the market moment</div>
-    <h2>The web is becoming pay-to-read for machines. Nobody was keeping the price list.</h2>
-    <p class="body"><a href="https://blog.cloudflare.com/introducing-pay-per-crawl/" rel="noopener">Cloudflare's pay-per-crawl</a> put HTTP 402 payments in front of millions of sites, and from 15 September 2026 AI crawlers are blocked by default across much of the web. <a href="https://tollbit.com" rel="noopener">TollBit</a> gates thousands of publisher sites behind token walls. Every week, more of the internet answers a crawler with a price instead of a page — but those prices are quoted machine-to-machine, invisible unless someone stands at the toll booth and writes them down. That's what we do. Every week. <a href="/methodology.html">Openly documented</a>.</p>
-    <div class="cards" style="margin-top:28px">
-      <div class="card"><div class="t">Publishers &amp; media</div><div class="big" style="font-size:19px;line-height:1.35">Price your content with evidence</div><div class="d">See what peers charge, gate, or give away before you negotiate an AI licensing deal — or set your own crawl price.</div></div>
-      <div class="card"><div class="t">AI &amp; data teams</div><div class="big" style="font-size:19px;line-height:1.35">Know your crawl costs &amp; access</div><div class="d">Who blocks your bots, where enforcement is spreading, and what paid access runs — before it hits your pipeline.</div></div>
-      <div class="card"><div class="t">Analysts &amp; journalists</div><div class="big" style="font-size:19px;line-height:1.35">The citable record</div><div class="d">Free headline figures, attribution-friendly, refreshed weekly — the reference point for the crawl economy.</div></div>
-    </div>
-  </div>
-</section>
-
 <section id="access">
   <div class="wrap">
     <div class="kicker">Access</div>
@@ -214,14 +190,6 @@
           <li>Signal taxonomy overview</li>
           <li>Cite us — attribution appreciated</li>
         </ul>
-        <div style="margin-top:18px;font-family:'Spline Sans Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--bright)">Free data sample + The Weekly Crawl</div>
-        <form id="wk-form" style="margin-top:10px">
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <input id="wk-email" type="email" required placeholder="you@company.com" style="flex:1;min-width:170px;background:#0b0d0e;border:1px solid var(--line);color:var(--fg);font-family:'Spline Sans Mono',monospace;font-size:13px;padding:11px 12px;outline:none">
-            <button class="btn" type="submit" style="margin-top:0;cursor:pointer;background:transparent">Get it free →</button>
-          </div>
-          <div id="wk-msg" style="margin-top:10px;font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--dim)"></div>
-        </form>
       </div>
       <div class="plan" style="border-color:rgba(60,240,138,.4)">
         <h3>TERMINAL</h3>
@@ -246,7 +214,7 @@
   </div>
 </footer>
 
-<script id="data" type="application/json">{"asof":"09 Aug 2026, 23:45 UTC","robots_parsed":26987,"tranco_top_n":50000,"observed_price":"$0.50","block_gpt":15.3,"pub_multiple":5.3,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"12","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":14.9},{"bot":"GPTBot","rate":15.3},{"bot":"Bytespider","rate":14.3},{"bot":"ClaudeBot","rate":13.4},{"bot":"Google-Extended","rate":12.3},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":2.9}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
+<script id="data" type="application/json">{"asof":"09 Aug 2026, 10:47 UTC","robots_parsed":27067,"tranco_top_n":50000,"observed_price":"$0.50","block_gpt":15.3,"pub_multiple":5.3,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"10","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":14.9},{"bot":"GPTBot","rate":15.3},{"bot":"Bytespider","rate":14.3},{"bot":"ClaudeBot","rate":13.4},{"bot":"Google-Extended","rate":12.3},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":2.9}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
 <script>
   const D = JSON.parse(document.getElementById('data').textContent);
   const $ = (s)=>document.querySelector(s);
@@ -258,36 +226,16 @@
   const STRIPE_LINK = "https://buy.stripe.com/3cI9AV3WpcB3cQo0dc8Ra00";
   const CONTACT_EMAIL = "hello@crawlpriceindex.com";
   (function wireCTA(){
+    const cta = document.getElementById('cta');
+    if (!cta) return;
     const linkReady = STRIPE_LINK && !STRIPE_LINK.startsWith('__');
-    for (const cta of document.querySelectorAll('#cta, #cta-hero')) {
-      if (linkReady) {
-        cta.href = STRIPE_LINK;
-      } else {
-        cta.href = 'mailto:' + CONTACT_EMAIL + '?subject=Terminal%20access%20%E2%80%94%20Crawl%20Price%20Index';
-        cta.textContent = 'Request access \u2192';
-      }
+    if (linkReady) {
+      cta.href = STRIPE_LINK;
+      cta.textContent = 'Subscribe \u2192';
+    } else {
+      cta.href = 'mailto:' + CONTACT_EMAIL + '?subject=Terminal%20access%20%E2%80%94%20Crawl%20Price%20Index&body=I%27d%20like%20Terminal%20access%20to%20the%20full%20dataset%20and%20feed.';
+      cta.textContent = 'Request access \u2192';
     }
-  })();
-
-  // Weekly Crawl signup
-  (function wireWeekly(){
-    const f = document.getElementById('wk-form');
-    if (!f) return;
-    const msg = document.getElementById('wk-msg');
-    f.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('wk-email').value.trim();
-      if (!email) return;
-      msg.textContent = 'sending\u2026';
-      try {
-        const r = await fetch('https://api.crawlpriceindex.com/v1/subscribe', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const j = await r.json();
-        msg.textContent = j.message || j.error || 'something went wrong';
-      } catch (err) { msg.textContent = 'network error \u2014 try again'; }
-    });
   })();
 
   // header

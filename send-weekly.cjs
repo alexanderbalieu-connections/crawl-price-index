@@ -52,7 +52,7 @@ const delta = b => { const v = trends && trends.block_rates && trends.block_rate
 const rows = Object.entries(sum.block_rates).slice(0, 6).map(([b, v]) => ({ bot: b, pct: v.rate_pct, d: delta(b) }));
 const maxPct = Math.max(...rows.map(r => r.pct));
 const priceRaw = (sum.panel && sum.panel.prices && sum.panel.prices[0]) || "stackoverflow.com: USD 0.50";
-const priceNum = (priceRaw.match(/([\d.]+)/) || [null, "0.50"])[1];
+const priceNum = (priceRaw.match(/(\d[\d.]*)/) || [null, "0.50"])[1];
 const nRows = paid && paid.per_domain ? paid.per_domain.length : 0;
 const nCountries = paid && paid.country_editions ? Object.keys(paid.country_editions).length : 0;
 const nHist = trends && trends.history_span ? trends.history_span.points : 1;

@@ -1,0 +1,120 @@
+const fs = require("fs");
+let s = fs.readFileSync("worker.js", "utf8");
+if (s.includes("/v1/subscribe")) { console.log("already patched — skipping"); process.exit(0); }
+const A1 = '    if (path === "/v1/dataset") {';
+const A2 = "// ---- email sender ---";
+if (!s.includes(A1) || !s.includes(A2)) { console.error("anchors missing — aborting, worker untouched"); process.exit(1); }
+fs.writeFileSync("worker.js.bak3", s);
+
+const routes =
+'    if (path === "/v1/subscribe" && request.method === "POST") return subscribe(request, env, cors);\n' +
+'    if (path === "/v1/confirm") return confirmSub(url, env);\n' +
+'    if (path === "/v1/unsubscribe") return unsubscribeSub(url, env);\n' +
+'    if (path === "/v1/broadcast" && request.method === "POST") return broadcast(request, env, cors);\n\n';
+
+const fns = [
+'// ---- free tier: The Weekly Crawl subscriber list ---------------------------',
+'// KEYS: sub:<email> -> { status, created } with KV metadata {s} so broadcast',
+'// can list without per-subscriber reads. Links carry HMAC(email, LIST_SECRET).',
+'async function subToken(env, email) {',
+'  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.LIST_SECRET || ""), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);',
+'  const m = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(email));',
+'  return [...new Uint8Array(m)].map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);',
+'}',
+'function subPage(title, msg) {',
+'  const h = \'<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#0b0d0e;color:#d7dee1;font-family:ui-monospace,Menlo,monospace;display:flex;min-height:100vh;align-items:center;justify-content:center"><div style="max-width:480px;padding:32px;text-align:center"><div style="color:#3cf08a;font-size:13px;letter-spacing:.2em;text-transform:uppercase">The Crawl Price Index</div><h1 style="color:#f2f6f7;font-size:22px;margin:18px 0 10px">\' + title + \'</h1><p style="font-size:14px;line-height:1.6">\' + msg + \'</p><p style="margin-top:22px"><a href="https://crawlpriceindex.com" style="color:#3cf08a">&larr; crawlpriceindex.com</a></p></div>\';',
+'  return new Response(h, { headers: { "Content-Type": "text/html;charset=utf-8" } });',
+'}',
+'async function sendListEmail(env, to, subject, text, html) {',
+'  if (!env.RESEND_API_KEY) throw new Error("no RESEND_API_KEY");',
+'  const r = await fetch("https://api.resend.com/emails", {',
+'    method: "POST",',
+'    headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },',
+'    body: JSON.stringify({ from: "Crawl Price Index <weekly@crawlpriceindex.com>", to: [to], subject, text, html }),',
+'  });',
+'  if (!r.ok) throw new Error("resend failed: " + r.status);',
+'}',
+'async function subscribe(request, env, cors) {',
+'  let email = "";',
+'  try { email = (await request.json()).email || ""; } catch { }',
+'  email = String(email).trim().toLowerCase();',
+'  if (!email || !email.includes("@") || email.length > 254) return json({ error: "valid email required" }, 400, cors);',
+'  const existing = await env.KEYS.get("sub:" + email, "json");',
+'  if (!existing || existing.status !== "active") {',
+'    await env.KEYS.put("sub:" + email, JSON.stringify({ status: "pending", created: new Date().toISOString() }), { metadata: { s: "pending" } });',
+'    const t = await subToken(env, email);',
+'    const cUrl = "https://api.crawlpriceindex.com/v1/confirm?e=" + encodeURIComponent(email) + "&t=" + t;',
+'    const txt = "Confirm your free subscription to The Weekly Crawl - one email a week with the headline numbers of the crawl economy.\\n\\nConfirm: " + cUrl + "\\n\\nIf you did not request this, ignore this email.";',
+'    const htm = \'<div style="font-family:ui-monospace,Menlo,monospace;max-width:560px;color:#0b0d0e"><p>Confirm your free subscription to <b>The Weekly Crawl</b> - one email a week with the headline numbers of the crawl economy.</p><p><a href="\' + cUrl + \'" style="display:inline-block;background:#2e9e5b;color:#fff;padding:12px 20px;text-decoration:none">Confirm subscription &rarr;</a></p><p style="font-size:12px;color:#6b787d">If you did not request this, ignore this email.</p></div>\';',
+'    try { await sendListEmail(env, email, "Confirm your Weekly Crawl subscription", txt, htm); }',
+'    catch (e) { console.error("confirm email FAILED", String(e)); }',
+'  }',
+'  return json({ message: "Check your inbox to confirm your subscription." }, 200, cors);',
+'}',
+'async function confirmSub(url, env) {',
+'  const email = String(url.searchParams.get("e") || "").trim().toLowerCase();',
+'  const t = url.searchParams.get("t") || "";',
+'  if (!email || t !== await subToken(env, email)) return subPage("Invalid link", "This confirmation link is not valid.");',
+'  const rec = await env.KEYS.get("sub:" + email, "json");',
+'  if (!rec) return subPage("Invalid link", "This confirmation link is not valid.");',
+'  rec.status = "active"; rec.confirmed = new Date().toISOString();',
+'  await env.KEYS.put("sub:" + email, JSON.stringify(rec), { metadata: { s: "active" } });',
+'  return subPage("You are in.", "The Weekly Crawl lands in your inbox once a week - the headline numbers of what the web charges AI. Unsubscribe anytime from any email.");',
+'}',
+'async function unsubscribeSub(url, env) {',
+'  const email = String(url.searchParams.get("e") || "").trim().toLowerCase();',
+'  const t = url.searchParams.get("t") || "";',
+'  if (!email || t !== await subToken(env, email)) return subPage("Invalid link", "This unsubscribe link is not valid.");',
+'  await env.KEYS.delete("sub:" + email);',
+'  return subPage("Unsubscribed.", "You will not receive The Weekly Crawl anymore.");',
+'}',
+'async function broadcast(request, env, cors) {',
+'  if ((request.headers.get("x-admin-token") || "") !== (env.ADMIN_TOKEN || "?")) return json({ error: "unauthorized" }, 401, cors);',
+'  let p = {};',
+'  try { p = await request.json(); } catch { }',
+'  if (!p.subject || !p.text) return json({ error: "subject and text required" }, 400, cors);',
+'  const lock = await env.KEYS.get("broadcast:lock");',
+'  if (lock && !p.force) return json({ error: "already sent recently", last: lock, hint: "pass force:true to override" }, 429, cors);',
+'  const emails = [];',
+'  let cursor;',
+'  do {',
+'    const page = await env.KEYS.list({ prefix: "sub:", cursor });',
+'    for (const k of page.keys) if (k.metadata && k.metadata.s === "active") emails.push(k.name.slice(4));',
+'    cursor = page.list_complete ? null : page.cursor;',
+'  } while (cursor);',
+'  if (!emails.length) return json({ sent: 0, note: "no active subscribers" }, 200, cors);',
+'  let sent = 0;',
+'  for (let i = 0; i < emails.length; i += 100) {',
+'    const chunk = emails.slice(i, i + 100);',
+'    const batch = [];',
+'    for (const to of chunk) {',
+'      const t = await subToken(env, to);',
+'      const unsub = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(to) + "&t=" + t;',
+'      const htmlBody = (p.html || (\'<pre style="font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap">\' + p.text + "</pre>"));',
+'      batch.push({',
+'        from: "Crawl Price Index <weekly@crawlpriceindex.com>",',
+'        to: [to],',
+'        subject: p.subject,',
+'        text: p.text + "\\n\\nUnsubscribe: " + unsub,',
+'        html: htmlBody + \'<p style="font-size:11px;color:#6b787d;font-family:ui-monospace,monospace;margin-top:24px"><a href="\' + unsub + \'" style="color:#6b787d">Unsubscribe</a></p>\',',
+'      });',
+'    }',
+'    const r = await fetch("https://api.resend.com/emails/batch", {',
+'      method: "POST",',
+'      headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },',
+'      body: JSON.stringify(batch),',
+'    });',
+'    if (r.ok) sent += chunk.length; else console.error("broadcast batch FAILED", r.status);',
+'  }',
+'  await env.KEYS.put("broadcast:lock", new Date().toISOString(), { expirationTtl: 72000 });',
+'  return json({ sent, subscribers: emails.length }, 200, cors);',
+'}',
+'',
+''
+].join("\n");
+
+s = s.replace(A1, routes + A1);
+const i2 = s.indexOf(A2);
+s = s.slice(0, i2) + fns + s.slice(i2);
+fs.writeFileSync("worker.js", s);
+console.log("subscriber endpoints added (backup: worker.js.bak3)");

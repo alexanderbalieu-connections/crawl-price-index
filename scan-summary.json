@@ -1,74 +1,74 @@
 {
-  "generated_utc": "2026-08-08T23:45:36.084Z",
+  "generated_utc": "2026-08-09T10:47:13.783Z",
   "tranco_top_n": 50000,
-  "robots_parsed": 26987,
+  "robots_parsed": 27067,
   "block_rates": {
     "GPTBot": {
-      "blocked": 4117,
+      "blocked": 4135,
       "rate_pct": 15.3
     },
     "CCBot": {
-      "blocked": 4025,
+      "blocked": 4040,
       "rate_pct": 14.9
     },
     "Bytespider": {
-      "blocked": 3850,
+      "blocked": 3871,
       "rate_pct": 14.3
     },
     "ClaudeBot": {
-      "blocked": 3620,
+      "blocked": 3637,
       "rate_pct": 13.4
     },
     "Google-Extended": {
-      "blocked": 3319,
+      "blocked": 3334,
       "rate_pct": 12.3
     },
     "Amazonbot": {
-      "blocked": 3232,
+      "blocked": 3245,
       "rate_pct": 12
     },
     "meta-externalagent": {
-      "blocked": 3229,
+      "blocked": 3243,
       "rate_pct": 12
     },
     "Applebot-Extended": {
-      "blocked": 3111,
+      "blocked": 3122,
       "rate_pct": 11.5
     },
     "anthropic-ai": {
-      "blocked": 1522,
+      "blocked": 1526,
       "rate_pct": 5.6
     },
     "PerplexityBot": {
-      "blocked": 1343,
+      "blocked": 1349,
       "rate_pct": 5
     },
     "cohere-ai": {
-      "blocked": 1335,
-      "rate_pct": 4.9
+      "blocked": 1341,
+      "rate_pct": 5
     },
     "Diffbot": {
-      "blocked": 1331,
-      "rate_pct": 4.9
+      "blocked": 1340,
+      "rate_pct": 5
     },
     "ChatGPT-User": {
-      "blocked": 1273,
+      "blocked": 1280,
       "rate_pct": 4.7
     },
     "Claude-Web": {
-      "blocked": 1209,
+      "blocked": 1214,
       "rate_pct": 4.5
     },
     "Timpibot": {
-      "blocked": 941,
+      "blocked": 944,
       "rate_pct": 3.5
     },
     "OAI-SearchBot": {
-      "blocked": 789,
+      "blocked": 798,
       "rate_pct": 2.9
     },
     "AI2Bot": {
-      "blocked": 690,
+      "blocked": 700,
       "rate_pct": 2.6
     },
     "Perplexity-User": {
@@ -128,5 +128,5 @@
       "stackoverflow.com: claudebot=402 +maxprice=400"
     ]
   },
-  "runtime_s": 5569
+  "runtime_s": 8210
 }
