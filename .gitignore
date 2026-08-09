@@ -1,3 +1,7 @@
 
 # NEVER publish the paid dataset
 paid-dataset.json
+worker.js.bak
+.wrangler/
+scan.log
+tranco-top-1m.csv

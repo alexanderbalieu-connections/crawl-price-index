@@ -4,5 +4,5 @@
   "concurrency": 10,
   "base_spacing_ms": 120,
   "adaptive_backoff": true,
-  "daily_minutes": 180
+  "daily_minutes": 15
 }

@@ -1,0 +1,9 @@
+# The Crawl Price Index — we measure crawl policy, so ours is explicit.
+# Human-facing pages: open to all.
+User-agent: *
+Allow: /
+Disallow: /index.json
+
+# Our machine-readable feed is available to AI agents via pay-per-crawl.
+# Contact for licensing / bulk access: hello@crawlpriceindex.com
+Sitemap: /sitemap.xml
