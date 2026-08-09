@@ -11,3 +11,7 @@ scan-robots-full.csv
 scan-signals.csv
 last-sent-robots.csv
 sample-dataset.json
+.github/workflows/
+.DS_Store
+*.bak
+*.bak2
