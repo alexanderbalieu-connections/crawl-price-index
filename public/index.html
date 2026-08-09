@@ -100,6 +100,18 @@
   .plan li::before{content:"›";position:absolute;left:0;color:var(--signal)}
   .btn{display:inline-block;margin-top:18px;font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.04em;padding:11px 18px;border:1px solid var(--signal);color:var(--signal);text-decoration:none}
   .btn:hover{background:var(--signal);color:#000}
+  .cta-row{display:flex;gap:14px;align-items:stretch;margin-top:32px;flex-wrap:wrap}
+  .cta-row .btn{margin-top:0;font-size:14px;padding:0 24px;display:inline-flex;align-items:center}
+  .btn-solid{font-family:"Spline Sans Mono",monospace;font-size:14px;font-weight:600;letter-spacing:.04em;padding:0 26px;height:52px;background:var(--signal);color:#000;text-decoration:none;display:inline-flex;align-items:center}
+  .btn-solid:hover{background:#5df7a1}
+  .cta-note{margin-top:14px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
+  .wk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .wk-in{flex:1;min-width:190px;background:#0b0d0e;border:1px solid var(--line);color:var(--fg);font-family:"Spline Sans Mono",monospace;font-size:13px;padding:11px 12px;outline:none}
+  .wk-in:focus{border-color:var(--signal)}
+  .wk-btn{margin-top:0;cursor:pointer;background:transparent;font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.04em;padding:11px 18px;border:1px solid var(--signal);color:var(--signal)}
+  .wk-btn:hover{background:var(--signal);color:#000}
+  .wk-msg{margin-top:8px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
+  .wk-lab{margin-top:26px;font-family:"Spline Sans Mono",monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--bright)}
   @media(max-width:760px){.plans{grid-template-columns:1fr}}
 
   footer{padding:50px 0 70px;color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:12.5px}
@@ -120,6 +132,19 @@
     <h1>What the web charges<br>AI to <em>read it</em>.</h1>
     <p class="lede">The open internet is quietly installing a toll booth for machines. We measure the tolls — observed prices, paywalls, and block rates across the web — and publish them every week.</p>
     <div class="asof">Baseline scan · <b id="asof">—</b> · <b id="parsed">—</b> domains parsed · Tranco top <b id="topn">—</b></div>
+    <div class="cta-row">
+      <a class="btn-solid" href="#access" id="cta-hero">Subscribe — €79/mo →</a>
+      <a class="btn" href="#access">What's included ↓</a>
+    </div>
+    <div class="cta-note">Full per-domain dataset · weekly history · API access · cancel anytime</div>
+    <div class="wk-lab">Or start free — data sample + The Weekly Crawl</div>
+    <form data-wk style="max-width:430px">
+      <div class="wk-row">
+        <input class="wk-in" type="email" required placeholder="you@company.com">
+        <button class="wk-btn" type="submit">Get it free →</button>
+      </div>
+      <div class="wk-msg" data-msg></div>
+    </form>
   </div>
 </header>
 
@@ -174,6 +199,19 @@
   </div>
 </section>
 
+<section id="why">
+  <div class="wrap">
+    <div class="kicker">Why this exists · the market moment</div>
+    <h2>The web is becoming pay-to-read for machines. Nobody was keeping the price list.</h2>
+    <p class="body"><a href="https://blog.cloudflare.com/introducing-pay-per-crawl/" rel="noopener">Cloudflare's pay-per-crawl</a> put HTTP 402 payments in front of millions of sites, and from 15 September 2026 AI crawlers are blocked by default across much of the web. <a href="https://tollbit.com" rel="noopener">TollBit</a> gates thousands of publisher sites behind token walls. Every week, more of the internet answers a crawler with a price instead of a page — but those prices are quoted machine-to-machine, invisible unless someone stands at the toll booth and writes them down. That's what we do. Every week. <a href="/methodology.html">Openly documented</a>.</p>
+    <div class="cards" style="margin-top:28px">
+      <div class="card"><div class="t">Publishers &amp; media</div><div class="big" style="font-size:19px;line-height:1.35">Price your content with evidence</div><div class="d">See what peers charge, gate, or give away before you negotiate an AI licensing deal — or set your own crawl price.</div></div>
+      <div class="card"><div class="t">AI &amp; data teams</div><div class="big" style="font-size:19px;line-height:1.35">Know your crawl costs &amp; access</div><div class="d">Who blocks your bots, where enforcement is spreading, and what paid access runs — before it hits your pipeline.</div></div>
+      <div class="card"><div class="t">Analysts &amp; journalists</div><div class="big" style="font-size:19px;line-height:1.35">The citable record</div><div class="d">Free headline figures, attribution-friendly, refreshed weekly — the reference point for the crawl economy.</div></div>
+    </div>
+  </div>
+</section>
+
 <section id="access">
   <div class="wrap">
     <div class="kicker">Access</div>
@@ -190,6 +228,14 @@
           <li>Signal taxonomy overview</li>
           <li>Cite us — attribution appreciated</li>
         </ul>
+        <div class="wk-lab">Free data sample + The Weekly Crawl</div>
+        <form data-wk style="max-width:430px">
+      <div class="wk-row">
+        <input class="wk-in" type="email" required placeholder="you@company.com">
+        <button class="wk-btn" type="submit">Get it free →</button>
+      </div>
+      <div class="wk-msg" data-msg></div>
+    </form>
       </div>
       <div class="plan" style="border-color:rgba(60,240,138,.4)">
         <h3>TERMINAL</h3>
@@ -226,16 +272,36 @@
   const STRIPE_LINK = "https://buy.stripe.com/3cI9AV3WpcB3cQo0dc8Ra00";
   const CONTACT_EMAIL = "hello@crawlpriceindex.com";
   (function wireCTA(){
-    const cta = document.getElementById('cta');
-    if (!cta) return;
     const linkReady = STRIPE_LINK && !STRIPE_LINK.startsWith('__');
-    if (linkReady) {
-      cta.href = STRIPE_LINK;
-      cta.textContent = 'Subscribe \u2192';
-    } else {
-      cta.href = 'mailto:' + CONTACT_EMAIL + '?subject=Terminal%20access%20%E2%80%94%20Crawl%20Price%20Index&body=I%27d%20like%20Terminal%20access%20to%20the%20full%20dataset%20and%20feed.';
-      cta.textContent = 'Request access \u2192';
+    for (const cta of document.querySelectorAll('#cta, #cta-hero')) {
+      if (linkReady) { cta.href = STRIPE_LINK; }
+      else {
+        cta.href = 'mailto:' + CONTACT_EMAIL + '?subject=Terminal%20access';
+        cta.textContent = 'Request access \u2192';
+      }
     }
+  })();
+
+  // Weekly Crawl signup — every form marked data-wk
+  (function wireWeekly(){
+    document.querySelectorAll('form[data-wk]').forEach(function(f){
+      const input = f.querySelector('input');
+      const msg = f.querySelector('[data-msg]');
+      f.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const email = input.value.trim();
+        if (!email) return;
+        msg.textContent = 'sending\u2026';
+        try {
+          const r = await fetch('https://api.crawlpriceindex.com/v1/subscribe', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+          });
+          const j = await r.json();
+          msg.textContent = j.message || j.error || 'something went wrong';
+        } catch (err) { msg.textContent = 'network error \u2014 try again'; }
+      });
+    });
   })();
 
   // header

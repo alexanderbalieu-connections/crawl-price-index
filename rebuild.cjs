@@ -241,7 +241,7 @@ const indexPayload = {
     { t: "robots.txt opt-out", ex: "Disallow: / for GPTBot", d: "The declarative layer. Measured across the Tranco top-N every week." },
   ],
 };
-swapPayload("index.html", indexPayload);
+swapPayload(fs.existsSync("public/index.html") ? "public/index.html" : "index.html", indexPayload);
 
 // ---- 6) rebuild world.html payload ----------------------------------------
 const worldRows = Object.entries(countryData)
@@ -253,7 +253,7 @@ const worldPayload = {
   rows: worldRows,
   note: "Directional. Samples are ccTLD domains carrying robots.txt within the Tranco top-N (n shown per country). Larger scans enlarge every sample.",
 };
-swapPayload("world.html", worldPayload);
+swapPayload(fs.existsSync("public/world.html") ? "public/world.html" : "world.html", worldPayload);
 
 // ---- done -----------------------------------------------------------------
 console.log("PASS — site data rebuilt from scan.");

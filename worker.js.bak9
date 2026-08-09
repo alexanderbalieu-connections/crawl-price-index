@@ -105,25 +105,6 @@ async function serveDataset(request, env, url, cors) {
   await env.KEYS.put(key, JSON.stringify(rec));
 
   // fetch the full paid dataset
-  // CSV flavour of the same gated dataset — pre-built at publish time so we
-  // never parse a multi-MB JSON per request (free-plan CPU ceiling).
-  if ((url.searchParams.get("format") || "").toLowerCase() === "csv") {
-    const csv = await env.DATA.get("dataset-csv");
-    if (!csv) return json({ error: "csv not yet published" }, 503, cors);
-    const fp = await sha256(key).then(h => h.slice(0, 16));
-    const head = "# The Crawl Price Index — single-subscriber licence. Redistribution prohibited. Traceable.\n"
-      + "# issued_to=" + rec.customer + " key_fingerprint=" + fp + " served=" + new Date().toISOString() + "\n";
-    return new Response(head + csv, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/csv;charset=utf-8",
-        "Content-Disposition": 'attachment; filename="crawl-price-index.csv"',
-        "Cache-Control": "no-store",
-        ...cors,
-      },
-    });
-  }
-
   let raw = await env.DATA.get("dataset");
   if (!raw) return json({ error: "dataset not yet populated" }, 503, cors);
 
@@ -305,7 +286,7 @@ async function confirmSub(url, env) {
   // welcome email: instant free sample link (non-fatal)
   try {
     const st = await subToken(env, email);
-    const sUrl = "https://crawlpriceindex.com/sample.html?e=" + encodeURIComponent(email) + "&t=" + st;
+    const sUrl = "https://api.crawlpriceindex.com/v1/sample?e=" + encodeURIComponent(email) + "&t=" + st;
     const uUrl = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + st;
     const wtxt = "You are in.\n\nYour free sample — the top 100 domains' complete AI-crawler rows, real data from the latest scan:\n" + sUrl + "\n\nEvery week: which domains changed their AI policy, block-rate shifts, observed crawl prices.\n\nFull dataset — every domain, country editions, weekly history: https://crawlpriceindex.com/#access\n\nUnsubscribe: " + uUrl;
     const whtm = brandCard('<p style="margin:0 0 6px"><b>You are in.</b></p>'

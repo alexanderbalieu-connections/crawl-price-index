@@ -305,7 +305,7 @@ async function confirmSub(url, env) {
   // welcome email: instant free sample link (non-fatal)
   try {
     const st = await subToken(env, email);
-    const sUrl = "https://crawlpriceindex.com/sample.html?e=" + encodeURIComponent(email) + "&t=" + st;
+    const sUrl = "https://api.crawlpriceindex.com/v1/sample?e=" + encodeURIComponent(email) + "&t=" + st;
     const uUrl = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + st;
     const wtxt = "You are in.\n\nYour free sample — the top 100 domains' complete AI-crawler rows, real data from the latest scan:\n" + sUrl + "\n\nEvery week: which domains changed their AI policy, block-rate shifts, observed crawl prices.\n\nFull dataset — every domain, country editions, weekly history: https://crawlpriceindex.com/#access\n\nUnsubscribe: " + uUrl;
     const whtm = brandCard('<p style="margin:0 0 6px"><b>You are in.</b></p>'

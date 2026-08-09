@@ -15,3 +15,4 @@ sample-dataset.json
 .DS_Store
 *.bak
 *.bak2
+dataset.csv

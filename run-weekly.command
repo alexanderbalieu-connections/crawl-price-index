@@ -11,11 +11,12 @@ if [ -f .scan-progress.json ]; then
 fi
 echo "Sweep COMPLETE — publishing pipeline:"
 node rebuild.cjs || { echo "REBUILD GATE ABORTED — live data untouched"; exit 1; }
-cp index.html world.html index.json public/ 2>/dev/null
+cp index.json public/ 2>/dev/null
 cp trends-public.json public/ 2>/dev/null
 wrangler deploy || echo "WARN: site deploy failed"
 node push-dataset.cjs || echo "WARN: paid-data KV push failed"
 node push-sample.cjs || echo "WARN: sample push failed"
+node push-csv.cjs || echo csv-push-failed
 node send-weekly.cjs --send || echo "WARN: weekly email failed (lock or Resend)"
 git add -A && git commit -m "weekly scan $(date +%F)" 2>/dev/null && git push || echo "WARN: git push skipped/failed"
 echo "=== done ==="
