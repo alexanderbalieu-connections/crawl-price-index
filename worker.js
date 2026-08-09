@@ -54,6 +54,13 @@ export default {
       return recoverKey(request, env, cors);
     }
 
+    if (path === "/v1/subscribe" && request.method === "POST") return subscribe(request, env, cors);
+    if (path === "/v1/subscribers") return listSubs(request, env, cors);
+    if (path === "/v1/confirm") return confirmSub(url, env);
+    if (path === "/v1/sample") return sampleData(url, env, cors);
+    if (path === "/v1/unsubscribe") return unsubscribeSub(url, env);
+    if (path === "/v1/broadcast" && request.method === "POST") return broadcast(request, env, cors);
+
     if (path === "/v1/dataset") {
       return serveDataset(request, env, url, cors);
     }
@@ -98,21 +105,21 @@ async function serveDataset(request, env, url, cors) {
   await env.KEYS.put(key, JSON.stringify(rec));
 
   // fetch the full paid dataset
-  const raw = await env.DATA.get("dataset");
+  let raw = await env.DATA.get("dataset");
   if (!raw) return json({ error: "dataset not yet populated" }, 503, cors);
-  const data = JSON.parse(raw);
 
-  // per-customer watermark: a stable, subtle marker tied to this key.
-  // Non-destructive — adds a signed provenance stamp + micro-perturbation
-  // signature so a leaked copy is traceable to the customer.
-  data._license = {
+  // per-customer watermark, stamped by string-splice — no JSON.parse of the
+  // multi-MB dataset, so CPU stays tiny as per_domain grows to 50k rows.
+  const lic = JSON.stringify({
     issued_to: rec.customer,
     key_fingerprint: await sha256(key).then(h => h.slice(0, 16)),
     terms: "Single-subscriber licence. Redistribution prohibited. Traceable.",
     served: new Date().toISOString(),
-  };
+  });
+  const cut = raw.lastIndexOf("}");
+  raw = raw.slice(0, cut) + ',"_license":' + lic + "}";
 
-  return new Response(JSON.stringify(data), {
+  return new Response(raw, {
     status: 200,
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...cors },
   });
@@ -185,6 +192,160 @@ async function handleWebhook(request, env, cors) {
   }
 
   return json({ received: true }, 200, cors);
+}
+
+// gated free sample (confirmed subscribers only)
+async function sampleData(url, env, cors) {
+  const email = String(url.searchParams.get("e") || "").trim().toLowerCase();
+  const t = url.searchParams.get("t") || "";
+  if (!email || t !== await subToken(env, email)) return json({ error: "invalid link" }, 401, cors);
+  const rec = await env.KEYS.get("sub:" + email, "json");
+  if (!rec || rec.status !== "active") return json({ error: "confirm your subscription first" }, 403, cors);
+  const raw = await env.DATA.get("sample");
+  if (!raw) return json({ error: "sample not yet published — try again shortly" }, 503, cors);
+  return new Response(raw, { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...cors } });
+}
+
+// admin: subscriber counts (x-admin-token)
+async function listSubs(request, env, cors) {
+  if ((request.headers.get("x-admin-token") || "") !== (env.ADMIN_TOKEN || "?")) return json({ error: "unauthorized" }, 401, cors);
+  let active = 0, pending = 0, cursor; const latest = [];
+  do {
+    const p = await env.KEYS.list({ prefix: "sub:", cursor });
+    for (const k of p.keys) {
+      if (k.metadata && k.metadata.s === "active") { active++; if (latest.length < 50) latest.push(k.name.slice(4)); }
+      else pending++;
+    }
+    cursor = p.list_complete ? null : p.cursor;
+  } while (cursor);
+  return json({ active, pending, latest }, 200, cors);
+}
+
+// ---- free tier: The Weekly Crawl subscriber list ---------------------------
+// KEYS: sub:<email> -> { status, created } with KV metadata {s} so broadcast
+// can list without per-subscriber reads. Links carry HMAC(email, LIST_SECRET).
+async function subToken(env, email) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.LIST_SECRET || ""), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const m = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(email));
+  return [...new Uint8Array(m)].map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+}
+function subPage(title, msg) {
+  const h = '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#0b0d0e;color:#d7dee1;font-family:ui-monospace,Menlo,monospace;display:flex;min-height:100vh;align-items:center;justify-content:center"><div style="max-width:480px;padding:32px;text-align:center"><div style="color:#3cf08a;font-size:13px;letter-spacing:.2em;text-transform:uppercase">The Crawl Price Index</div><h1 style="color:#f2f6f7;font-size:22px;margin:18px 0 10px">' + title + '</h1><p style="font-size:14px;line-height:1.6">' + msg + '</p><p style="margin-top:22px"><a href="https://crawlpriceindex.com" style="color:#3cf08a">&larr; crawlpriceindex.com</a></p></div>';
+  return new Response(h, { headers: { "Content-Type": "text/html;charset=utf-8" } });
+}
+function brandCard(bodyHtml) {
+  return '<div style="background:#eef2f0;padding:24px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">'
+    + '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #dde4e1">'
+    + '<tr><td style="background:#0b0d0e;padding:18px 28px"><div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.22em;color:#3cf08a">THE WEEKLY CRAWL</div>'
+    + '<div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#6b787d;margin-top:4px">what the web charges AI to read it</div></td></tr>'
+    + '<tr><td style="padding:26px 28px;font-family:ui-monospace,Menlo,monospace;font-size:13.5px;color:#0b0d0e;line-height:1.7">' + bodyHtml + '</td></tr>'
+    + '<tr><td style="padding:0 28px 22px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#9aa5a1">The Crawl Price Index &middot; <a href="https://crawlpriceindex.com" style="color:#2e9e5b">crawlpriceindex.com</a></td></tr>'
+    + '</table></td></tr></table></div>';
+}
+const btn = (href, label) => '<p style="margin:18px 0"><a href="' + href + '" style="display:inline-block;background:#2e9e5b;color:#ffffff;font-family:ui-monospace,Menlo,monospace;font-size:13px;padding:12px 22px;text-decoration:none">' + label + ' &rarr;</a></p>';
+
+async function sendListEmail(env, to, subject, text, html) {
+  if (!env.RESEND_API_KEY) throw new Error("no RESEND_API_KEY");
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: "Crawl Price Index <weekly@crawlpriceindex.com>", to: [to], subject, text, html }),
+  });
+  if (!r.ok) throw new Error("resend failed: " + r.status);
+}
+async function subscribe(request, env, cors) {
+  let email = "";
+  try { email = (await request.json()).email || ""; } catch { }
+  email = String(email).trim().toLowerCase();
+  if (!email || !email.includes("@") || email.length > 254) return json({ error: "valid email required" }, 400, cors);
+  const existing = await env.KEYS.get("sub:" + email, "json");
+  if (!existing || existing.status !== "active") {
+    await env.KEYS.put("sub:" + email, JSON.stringify({ status: "pending", created: new Date().toISOString() }), { metadata: { s: "pending" } });
+    const t = await subToken(env, email);
+    const cUrl = "https://api.crawlpriceindex.com/v1/confirm?e=" + encodeURIComponent(email) + "&t=" + t;
+    const xUrl = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + t;
+    const txt = "Confirm your free subscription to The Weekly Crawl.\n\nYou get: an instant free data sample (top-100 domains, full AI-crawler rows) + one email a week with the movers of the crawl economy.\n\nConfirm: " + cUrl + "\n\nNot you? Cancel: " + xUrl;
+    const htm = brandCard('<p style="margin:0 0 6px"><b>One click and you are in.</b></p>'
+      + '<p style="margin:0">Confirming gets you an <b>instant free data sample</b> &mdash; the top-100 domains&#39; complete AI-crawler rows &mdash; plus one email a week with the movers of the crawl economy.</p>'
+      + btn(cUrl, 'Confirm subscription')
+      + '<p style="font-size:11.5px;color:#6b787d;margin:0">If you did not request this, ignore this email or <a href="' + xUrl + '" style="color:#6b787d">cancel the request</a>.</p>');
+    try { await sendListEmail(env, email, "Confirm + get your free data sample", txt, htm); }
+    catch (e) { console.error("confirm email FAILED", String(e)); }
+  }
+  return json({ message: "Check your inbox to confirm your subscription." }, 200, cors);
+}
+
+async function confirmSub(url, env) {
+  const email = String(url.searchParams.get("e") || "").trim().toLowerCase();
+  const t = url.searchParams.get("t") || "";
+  if (!email || t !== await subToken(env, email)) return subPage("Invalid link", "This confirmation link is not valid.");
+  const rec = await env.KEYS.get("sub:" + email, "json");
+  if (!rec) return subPage("Invalid link", "This confirmation link is not valid.");
+  rec.status = "active"; rec.confirmed = new Date().toISOString();
+  await env.KEYS.put("sub:" + email, JSON.stringify(rec), { metadata: { s: "active" } });
+  // welcome email: instant free sample link (non-fatal)
+  try {
+    const st = await subToken(env, email);
+    const sUrl = "https://api.crawlpriceindex.com/v1/sample?e=" + encodeURIComponent(email) + "&t=" + st;
+    const uUrl = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + st;
+    const wtxt = "You are in.\n\nYour free sample — the top 100 domains' complete AI-crawler rows, real data from the latest scan:\n" + sUrl + "\n\nEvery week: which domains changed their AI policy, block-rate shifts, observed crawl prices.\n\nFull dataset — every domain, country editions, weekly history: https://crawlpriceindex.com/#access\n\nUnsubscribe: " + uUrl;
+    const whtm = brandCard('<p style="margin:0 0 6px"><b>You are in.</b></p>'
+      + '<p style="margin:0">Here is your free sample &mdash; the top-100 domains&#39; complete AI-crawler rows, real data from the latest scan:</p>'
+      + btn(sUrl, 'Open your sample')
+      + '<p style="margin:0 0 4px">Every week from here: <b>which domains changed their AI policy</b>, block-rate shifts, and observed crawl prices.</p>'
+      + '<p style="font-size:12px;color:#6b787d;margin:10px 0 0">Full dataset &mdash; every domain, country editions, weekly history: <a href="https://crawlpriceindex.com/#access" style="color:#2e9e5b">Terminal, &euro;79/mo</a></p>'
+      + '<p style="font-size:11px;margin:14px 0 0"><a href="' + uUrl + '" style="color:#9aa5a1">Unsubscribe anytime</a></p>');
+    await sendListEmail(env, email, "Your free Crawl Price Index sample", wtxt, whtm);
+  } catch (e) { console.error("welcome email FAILED", String(e)); }
+  return subPage("You are in.", "The Weekly Crawl lands in your inbox once a week - the headline numbers of what the web charges AI. Unsubscribe anytime from any email.");
+}
+async function unsubscribeSub(url, env) {
+  const email = String(url.searchParams.get("e") || "").trim().toLowerCase();
+  const t = url.searchParams.get("t") || "";
+  if (!email || t !== await subToken(env, email)) return subPage("Invalid link", "This unsubscribe link is not valid.");
+  await env.KEYS.delete("sub:" + email);
+  return subPage("Unsubscribed.", "You will not receive The Weekly Crawl anymore.");
+}
+async function broadcast(request, env, cors) {
+  if ((request.headers.get("x-admin-token") || "") !== (env.ADMIN_TOKEN || "?")) return json({ error: "unauthorized" }, 401, cors);
+  let p = {};
+  try { p = await request.json(); } catch { }
+  if (!p.subject || !p.text) return json({ error: "subject and text required" }, 400, cors);
+  const lock = await env.KEYS.get("broadcast:lock");
+  if (lock && !p.force) return json({ error: "already sent recently", last: lock, hint: "pass force:true to override" }, 429, cors);
+  const emails = [];
+  let cursor;
+  do {
+    const page = await env.KEYS.list({ prefix: "sub:", cursor });
+    for (const k of page.keys) if (k.metadata && k.metadata.s === "active") emails.push(k.name.slice(4));
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  if (!emails.length) return json({ sent: 0, note: "no active subscribers" }, 200, cors);
+  let sent = 0;
+  for (let i = 0; i < emails.length; i += 100) {
+    const chunk = emails.slice(i, i + 100);
+    const batch = [];
+    for (const to of chunk) {
+      const t = await subToken(env, to);
+      const unsub = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(to) + "&t=" + t;
+      const htmlBody = (p.html || ('<pre style="font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap">' + p.text + "</pre>"));
+      batch.push({
+        from: "Crawl Price Index <weekly@crawlpriceindex.com>",
+        to: [to],
+        subject: p.subject,
+        text: p.text + "\n\nUnsubscribe: " + unsub,
+        html: htmlBody + '<p style="font-size:11px;color:#6b787d;font-family:ui-monospace,monospace;margin-top:24px"><a href="' + unsub + '" style="color:#6b787d">Unsubscribe</a></p>',
+      });
+    }
+    const r = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify(batch),
+    });
+    if (r.ok) sent += chunk.length; else console.error("broadcast batch FAILED", r.status);
+  }
+  await env.KEYS.put("broadcast:lock", new Date().toISOString(), { expirationTtl: 72000 });
+  return json({ sent, subscribers: emails.length }, 200, cors);
 }
 
 // ---- email sender ----------------------------------------------------------

@@ -64,7 +64,17 @@ function readCSV(path) {
 }
 
 const signals = readCSV("scan-signals.csv");
-const robots = readCSV("scan-robots.csv");
+let robots = readCSV("scan-robots.csv");
+// prefer the preserved full harvest (all ranks), keep panel-only domains too
+if (fs.existsSync("scan-robots-full.csv")) {
+  const full = readCSV("scan-robots-full.csv");
+  if (full.length > robots.length) {
+    const seen = new Set(full.map(r => r.domain));
+    const panelOnly = robots.filter(r => !seen.has(r.domain));
+    robots = full.concat(panelOnly);
+    console.log("Using full harvest rows: " + full.length + " (+" + panelOnly.length + " panel-only)");
+  }
+}
 
 // ---- 1) classify the publisher panel posture (same rules as launch) -------
 const panelDomains = [...new Set(signals.map(r => r.domain))];

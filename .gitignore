@@ -5,3 +5,9 @@ worker.js.bak
 .wrangler/
 scan.log
 tranco-top-1m.csv
+.admin-token
+scan-robots.csv
+scan-robots-full.csv
+scan-signals.csv
+last-sent-robots.csv
+sample-dataset.json

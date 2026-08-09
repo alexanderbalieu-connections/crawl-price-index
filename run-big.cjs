@@ -186,6 +186,10 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
   // done with harvest — clear checkpoint
   fs.unlinkSync(PROGRESS);
   console.log(`\nRobots harvest complete: ${fetched}/${domains.length} parsed.`);
+  // preserve the full harvest before the panel step — scan.cjs writes its own
+  // scan-robots.csv (panel only) and would otherwise clobber the 50k rows.
+  fs.copyFileSync(OUT, "scan-robots-full.csv");
+  console.log("Full per-domain rows preserved: scan-robots-full.csv");
 
   // ---- signal panel: reuse scan.cjs's fixed ~50-domain panel via its own run,
   // but WITHOUT re-harvesting 50k. We run scan.cjs restricted to the panel by
