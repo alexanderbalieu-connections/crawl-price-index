@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Crawl Price Index — what the web charges AI to read it</title>
-<meta name="description" content="A living observatory of the crawl economy: observed pay-per-crawl prices, AI-bot block rates, and paywall signals across the web. Updated weekly.">
+<meta name="description" content="We track what the web charges AI to read it: observed pay-per-crawl prices, payment signals, and AI-crawler block rates across the Tranco top 50,000. Updated weekly.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -162,13 +162,13 @@
 <section id="gap">
   <div class="wrap split">
     <div>
-      <div class="kicker">Block rates · Tranco top 2,000</div>
+      <div class="kicker">Block rates · across the scanned web</div>
       <h2>The open web mostly lets AI in. Publishers mostly don't.</h2>
-      <p class="body">Across the top 2,000 sites on the web, fewer than one in five block any given AI crawler in <span class="mono">robots.txt</span>. Among news and reference publishers, the rate is roughly four to five times higher — the sites whose text models most want are the sites fighting hardest to gate it. And publishers now discriminate <em>between</em> bots: training crawlers get blocked far more than the search bots that still send readers back.</p>
-      <p class="body" style="margin-top:16px">These are the whole-web figures, refreshed weekly. The full per-domain table, publisher panel, and country cuts are in the <a href="#access">data feed</a>.</p>
+      <p class="body">Across the tens of thousands of domains we scan each week, fewer than one in six block any given AI crawler in <span class="mono">robots.txt</span>. Among news and reference publishers, the rate is roughly five times higher — the sites whose text models most want are the sites fighting hardest to gate it. And publishers now discriminate <em>between</em> bots: training crawlers get blocked far more than the search bots that still send readers back.</p>
+      <p class="body" style="margin-top:16px">Blocking is where this story starts, not where it ends: the sites that gate crawlers hardest are the ones that go on to name a price. These are the whole-web figures, refreshed weekly. The full per-domain table, publisher panel, and country cuts are in the <a href="#access">data feed</a>.</p>
     </div>
     <div>
-      <table id="blockTable" aria-label="AI crawler block rates, top 2000 domains">
+      <table id="blockTable" aria-label="AI crawler block rates across the scanned web">
         <thead><tr><th>AI crawler</th><th>Blocked in robots.txt</th><th class="num">Rate</th></tr></thead>
         <tbody></tbody>
       </table>
@@ -319,7 +319,7 @@
   const band = $('#band');
   const cells = [
     {n:D.observed_price, k:'Highest observed pay-per-crawl quote (Stack Overflow → ClaudeBot)', g:true},
-    {n:D.block_gpt+'%', k:'of the top 2,000 web domains block GPTBot in robots.txt'},
+    {n:D.block_gpt+'%', k:'of the '+D.robots_parsed.toLocaleString()+' domains scanned this week block GPTBot in robots.txt'},
     {n:D.pub_multiple+'×', k:'more sites block OpenAI training bot (GPTBot) than its search bot (OAI-SearchBot)'},
     {n:D.signal_classes, k:'distinct paywall / pricing signal types observed this scan'},
   ];
