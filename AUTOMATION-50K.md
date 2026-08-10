@@ -24,7 +24,7 @@ daily slices. (Weekly is the cadence competitors update at, if ever.)
 - `scan-config.json` — top_n 50000, daily_minutes 15 (change either to tune)
 
 ## One-time install (with Claude, after git setup)
-    FOLDER="$HOME/Downloads/crawl-price-index"
+    FOLDER="$HOME/crawl-price-index"
     sed "s|__FOLDER__|$FOLDER|g" com.crawlpriceindex.weekly.plist > ~/Library/LaunchAgents/com.crawlpriceindex.weekly.plist
     launchctl load ~/Library/LaunchAgents/com.crawlpriceindex.weekly.plist
     # optional: run a slice right now to watch it

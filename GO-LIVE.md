@@ -7,7 +7,7 @@ this, you touch nothing.
 ## STEP 1 — Connect your Mac to the repo (one time, ~5 min, with Claude)
 In Terminal, from inside this folder:
 
-    cd ~/Downloads/crawl-price-index        # or wherever this folder is
+    cd ~/crawl-price-index        # or wherever this folder is
     git init
     git remote add origin https://github.com/alexanderbalieu-connections/crawl-price-index.git
     git add -A
