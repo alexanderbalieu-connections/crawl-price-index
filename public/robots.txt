@@ -9,3 +9,7 @@ Disallow: /index.json
 Sitemap: /sitemap.xml
 
 License: https://crawlpriceindex.com/rsl.xml
+
+# Openly documented: https://crawlpriceindex.com/methodology.html
+# Live coverage and caveats: https://crawlpriceindex.com/status.html
+# API spec: https://crawlpriceindex.com/openapi.json

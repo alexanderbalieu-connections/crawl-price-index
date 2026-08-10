@@ -19,3 +19,11 @@
 
 ## Citation
 Cite as: "The Crawl Price Index (crawlpriceindex), [scan date]."
+
+## Verify us
+- Methodology and evidence model: https://crawlpriceindex.com/methodology.html
+- Machine-readable provenance: https://api.crawlpriceindex.com/v1/methodology
+- Live coverage, freshness and known caveats: https://crawlpriceindex.com/status.html
+- OpenAPI specification: https://crawlpriceindex.com/openapi.json
+- Changelog: https://crawlpriceindex.com/changelog.html
+- Our crawler's public key directory: https://crawlpriceindex.com/.well-known/http-message-signatures-directory

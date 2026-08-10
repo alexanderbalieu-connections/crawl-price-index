@@ -51,6 +51,12 @@
   },
   "tdmrep_headline": {},
   "methodology_version": "2026-08-10.1",
+  "freshness": {
+    "sweep_at": "2026-08-10T22:58:26.332Z",
+    "rows_with_reading": 27067,
+    "rows_without_reading": 22933,
+    "note": "observed=no means the domain did not yield a robots.txt reading in this sweep. Rates are computed over rows_with_reading only."
+  },
   "evidence_summary": {
     "crawler_identity": "CrawlPriceIndexBot/1.0, self-identified, requests cryptographically signed (RFC 9421 / Web Bot Auth). Public key directory: https://crawlpriceindex.com/.well-known/http-message-signatures-directory",
     "observed": [

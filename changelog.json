@@ -1,0 +1,23 @@
+[
+  {
+    "date": "2026-08-11",
+    "title": "Provenance model, public methodology, change alerts",
+    "methodology_version": "2026-08-10.1",
+    "detail": "Every published signal now carries an explicit evidence type — observed, derived or inferred — plus a pinned methodology version, an explicit list of what we do not measure, and a corrections policy. Added a machine-readable methodology endpoint at /v1/methodology and a full human methodology page. Added per-domain change alerts: any site owner can be told when a tracked AI crawler's access to their domain changes."
+  },
+  {
+    "date": "2026-08-10",
+    "title": "Free per-domain checker, CSV feed, machine payment tier",
+    "detail": "Launched /check — a free tool showing any domain's AI-crawler policy fingerprint, its percentile against every parsed domain, and ready-to-paste robots.txt and RSL files. Added a CSV flavour of the paid dataset. Added a machine tier: one weekly edition for USD 20 in USDC on Base, verified on-chain, with history withheld from machine buyers."
+  },
+  {
+    "date": "2026-08-09",
+    "title": "First full 50,000-domain sweep published",
+    "detail": "27,067 domains parsed across the Tranco top 50,000, 53 country editions, and the first enforcement measurement comparing declared blocks against what an identified crawler actually receives. Weekly history begins accumulating from this edition."
+  },
+  {
+    "date": "2026-08-09",
+    "title": "Crawler identity signed under Web Bot Auth",
+    "detail": "Our crawler now signs every request using HTTP Message Signatures (RFC 9421) under the Web Bot Auth profile, and publishes its public key directory, so any site can verify that traffic claiming to be ours really is. Submitted to Cloudflare's verified bots programme."
+  }
+]

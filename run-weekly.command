@@ -10,7 +10,8 @@ if [ -f .scan-progress.json ]; then
   exit 0
 fi
 echo "Sweep COMPLETE — publishing pipeline:"
-node rebuild.cjs || { echo "REBUILD GATE ABORTED — live data untouched"; exit 1; }
+node rebuild.cjs || { echo "REBUILD GATE ABORTED"; exit 1; }
+node build-status.cjs || echo "WARN: status page build failed" || { echo "REBUILD GATE ABORTED — live data untouched"; exit 1; }
 cp index.json public/ 2>/dev/null
 cp trends-public.json public/ 2>/dev/null
 wrangler deploy || echo "WARN: site deploy failed"

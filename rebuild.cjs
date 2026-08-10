@@ -172,6 +172,20 @@ function classify(d) {
 const posture = {};
 for (const d of panelDomains) { const c = classify(d); posture[c] = (posture[c] || 0) + 1; }
 
+// ---- row-level provenance ------------------------------------------------
+// Each row records WHEN it was observed. A row that yielded no robots.txt
+// reading in this sweep is flagged so it can never be mistaken for current.
+const SWEEP_AT = new Date().toISOString();
+let freshRows = 0, staleRows = 0;
+for (const r of robots) {
+  const vals = Object.keys(r).filter(k => k !== "rank" && k !== "domain" && k !== "observed_at" && k !== "observed").map(k => r[k]);
+  const answered = vals.some(v => v && v !== "no_robots");
+  r.observed_at = SWEEP_AT;
+  r.observed = answered ? "yes" : "no";
+  if (answered) freshRows++; else staleRows++;
+}
+const FRESHNESS = { sweep_at: SWEEP_AT, rows_with_reading: freshRows, rows_without_reading: staleRows, note: "observed=no means the domain did not yield a robots.txt reading in this sweep. Rates are computed over rows_with_reading only." };
+
 // ---- 2b) enforcement vs declaration (research panel only) -----------------
 // Does a site that DECLARES a block in robots.txt actually REFUSE the bot?
 // Declared = robots.txt says blocked. Enforced = probe returned 4xx/5xx.
@@ -272,6 +286,7 @@ const publicFeed = {
   enforcement_headline: enforcement.enforced_pct == null ? {} : { declared_blocks_enforced_pct: enforcement.enforced_pct, panel_checks: enforcement.n },
   tdmrep_headline: summary.tdmrep ? { adoption_pct: summary.tdmrep.adoption_pct, domains_probed: summary.tdmrep.probed } : {},
   methodology_version: METHODOLOGY_VERSION,
+  freshness: FRESHNESS,
   evidence_summary: { crawler_identity: EVIDENCE_MODEL.crawler_identity, observed: ["robots stances", "quoted prices", "payment signals"], derived: ["block rates", "country editions", "trends"], inferred: ["suggested price bands (checker only)"], full_model: "https://api.crawlpriceindex.com/v1/methodology" },
   full_dataset: "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
   terms: "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",
