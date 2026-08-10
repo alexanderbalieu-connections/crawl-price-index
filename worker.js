@@ -57,6 +57,14 @@ export default {
 
     if (path === "/v1/subscribe" && request.method === "POST") return subscribe(request, env, cors);
     if (path === "/v1/subscribers") return listSubs(request, env, cors);
+    if (path === "/v1/check") return checkDomain(url, env, cors);
+    if (path === "/v1/methodology") return methodologyDoc(env, cors);
+    if (path === "/v1/watches") return listWatches(request, env, cors);
+    if (path === "/v1/alert" && request.method === "POST") return sendAlert(request, env, cors);
+    if (path === "/v1/watch" && request.method === "POST") return addWatch(request, env, cors);
+    if (path === "/v1/watch/confirm") return confirmWatch(url, env, cors);
+    if (path === "/v1/watch/stop") return stopWatch(url, env, cors);
+    if (path === "/v1/redeem") return redeemCrawl(url, env, cors);
     if (path === "/v1/confirm") return confirmSub(url, env);
     if (path === "/v1/sample") return sampleData(url, env, cors);
     if (path === "/v1/unsubscribe") return unsubscribeSub(url, env);
@@ -90,11 +98,12 @@ async function recoverKey(request, env, cors) {
 // ---- serve the gated dataset ----------------------------------------------
 async function serveDataset(request, env, url, cors) {
   const key = url.searchParams.get("key") || bearer(request);
-  if (!key) return json({ error: "payment required: no key", subscribe: "https://crawlpriceindex.com/#access" }, 402, cors);
+  if (!key) return new Response(JSON.stringify({ error: "payment required", subscribe: "https://crawlpriceindex.com/#access", crawler_price: "USD 20.00 per crawl - one weekly edition, priced at parity with the EUR 79/mo Terminal subscription", licence: "single-subscriber, redistribution prohibited, responses watermarked", terms: "https://crawlpriceindex.com/rsl.xml", ...crawlOffer(env) }), { status: 402, headers: { "Content-Type": "application/json", "crawler-price": "USD 20.00", "payment": "https://crawlpriceindex.com/#access", ...cors } });
 
   const rec = await env.KEYS.get(key, "json");
   if (!rec) return json({ error: "invalid key" }, 401, cors);
   if (rec.status !== "active") return json({ error: "subscription inactive", detail: rec.status }, 402, cors);
+  if (rec.expires && Date.now() > rec.expires) return json({ error: "crawl pass expired", detail: "one pass = one weekly edition", renew: "https://api.crawlpriceindex.com/v1/dataset" }, 402, cors);
 
   // monthly rate-limit (resets on new month)
   const nowMonth = new Date().toISOString().slice(0, 7);
@@ -125,7 +134,7 @@ async function serveDataset(request, env, url, cors) {
     });
   }
 
-  let raw = await env.DATA.get("dataset");
+  let raw = await env.DATA.get(rec.scope === "snapshot" ? "dataset-snapshot" : "dataset");
   if (!raw) return json({ error: "dataset not yet populated" }, 503, cors);
 
   // per-customer watermark, stamped by string-splice — no JSON.parse of the
@@ -224,6 +233,223 @@ async function sampleData(url, env, cors) {
   const raw = await env.DATA.get("sample");
   if (!raw) return json({ error: "sample not yet published — try again shortly" }, 503, cors);
   return new Response(raw, { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...cors } });
+}
+
+// ---- public benchmark lookup (one small shard read, never parses the dataset)
+async function checkShard(env, domain) {
+  const h = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(domain)));
+  const shard = await env.DATA.get("lookup:" + (h[0] % 64).toString(16).padStart(2, "0"), "json");
+  return shard ? shard[domain] : null;
+}
+async function checkDomain(url, env, cors) {
+  const headers = { "Content-Type": "application/json", "Cache-Control": "public, max-age=3600", ...cors };
+  const meta = await env.DATA.get("lookup:meta", "json");
+  if (!meta) return new Response(JSON.stringify({ found: false, error: "benchmark index not yet published" }), { status: 503, headers });
+  const context = { generated_utc: meta.generated_utc, tranco_top_n: meta.tranco_top_n, robots_parsed: meta.robots_parsed, bots: meta.bots, top_price: meta.top_price };
+  let q = String(url.searchParams.get("domain") || "").trim().toLowerCase();
+  q = q.replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/:.*$/, "");
+  if (q === "context") return new Response(JSON.stringify({ found: false, context }), { status: 200, headers });
+  if (!/^[a-z0-9.-]{3,253}$/.test(q) || !q.includes(".")) return new Response(JSON.stringify({ found: false, error: "invalid domain", context }), { status: 400, headers });
+  const candidates = q.startsWith("www.") ? [q, q.slice(4)] : [q, "www." + q];
+  let hit = null, hitDomain = null;
+  for (const c of candidates) { hit = await checkShard(env, c); if (hit) { hitDomain = c; break; } }
+  if (!hit) return new Response(JSON.stringify({ found: false, domain: q, context }), { status: 200, headers });
+  const stances = {}; let blocked = 0, any = false;
+  meta.bots.forEach((b, i) => { const v = hit[i + 1] || "u"; stances[b] = v; if (v === "b") blocked++; if (v !== "n") any = true; });
+  let percentile = null;
+  if (any && Array.isArray(meta.hist)) {
+    let below = 0, total = 0;
+    meta.hist.forEach((c, i) => { total += c; if (i < blocked) below += c; });
+    if (total > 0) percentile = 100 * below / total;
+  }
+  return new Response(JSON.stringify({ found: true, domain: hitDomain, rank: hit[0] || null, stances, blocked_count: blocked, percentile, context }), { status: 200, headers });
+}
+
+// ---- machine access: pay on-chain, redeem for a one-edition snapshot pass
+const CRAWL_PRICE_USDC = 20;                                    // default when CRAWL_PRICE_USDC is unset
+function crawlPrice(env) { const v = parseFloat(env.CRAWL_PRICE_USDC); return v > 0 ? v : CRAWL_PRICE_USDC; }                                    // parity: EUR 79/mo over ~4 weekly editions
+const USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"; // USDC on Base
+const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+function payToAddr(env) { return String(env.X402_PAY_TO || "").toLowerCase(); }
+function crawlOffer(env) {
+  return {
+    x402Version: 1,
+    accepts: [{
+      scheme: "exact", network: "base", asset: USDC_BASE,
+      maxAmountRequired: String(Math.round(crawlPrice(env) * 1000000)),
+      payTo: payToAddr(env),
+      resource: "https://api.crawlpriceindex.com/v1/dataset",
+      description: "One weekly edition of the Crawl Price Index dataset (current snapshot; trends and history are subscriber-only)",
+      mimeType: "application/json",
+      maxTimeoutSeconds: 300,
+      extra: { redeem: "https://api.crawlpriceindex.com/v1/redeem?tx=YOUR_TX_HASH", pass_days: 7 },
+    }],
+  };
+}
+const BASE_RPCS = [
+  "https://base-rpc.publicnode.com",
+  "https://base.llamarpc.com",
+  "https://mainnet.base.org",
+  "https://1rpc.io/base",
+  "https://base.drpc.org",
+];
+async function baseRpc(method, params) {
+  const rounds = 3;
+  let lastErr = "no endpoints tried";
+  for (let round = 0; round < rounds; round++) {
+   if (round > 0) await new Promise(r => setTimeout(r, 700));
+   for (const url of BASE_RPCS) {
+    try {
+      const r = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+      });
+      if (!r.ok) { lastErr = url + " -> HTTP " + r.status; continue; }
+      const j = await r.json();
+      if (j.error) { lastErr = url + " -> " + (j.error.message || "rpc error"); continue; }
+      return j.result;
+    } catch (e) { lastErr = url + " -> " + String(e); }
+   }
+  }
+  throw new Error("all Base RPC endpoints failed after " + rounds + " rounds (" + lastErr + ")");
+}
+
+async function redeemCrawl(url, env, cors) {
+  const tx = String(url.searchParams.get("tx") || "").trim().toLowerCase();
+  if (!/^0x[0-9a-f]{64}$/.test(tx)) return json({ error: "pass tx=<transaction hash>", offer: crawlOffer(env) }, 400, cors);
+  if (!payToAddr(env)) return json({ error: "payments not configured" }, 503, cors);
+  const existing = await env.KEYS.get("tx:" + tx);
+  if (existing) {
+    const r0 = await env.KEYS.get(existing, "json");
+    return json({ key: existing, scope: "snapshot", expires: r0 && r0.expires, note: "already redeemed", dataset: "https://api.crawlpriceindex.com/v1/dataset?key=" + existing }, 200, cors);
+  }
+  let receipt;
+  try { receipt = await baseRpc("eth_getTransactionReceipt", [tx]); }
+  catch (e) { return json({ error: "could not verify on-chain", detail: String(e) }, 502, cors); }
+  if (!receipt) return json({ error: "transaction not found or not yet mined" }, 404, cors);
+  if (receipt.status !== "0x1") return json({ error: "transaction failed on-chain" }, 400, cors);
+  const want = BigInt(Math.round(crawlPrice(env) * 1000000));
+  const to32 = "0x" + payToAddr(env).slice(2).padStart(64, "0");
+  let paid = 0n;
+  for (const log of receipt.logs || []) {
+    if (String(log.address).toLowerCase() !== USDC_BASE) continue;
+    if (!log.topics || String(log.topics[0]).toLowerCase() !== TRANSFER_TOPIC) continue;
+    if (String(log.topics[2]).toLowerCase() !== to32) continue;
+    try { paid += BigInt(log.data); } catch (e) {}
+  }
+  if (paid < want) return json({ error: "insufficient payment", paid_usdc: Number(paid) / 1e6, required_usdc: crawlPrice(env), offer: crawlOffer(env) }, 402, cors);
+  const key = "cpi_snap_" + crypto.randomUUID().replace(/-/g, "");
+  const expires = Date.now() + 7 * 86400000;
+  const rec = { customer: "x402:" + tx.slice(0, 18), scope: "snapshot", status: "active", created: new Date().toISOString(), expires, month: new Date().toISOString().slice(0, 7), count: 0, emailed: true, paid_usdc: Number(paid) / 1e6 };
+  await env.KEYS.put(key, JSON.stringify(rec));
+  await env.KEYS.put("tx:" + tx, key, { expirationTtl: 2592000 });
+  return json({ key, scope: "snapshot", expires_utc: new Date(expires).toISOString(), pass_days: 7, dataset: "https://api.crawlpriceindex.com/v1/dataset?key=" + key, note: "This pass serves the current weekly edition. Trends, history, country editions and the movers feed are subscriber-only: https://crawlpriceindex.com/#access" }, 200, cors);
+}
+
+// ---- provenance: how we measure, machine-readable ------------------------
+async function methodologyDoc(env, cors) {
+  const headers = { "Content-Type": "application/json", "Cache-Control": "public, max-age=3600", ...cors };
+  const meta = await env.DATA.get("lookup:meta", "json");
+  const raw = await env.DATA.get("dataset-snapshot");
+  let ev = null, mv = null;
+  if (raw) {
+    // pull just the two fields we need without parsing the whole edition
+    const mvM = raw.match(/"methodology_version":"([^"]+)"/);
+    mv = mvM ? mvM[1] : null;
+    const i = raw.indexOf('"evidence":');
+    if (i > -1) {
+      let depth = 0, j = raw.indexOf("{", i);
+      for (let k = j; k < raw.length && k < j + 20000; k++) {
+        if (raw[k] === "{") depth++;
+        else if (raw[k] === "}") { depth--; if (depth === 0) { try { ev = JSON.parse(raw.slice(j, k + 1)); } catch (e) {} break; } }
+      }
+    }
+  }
+  return new Response(JSON.stringify({
+    methodology_version: mv,
+    generated_utc: meta && meta.generated_utc,
+    coverage: meta ? { tranco_top_n: meta.tranco_top_n, robots_parsed: meta.robots_parsed, crawlers_tracked: (meta.bots || []).length } : null,
+    evidence: ev,
+    human_readable: "https://crawlpriceindex.com/methodology.html",
+    crawler_key_directory: "https://crawlpriceindex.com/.well-known/http-message-signatures-directory",
+    contact: "hello@crawlpriceindex.com",
+  }, null, 2), { status: 200, headers });
+}
+
+// ---- change alerts: the recurring workflow -------------------------------
+// KEYS: watch:<email>:<domain> -> { status, created, last } with metadata
+// {s} so the weekly diff job can list actives without per-key reads.
+async function addWatch(request, env, cors) {
+  let email = "", domain = "";
+  try { const b = await request.json(); email = b.email || ""; domain = b.domain || ""; } catch (e) {}
+  email = String(email).trim().toLowerCase();
+  domain = String(domain).trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/:.*$/, "");
+  if (!email || !email.includes("@") || email.length > 254) return json({ error: "valid email required" }, 400, cors);
+  if (!/^[a-z0-9.-]{3,253}$/.test(domain) || !domain.includes(".")) return json({ error: "valid domain required" }, 400, cors);
+  const id = email + ":" + domain;
+  const t = await subToken(env, id);
+  await env.KEYS.put("watch:" + id, JSON.stringify({ status: "pending", email, domain, created: new Date().toISOString() }), { metadata: { s: "pending" } });
+  const cUrl = "https://api.crawlpriceindex.com/v1/watch/confirm?e=" + encodeURIComponent(email) + "&d=" + encodeURIComponent(domain) + "&t=" + t;
+  const xUrl = "https://api.crawlpriceindex.com/v1/watch/stop?e=" + encodeURIComponent(email) + "&d=" + encodeURIComponent(domain) + "&t=" + t;
+  const txt = "Confirm alerts for " + domain + ".\n\nWe scan the web weekly. If any AI crawler's access to " + domain + " changes - a new block, an unblock, a price or paywall appearing - you get one email naming exactly what changed.\n\nConfirm: " + cUrl + "\n\nNot you? " + xUrl;
+  const htm = brandCard("<p style=\"margin:0 0 6px\"><b>Confirm alerts for " + domain + "</b></p>"
+    + "<p style=\"margin:0\">We scan the web every week. If any AI crawler&#39;s access to this domain changes &mdash; a new block, an unblock, a price or a paywall appearing &mdash; you get one email naming exactly what changed.</p>"
+    + btn(cUrl, "Confirm alerts")
+    + "<p style=\"font-size:11.5px;color:#6b787d;margin:0\">Not you? <a href=\"" + xUrl + "\" style=\"color:#6b787d\">Cancel this request</a>.</p>");
+  try { await sendListEmail(env, email, "Confirm alerts for " + domain, txt, htm); }
+  catch (e) { console.error("watch confirm email FAILED", String(e)); }
+  return json({ message: "Check your inbox to confirm alerts for " + domain + "." }, 200, cors);
+}
+async function confirmWatch(url, env, cors) {
+  const email = String(url.searchParams.get("e") || "").trim().toLowerCase();
+  const domain = String(url.searchParams.get("d") || "").trim().toLowerCase();
+  const t = url.searchParams.get("t") || "";
+  if (!email || !domain || t !== await subToken(env, email + ":" + domain)) return subPage("Invalid link", "This confirmation link is not valid.");
+  const rec = await env.KEYS.get("watch:" + email + ":" + domain, "json");
+  if (!rec) return subPage("Invalid link", "This confirmation link is not valid.");
+  rec.status = "active"; rec.confirmed = new Date().toISOString();
+  await env.KEYS.put("watch:" + email + ":" + domain, JSON.stringify(rec), { metadata: { s: "active" } });
+  return subPage("Watching " + domain + ".", "From the next weekly scan, you will be emailed the moment any tracked AI crawler&#39;s access to this domain changes. Nothing else - no newsletter unless you asked for it separately.");
+}
+async function stopWatch(url, env, cors) {
+  const email = String(url.searchParams.get("e") || "").trim().toLowerCase();
+  const domain = String(url.searchParams.get("d") || "").trim().toLowerCase();
+  const t = url.searchParams.get("t") || "";
+  if (!email || !domain || t !== await subToken(env, email + ":" + domain)) return subPage("Invalid link", "This link is not valid.");
+  await env.KEYS.delete("watch:" + email + ":" + domain);
+  return subPage("Alerts stopped.", "You will not receive further alerts for " + domain + ".");
+}
+
+// admin: active watches (for the weekly alert job)
+async function listWatches(request, env, cors) {
+  if ((request.headers.get("x-admin-token") || "") !== (env.ADMIN_TOKEN || "?")) return json({ error: "unauthorized" }, 401, cors);
+  const watches = []; let cursor;
+  do {
+    const p = await env.KEYS.list({ prefix: "watch:", cursor });
+    for (const k of p.keys) {
+      if (!k.metadata || k.metadata.s !== "active") continue;
+      const rest = k.name.slice(6);
+      const i = rest.lastIndexOf(":");
+      if (i > 0) watches.push({ email: rest.slice(0, i), domain: rest.slice(i + 1) });
+    }
+    cursor = p.list_complete ? null : p.cursor;
+  } while (cursor);
+  return json({ watches, count: watches.length }, 200, cors);
+}
+// admin: send one alert email (body composed by the local job)
+async function sendAlert(request, env, cors) {
+  if ((request.headers.get("x-admin-token") || "") !== (env.ADMIN_TOKEN || "?")) return json({ error: "unauthorized" }, 401, cors);
+  let p = {};
+  try { p = await request.json(); } catch (e) {}
+  if (!p.email || !p.subject || !p.text) return json({ error: "email, subject and text required" }, 400, cors);
+  const t = await subToken(env, p.email);
+  const unsub = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(p.email) + "&t=" + t;
+  try {
+    await sendListEmail(env, p.email, p.subject, p.text + "\n\nManage alerts: https://crawlpriceindex.com/check",
+      (p.html || "<pre>" + p.text + "</pre>") + '<p style="font-size:11px;color:#6b787d;font-family:ui-monospace,monospace;margin-top:20px"><a href="https://crawlpriceindex.com/check" style="color:#6b787d">Manage alerts</a></p>');
+  } catch (e) { return json({ error: "send failed", detail: String(e) }, 502, cors); }
+  return json({ sent: 1 }, 200, cors);
 }
 
 // admin: subscriber counts (x-admin-token)

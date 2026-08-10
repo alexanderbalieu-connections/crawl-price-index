@@ -7,3 +7,5 @@ Disallow: /index.json
 # Our machine-readable feed is available to AI agents via pay-per-crawl.
 # Contact for licensing / bulk access: hello@crawlpriceindex.com
 Sitemap: /sitemap.xml
+
+License: https://crawlpriceindex.com/rsl.xml

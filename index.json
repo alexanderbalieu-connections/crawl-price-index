@@ -46,8 +46,27 @@
     }
   },
   "enforcement_headline": {
-    "declared_blocks_enforced_pct": 62.1,
-    "panel_checks": 66
+    "declared_blocks_enforced_pct": 50,
+    "panel_checks": 24
+  },
+  "tdmrep_headline": {},
+  "methodology_version": "2026-08-10.1",
+  "evidence_summary": {
+    "crawler_identity": "CrawlPriceIndexBot/1.0, self-identified, requests cryptographically signed (RFC 9421 / Web Bot Auth). Public key directory: https://crawlpriceindex.com/.well-known/http-message-signatures-directory",
+    "observed": [
+      "robots stances",
+      "quoted prices",
+      "payment signals"
+    ],
+    "derived": [
+      "block rates",
+      "country editions",
+      "trends"
+    ],
+    "inferred": [
+      "suggested price bands (checker only)"
+    ],
+    "full_model": "https://api.crawlpriceindex.com/v1/methodology"
   },
   "full_dataset": "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
   "terms": "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",

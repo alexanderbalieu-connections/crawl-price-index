@@ -16,7 +16,10 @@ cp trends-public.json public/ 2>/dev/null
 wrangler deploy || echo "WARN: site deploy failed"
 node push-dataset.cjs || echo "WARN: paid-data KV push failed"
 node push-sample.cjs || echo "WARN: sample push failed"
+node build-lookup.cjs || echo "WARN: lookup push failed"
+node push-snapshot.cjs || echo "WARN: snapshot push failed"
 node push-csv.cjs || echo csv-push-failed
-node send-weekly.cjs --send || echo "WARN: weekly email failed (lock or Resend)"
+node send-weekly.cjs --send || echo "WARN: weekly email failed"
+node send-alerts.cjs --send || echo "WARN: alerts failed"
 git add -A && git commit -m "weekly scan $(date +%F)" 2>/dev/null && git push || echo "WARN: git push skipped/failed"
 echo "=== done ==="
