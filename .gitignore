@@ -18,3 +18,4 @@ sample-dataset.json
 dataset.csv
 .wba-private.pem
 .wba-private.b64
+runs.log

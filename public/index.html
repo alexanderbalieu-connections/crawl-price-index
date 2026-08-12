@@ -4,357 +4,468 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Crawl Price Index — what the web charges AI to read it</title>
-<meta name="description" content="We track what the web charges AI to read it: observed pay-per-crawl prices, payment signals, and AI-crawler block rates across the Tranco top 50,000. Updated weekly.">
+<meta name="description" content="An independent weekly record of AI-crawler policy and observed pay-per-crawl prices across the top 50,000 domains. Published every week since August 2026.">
+<link rel="canonical" href="https://crawlpriceindex.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --ink:#0b0d0e;        /* near-black base */
-    --panel:#121517;      /* raised panels */
-    --line:#232a2d;       /* hairline */
-    --dim:#6b787d;        /* muted labels */
-    --fg:#d7dee1;         /* body text on dark */
-    --bright:#f2f6f7;     /* headings */
-    --signal:#3cf08a;     /* the one signal color — terminal green */
-    --amber:#f0b23c;      /* gated / caution */
-    --red:#f0553c;        /* 402 / blocked */
-    --blue:#6ba7f0;       /* free / open */
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    margin:0;background:var(--ink);color:var(--fg);
-    font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  .mono{font-family:"Spline Sans Mono",ui-monospace,monospace}
-  a{color:inherit}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+:root{
+  --ink:#14181D;
+  --paper:#FBFAF8;
+  --panel:#F2EFE9;
+  --rule:#DCD7CE;
+  --muted:#6E6A64;
+  --ledger:#1C5D4A;
+  --brass:#9C7A2C;
+  --serif:"Newsreader",Georgia,serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --wrap:1140px;
+  --gut:28px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16.5px;line-height:1.6;font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ledger);outline-offset:3px}
 
-  /* ---- ticker tape (the signature element) ---- */
-  .tape{position:sticky;top:0;z-index:50;background:#000;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
-  .tape-track{display:inline-block;padding:9px 0;animation:scroll 60s linear infinite}
-  .tape:hover .tape-track{animation-play-state:paused}
-  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  .tick{font-family:"Spline Sans Mono",monospace;font-size:12.5px;letter-spacing:.02em;padding:0 22px;display:inline-flex;gap:9px;align-items:baseline}
-  .tick .dom{color:var(--bright)}
-  .tick .tag{font-weight:700}
-  .tick .val{color:var(--dim)}
-  .tag.PRICED{color:var(--signal)} .tag.GATED{color:var(--amber)}
-  .tag.LICENSING{color:var(--amber)} .tag.FREE{color:var(--blue)}
-  .tag.\34 02,.tag[class*="402"]{color:var(--red)}
-  @media(prefers-reduced-motion:reduce){.tape-track{animation:none;white-space:normal;padding:9px 24px}}
+/* masthead */
+.masthead{border-bottom:1px solid var(--rule);background:var(--paper)}
+.masthead .wrap{display:flex;align-items:center;gap:22px;height:74px}
+.mark{font-family:var(--serif);font-size:21px;letter-spacing:-.01em;text-decoration:none;white-space:nowrap}
+.mark b{color:var(--ledger);font-weight:400}
+.nav{margin-left:auto;display:flex;align-items:center;gap:24px}
+.nav a.lnk{font-size:14px;color:var(--muted);text-decoration:none}
+.nav a.lnk:hover{color:var(--ink)}
+a.btn,a.btn-ghost{display:inline-block;font-family:var(--sans);font-size:14px;font-weight:500;
+  text-decoration:none;padding:9px 17px;border:1px solid var(--ink);line-height:1.4}
+a.btn{background:var(--ink);color:var(--paper)}
+a.btn:hover{background:var(--ledger);border-color:var(--ledger);color:#ffffff}
+a.btn-ghost{background:transparent;color:var(--ink)}
+a.btn-ghost:hover{background:var(--ink);color:var(--paper)}
 
-  /* ---- hero ---- */
-  header.hero{padding:78px 0 60px;border-bottom:1px solid var(--line)}
-  .eyebrow{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--signal)}
-  h1{font-size:clamp(38px,6vw,68px);line-height:1.02;font-weight:500;color:var(--bright);margin:.35em 0 .3em;letter-spacing:-.015em}
-  h1 em{font-style:italic;color:var(--signal)}
-  .lede{font-size:clamp(18px,2.3vw,23px);color:var(--fg);max-width:33em;margin:0}
-  .asof{margin-top:26px;font-family:"Spline Sans Mono",monospace;font-size:12.5px;color:var(--dim)}
-  .asof b{color:var(--fg);font-weight:600}
+.eyebrow{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0}
 
-  /* ---- big number band ---- */
-  .band{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
-  .cell{background:var(--ink);padding:30px 22px}
-  .cell .n{font-family:"Spline Sans Mono",monospace;font-size:clamp(30px,4.4vw,46px);font-weight:600;color:var(--bright);line-height:1}
-  .cell .n.g{color:var(--signal)}
-  .cell .k{font-size:14px;color:var(--dim);margin-top:12px;line-height:1.4}
-  @media(max-width:760px){.band{grid-template-columns:repeat(2,1fr)}}
+/* hero */
+.hero{padding:74px 0 58px;border-bottom:1px solid var(--rule)}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:start}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(38px,5vw,60px);
+  line-height:1.08;letter-spacing:-.02em;margin:16px 0 22px}
+.hero h1 i{font-style:italic;color:var(--ledger)}
+.lede{font-size:18px;color:var(--muted);max-width:44ch;margin:0 0 30px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
-  section{padding:64px 0;border-bottom:1px solid var(--line)}
-  .kicker{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
-  h2{font-size:clamp(26px,3.6vw,38px);font-weight:500;color:var(--bright);letter-spacing:-.01em;margin:0 0 .5em}
-  p.body{max-width:38em;color:var(--fg)}
-  p.body a{color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)}
+/* signature observation */
+.obs{border:1px solid var(--ink);background:var(--panel);padding:26px;margin:0}
+.obs-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding-bottom:14px;border-bottom:1px solid var(--rule)}
+.obs-domain{font-family:var(--serif);font-size:20px}
+.obs-body{display:flex;align-items:baseline;gap:14px;padding:22px 0 6px}
+.obs-price{font-family:var(--serif);font-size:clamp(52px,6vw,74px);line-height:.9;
+  letter-spacing:-.03em;color:var(--ledger)}
+.obs-unit{font-size:14px;color:var(--muted);line-height:1.35}
+.obs-meta{border-top:1px solid var(--rule);margin-top:16px;padding-top:14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;font-size:12.5px;color:var(--muted)}
+.obs-meta b{display:block;color:var(--ink);font-weight:500;font-size:13px}
 
-  /* ---- block-rate table ---- */
-  table{width:100%;border-collapse:collapse;font-family:"Spline Sans Mono",monospace;font-size:14px;margin-top:8px}
-  th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line)}
-  th{color:var(--dim);font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
-  td.bot{color:var(--bright)}
-  td.num{text-align:right;color:var(--fg)}
-  .bar{position:relative;height:7px;background:#1a1f22;border-radius:2px;overflow:hidden;min-width:120px}
-  .bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--signal);opacity:.85}
-  .split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
-  @media(max-width:760px){.split{grid-template-columns:1fr;gap:28px}}
+/* figures */
+.figures{border-bottom:1px solid var(--rule);padding:44px 0}
+.fig-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule)}
+.fig{background:var(--paper);padding:24px 20px}
+.fig .n{font-family:var(--serif);font-size:clamp(28px,3.3vw,41px);line-height:1;
+  letter-spacing:-.02em;display:block}
+.fig .l{font-size:12.5px;color:var(--muted);margin-top:9px;display:block;line-height:1.45}
 
-  /* ---- posture cards ---- */
-  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
-  .card{background:var(--panel);border:1px solid var(--line);padding:20px}
-  .card .t{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
-  .card .big{font-family:"Spline Sans Mono",monospace;font-size:34px;font-weight:600;color:var(--bright);margin:8px 0 2px}
-  .card .d{font-size:15px;color:var(--fg)}
-  .card.hi{border-color:rgba(60,240,138,.4)}
-  .card.hi .big{color:var(--signal)}
-  @media(max-width:760px){.cards{grid-template-columns:1fr 1fr}}
+/* sections */
+.section{padding:70px 0;border-bottom:1px solid var(--rule)}
+.section h2{font-family:var(--serif);font-weight:400;font-size:clamp(27px,3vw,36px);
+  letter-spacing:-.015em;line-height:1.18;margin:14px 0 0;max-width:22ch}
+.intro{color:var(--muted);max-width:58ch;margin:16px 0 0}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:60px;align-items:start}
 
-  /* ---- access / subscribe ---- */
-  .plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
-  .plan{background:var(--panel);border:1px solid var(--line);padding:26px}
-  .plan h3{font-family:"Spline Sans Mono",monospace;font-size:15px;letter-spacing:.04em;color:var(--bright);margin:0 0 6px}
-  .plan .price{font-family:"Spline Sans Mono",monospace;font-size:26px;color:var(--signal);margin:6px 0 14px}
-  .plan ul{list-style:none;padding:0;margin:0;font-size:15px}
-  .plan li{padding:6px 0 6px 20px;position:relative;color:var(--fg)}
-  .plan li::before{content:"›";position:absolute;left:0;color:var(--signal)}
-  .btn{display:inline-block;margin-top:18px;font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.04em;padding:11px 18px;border:1px solid var(--signal);color:var(--signal);text-decoration:none}
-  .btn:hover{background:var(--signal);color:#000}
-  .cta-row{display:flex;gap:14px;align-items:stretch;margin-top:32px;flex-wrap:wrap}
-  .cta-row .btn{margin-top:0;font-size:14px;padding:0 24px;display:inline-flex;align-items:center}
-  .btn-solid{font-family:"Spline Sans Mono",monospace;font-size:14px;font-weight:600;letter-spacing:.04em;padding:0 26px;height:52px;background:var(--signal);color:#000;text-decoration:none;display:inline-flex;align-items:center}
-  .btn-solid:hover{background:#5df7a1}
-  .cta-note{margin-top:14px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
-  .wk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .wk-in{flex:1;min-width:190px;background:#0b0d0e;border:1px solid var(--line);color:var(--fg);font-family:"Spline Sans Mono",monospace;font-size:13px;padding:11px 12px;outline:none}
-  .wk-in:focus{border-color:var(--signal)}
-  .wk-btn{margin-top:0;cursor:pointer;background:transparent;font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.04em;padding:11px 18px;border:1px solid var(--signal);color:var(--signal)}
-  .wk-btn:hover{background:var(--signal);color:#000}
-  .wk-msg{margin-top:8px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
-  .wk-lab{margin-top:26px;font-family:"Spline Sans Mono",monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--bright)}
-  @media(max-width:760px){.plans{grid-template-columns:1fr}}
+/* coverage bar */
+.bar{display:flex;height:60px;border:1px solid var(--ink);overflow:hidden}
+.s-none{background:var(--panel)}
+.s-open{background:#CFC9BD}
+.s-block{background:var(--ledger)}
+.key{margin-top:22px;display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.key-row{background:var(--paper);display:grid;grid-template-columns:14px 1fr auto auto;
+  gap:14px;align-items:center;padding:11px 14px;font-size:14px}
+.sw{width:12px;height:12px;border:1px solid rgba(0,0,0,.18)}
+.key-n{font-weight:500}
+.key-p{color:var(--muted);font-size:13px;min-width:52px;text-align:right}
+.caveat{border-left:2px solid var(--brass);padding:4px 0 4px 20px;margin-top:26px;
+  font-size:14.5px;color:var(--muted);max-width:56ch}
+.caveat b{color:var(--ink);font-weight:500}
 
-  footer{padding:50px 0 70px;color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:12.5px}
-  footer a{color:var(--fg);text-decoration:none;border-bottom:1px solid var(--line)}
-  .disc{max-width:44em;line-height:1.6;margin-top:10px}
+/* block-rate chart */
+.rates{display:grid;gap:12px}
+.rate-row{display:grid;grid-template-columns:150px 1fr 52px;gap:14px;align-items:center;font-size:14px}
+.rate-track{height:12px;background:var(--panel);border:1px solid var(--rule)}
+.rate-fill{height:100%;background:var(--ledger)}
+.rate-val{text-align:right;color:var(--muted);font-size:13px}
+
+/* signals board */
+.board{width:100%;border-collapse:collapse;margin-top:30px;font-size:14.5px}
+.board th{text-align:left;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding:0 14px 12px 0;border-bottom:1px solid var(--ink)}
+.board td{padding:13px 14px 13px 0;border-bottom:1px solid var(--rule);vertical-align:baseline}
+.board td.dom{font-family:var(--serif);font-size:17px}
+.tag{display:inline-block;font-size:11px;letter-spacing:.1em;font-weight:600;
+  padding:3px 8px;border:1px solid var(--rule);white-space:nowrap}
+.tag-PRICED{color:#ffffff;background:var(--ledger);border-color:var(--ledger)}
+.tag-GATED{color:var(--brass);border-color:var(--brass)}
+.tag-LICENSING{color:var(--muted)}
+.tag-FREE{color:var(--muted)}
+
+/* claims */
+.claims{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
+  border:1px solid var(--rule);margin-top:34px}
+.claim{background:var(--paper);padding:26px 24px}
+.claim h3{font-family:var(--serif);font-weight:400;font-size:19px;margin:12px 0 8px}
+.claim p{margin:0;font-size:14.5px;color:var(--muted)}
+.claim-obs .eyebrow{color:var(--ledger)}
+.claim-disc .eyebrow{color:var(--brass)}
+
+/* tiers */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);
+  border:1px solid var(--rule);margin-top:38px}
+.tier{background:var(--paper);padding:30px 26px;display:flex;flex-direction:column}
+.tier .price{font-family:var(--serif);font-size:38px;letter-spacing:-.02em;margin:14px 0 4px}
+.tier .per{font-size:13px;color:var(--muted)}
+.tier ul{list-style:none;padding:0;margin:20px 0 26px;font-size:14.5px;color:var(--muted)}
+.tier li{padding:7px 0;border-bottom:1px solid var(--rule)}
+.tier li:last-child{border-bottom:0}
+.tier a{margin-top:auto;text-align:center}
+
+/* footer */
+.foot{padding:52px 0 64px;font-size:13.5px;color:var(--muted)}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
+.foot h4{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
+  margin:0 0 14px;font-weight:600}
+.foot a{display:block;text-decoration:none;padding:4px 0;color:var(--muted)}
+.foot a:hover{color:var(--ink)}
+.colophon{max-width:38ch}
+.foot-base{margin-top:44px;padding-top:20px;border-top:1px solid var(--rule);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:12.5px}
+
+@media (max-width:900px){
+  .hero-grid,.split{grid-template-columns:1fr;gap:42px}
+  .fig-grid{grid-template-columns:repeat(2,1fr)}
+  .claims,.tiers{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .nav a.lnk{display:none}
+  .hero{padding:50px 0 42px}
+  .section{padding:52px 0}
+  .rate-row{grid-template-columns:120px 1fr 46px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
-<!-- SIGNATURE: live signal tape -->
-<div class="tape" aria-label="Observed crawl-economy signals">
-  <div class="tape-track" id="tape"></div>
-</div>
-
-<header class="hero">
+<header class="masthead">
   <div class="wrap">
-    <div class="eyebrow">The Crawl Price Index</div>
-    <h1>What the web charges<br>AI to <em>read it</em>.</h1>
-    <p class="lede">The open internet is quietly installing a toll booth for machines. We measure the tolls — observed prices, paywalls, and block rates across the web — and publish them every week.</p>
-    <div class="asof">Baseline scan · <b id="asof">—</b> · <b id="parsed">—</b> domains parsed · Tranco top <b id="topn">—</b></div>
-    <div class="cta-row">
-      <a class="btn-solid" href="#access" id="cta-hero">Subscribe — €79/mo →</a>
-      <a class="btn" href="#access">What's included ↓</a>
-    </div>
-    <div class="cta-note">Full per-domain dataset · weekly history · API access · cancel anytime</div>
-    <div class="cta-note" style="margin-top:6px">Free tool: <a href="/check">What could your site charge AI? →</a></div>
-    <div class="wk-lab">Or start free — data sample + The Weekly Crawl</div>
-    <form data-wk style="max-width:430px">
-      <div class="wk-row">
-        <input class="wk-in" type="email" required placeholder="you@company.com">
-        <button class="wk-btn" type="submit">Get it free →</button>
-      </div>
-      <div class="wk-msg" data-msg></div>
-    </form>
+    <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+    <nav class="nav">
+      <a class="lnk" href="/check">Check a domain</a>
+      <a class="lnk" href="/world">Country editions</a>
+      <a class="lnk" href="/methodology">Methodology</a>
+      <a class="btn-ghost" href="/sample">Weekly email</a>
+      <a class="btn" id="cta-top" href="#access">Subscribe</a>
+    </nav>
   </div>
 </header>
 
-<div class="band" id="band"></div>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Independent &middot; Weekly &middot; Edition of <span id="asof-eyebrow">&mdash;</span></p>
+      <h1>What the web charges <i>AI</i> to read it.</h1>
+      <p class="lede">Every week we read the crawler policy of the top <span id="lede-topn">50,000</span> domains and record the prices some of them now quote to AI companies. Block rates are widely reported. Observed prices are not &mdash; that is the record we keep.</p>
+      <div class="hero-actions">
+        <a class="btn" href="/check">Check any domain &mdash; free</a>
+        <a class="btn-ghost" href="/methodology">How we measure</a>
+      </div>
+    </div>
 
-<section id="prices">
-  <div class="wrap">
-    <div class="kicker">Observed prices · live from crawler-facing responses</div>
-    <h2>Some sites now name a price. Most don't — yet.</h2>
-    <p class="body">When an AI crawler requests a page, a growing number of sites answer with <span class="mono">HTTP 402 Payment Required</span> instead of the content. A few attach an actual number. In this scan, Stack Overflow quoted <b class="mono" style="color:var(--signal)">USD&nbsp;0.50 per crawl</b> to Anthropic's ClaudeBot through Cloudflare's pay-per-crawl, returned in the same <span class="mono">x402</span> settlement format agents use to pay autonomously. That single quote is the leading edge of a market that barely has public prices. We exist to collect them.</p>
-    <div class="cards" id="postureCards" style="margin-top:28px"></div>
+    <figure class="obs">
+      <div class="obs-head">
+        <span class="obs-domain" id="obs-domain">&mdash;</span>
+        <span class="eyebrow">Highest observed quote</span>
+      </div>
+      <div class="obs-body">
+        <span class="obs-price" id="obs-price">&mdash;</span>
+        <span class="obs-unit" id="obs-unit">per crawl</span>
+      </div>
+      <div class="obs-meta">
+        <div><b>Cloudflare pay-per-crawl</b>Mechanism</div>
+        <div><b>Reproduced</b>Seen on separate scans</div>
+        <div><b>HTTP 402 response</b>Method</div>
+        <div><b id="obs-asof">&mdash;</b>This edition</div>
+      </div>
+    </figure>
   </div>
 </section>
 
-<section id="gap">
+<section class="figures">
+  <div class="wrap">
+    <div class="fig-grid">
+      <div class="fig"><span class="n" id="f-topn">&mdash;</span><span class="l">Domains read every week, the full Tranco top 50,000</span></div>
+      <div class="fig"><span class="n" id="f-parsed">&mdash;</span><span class="l">Publish a robots.txt we can read</span></div>
+      <div class="fig"><span class="n" id="f-gpt">&mdash;</span><span class="l">Of those, block GPTBot by name</span></div>
+      <div class="fig"><span class="n" id="f-price">&mdash;</span><span class="l">Highest crawl price observed this week</span></div>
+      <div class="fig"><span class="n">Aug 2026</span><span class="l">Baseline of a series that cannot be backfilled</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
   <div class="wrap split">
     <div>
-      <div class="kicker">Block rates · across the scanned web</div>
-      <h2>The open web mostly lets AI in. Publishers mostly don't.</h2>
-      <p class="body">Across the tens of thousands of domains we scan each week, fewer than one in six block any given AI crawler in <span class="mono">robots.txt</span>. Among news and reference publishers, the rate is roughly five times higher — the sites whose text models most want are the sites fighting hardest to gate it. And publishers now discriminate <em>between</em> bots: training crawlers get blocked far more than the search bots that still send readers back.</p>
-      <p class="body" style="margin-top:16px">Blocking is where this story starts, not where it ends: the sites that gate crawlers hardest are the ones that go on to name a price. These are the whole-web figures, refreshed weekly. The full per-domain table, publisher panel, and country cuts are in the <a href="#access">data feed</a>.</p>
+      <p class="eyebrow">Coverage</p>
+      <h2>Nearly half the web has no AI policy at all.</h2>
+      <p class="intro">We read every domain in the Tranco top 50,000, not a sample. Most have never written a rule about AI crawlers &mdash; so there is no policy to enforce and nothing to price.</p>
+      <p class="caveat"><b>We report against both denominators.</b> A block rate measured against every domain and one measured against domains that actually publish a policy are different numbers, and the difference is the finding.</p>
     </div>
     <div>
-      <table id="blockTable" aria-label="AI crawler block rates across the scanned web">
-        <thead><tr><th>AI crawler</th><th>Blocked in robots.txt</th><th class="num">Rate</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <div class="bar" id="cov-bar" role="img" aria-label="Distribution of GPTBot policy across the scanned domains."></div>
+      <div class="key" id="cov-key"></div>
     </div>
   </div>
 </section>
 
-<section id="signals">
-  <div class="wrap">
-    <div class="kicker">Signal taxonomy · six ways the web says "pay"</div>
-    <h2>The toll booth has many designs.</h2>
-    <p class="body">No standard has won, so the crawl economy speaks in dialects. We fingerprint each one across the web and track its spread. Every dialect below was observed in the current scan.</p>
-    <div class="cards" id="taxCards" style="margin-top:28px;grid-template-columns:repeat(3,1fr)"></div>
-  </div>
-</section>
-
-<section id="trends">
-  <div class="wrap">
-    <div class="kicker">Trends · the record that compounds</div>
-    <h2>The one thing a latecomer can never rebuild.</h2>
-    <p class="body">Today's numbers can be copied. The <em>history</em> cannot. We snapshot the crawl economy on every scan, so subscribers can see how it moves — which bots are being blocked more, which countries are tightening, and whether the price of a crawl is climbing — week over week, month over month, and eventually year over year. A competitor who starts measuring later has no way to reconstruct the weeks in between.</p>
-    <div class="cards" id="moversCards" style="margin-top:28px">
-      <div class="card"><div class="t">Top observed price</div><div class="big" id="mv-price">tracking from today</div><div class="d">whether the going rate for a crawl is rising</div></div>
-      <div class="card"><div class="t">Bot block-rate shifts</div><div class="big" id="mv-bots">baseline set</div><div class="d">who's being locked out more over time</div></div>
-      <div class="card"><div class="t">Country trajectories</div><div class="big" id="mv-countries">baseline set</div><div class="d">where the toll booth is spreading fastest</div></div>
+<section class="section">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">Declared policy</p>
+      <h2>Blocking is selective, not general.</h2>
+      <p class="intro">Share of domains with a readable robots.txt that block each crawler by name. Sites are naming individual AI companies rather than closing the door, which is what makes a price possible at all.</p>
     </div>
-    <p class="body" style="margin-top:18px;font-size:15px;color:var(--dim)">Trend tracking began on this baseline scan. Month-over-month movements unlock in the Terminal tier as history accrues — <a href="#access" style="color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)">see access →</a></p>
+    <div class="rates" id="rates"></div>
   </div>
 </section>
 
-<section id="why">
+<section class="section">
   <div class="wrap">
-    <div class="kicker">Why this exists · the market moment</div>
-    <h2>The web is becoming pay-to-read for machines. Nobody was keeping the price list.</h2>
-    <p class="body"><a href="https://blog.cloudflare.com/introducing-pay-per-crawl/" rel="noopener">Cloudflare's pay-per-crawl</a> put HTTP 402 payments in front of millions of sites, and from 15 September 2026 AI crawlers are blocked by default across much of the web. <a href="https://tollbit.com" rel="noopener">TollBit</a> gates thousands of publisher sites behind token walls. Every week, more of the internet answers a crawler with a price instead of a page — but those prices are quoted machine-to-machine, invisible unless someone stands at the toll booth and writes them down. That's what we do. Every week. <a href="/methodology.html">Openly documented</a>.</p>
-    <div class="cards" style="margin-top:28px">
-      <div class="card"><div class="t">Publishers &amp; media</div><div class="big" style="font-size:19px;line-height:1.35">Price your content with evidence</div><div class="d">See what peers charge, gate, or give away before you negotiate an AI licensing deal — or set your own crawl price.</div></div>
-      <div class="card"><div class="t">AI &amp; data teams</div><div class="big" style="font-size:19px;line-height:1.35">Know your crawl costs &amp; access</div><div class="d">Who blocks your bots, where enforcement is spreading, and what paid access runs — before it hits your pipeline.</div></div>
-      <div class="card"><div class="t">Analysts &amp; journalists</div><div class="big" style="font-size:19px;line-height:1.35">The citable record</div><div class="d">Free headline figures, attribution-friendly, refreshed weekly — the reference point for the crawl economy.</div></div>
+    <p class="eyebrow">Observed signals</p>
+    <h2>What we actually saw on the wire this week.</h2>
+    <p class="intro">Every row here is a response we requested and logged. Nothing on this board is inferred, modelled or estimated.</p>
+    <table class="board">
+      <thead><tr><th>Domain</th><th>Posture</th><th>What the response contained</th></tr></thead>
+      <tbody id="board"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow">What we will and will not tell you</p>
+    <h2>An inference is never printed as an observation.</h2>
+    <p class="intro">Most reporting on this subject blends the two. We separate them in the data structure, not just in the prose, and we publish the seams.</p>
+    <div class="claims">
+      <div class="claim claim-obs">
+        <p class="eyebrow">We observe</p>
+        <h3>Prices actually quoted</h3>
+        <p>A price enters the index only when a domain returned it to a request we made and logged. Every row carries the time it was observed.</p>
+      </div>
+      <div class="claim claim-obs">
+        <p class="eyebrow">We observe</p>
+        <h3>Policy as written</h3>
+        <p>What each domain declares about 18 named AI crawlers, re-read every week and stored per domain.</p>
+      </div>
+      <div class="claim claim-disc">
+        <p class="eyebrow">We disclose</p>
+        <h3>Small panels, with their n</h3>
+        <p>Price and payment findings come from a fixed 30-domain panel, <a href="/panel.json">published in full</a>. Enforcement figures are quoted with their n and date on the <a href="/status">coverage page</a>, or not at all.</p>
+      </div>
+      <div class="claim claim-disc">
+        <p class="eyebrow">We refuse</p>
+        <h3>A default that looks like a claim</h3>
+        <p>Where we have not measured something, the index says so. No estimated fields, no modelled prices, and no commercial relationship with anyone we measure.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="access">
+<section class="section" id="access">
   <div class="wrap">
-    <div class="kicker">Access</div>
-    <h2>Read the index. Or let your machines read it.</h2>
-    <p class="body" style="margin-bottom:18px"><a href="/world.html" style="color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)">→ New: World editions — AI-crawler blocking by country</a></p>
-    <p class="body">Headline numbers are free and meant to be cited. Depth — full per-domain history, the publisher panel, per-country and per-language editions, and the machine-readable feed — is for subscribers. Fittingly, our own data is available to AI agents through pay-per-crawl: the index charges for crawls, in an index of what crawls cost.</p>
-    <div class="plans">
-      <div class="plan">
-        <h3>OBSERVER</h3>
+    <p class="eyebrow">Access</p>
+    <h2>The headline figures are free. The per-domain record is not.</h2>
+    <p class="intro">We take no money from AI companies, publishers, CDNs or licensing platforms. Subscriptions are the only revenue, which is what keeps the index citable.</p>
+    <div class="tiers">
+      <div class="tier">
+        <p class="eyebrow">Public</p>
         <div class="price">Free</div>
+        <div class="per">No account needed</div>
         <ul>
-          <li>Weekly headline block rates</li>
-          <li>Observed price ticker</li>
-          <li>Signal taxonomy overview</li>
-          <li>Cite us — attribution appreciated</li>
+          <li>Check any domain</li>
+          <li>Headline figures and country map</li>
+          <li>Weekly newsletter</li>
+          <li>Change alerts on a domain</li>
         </ul>
-        <div class="wk-lab">Free data sample + The Weekly Crawl</div>
-        <form data-wk style="max-width:430px">
-      <div class="wk-row">
-        <input class="wk-in" type="email" required placeholder="you@company.com">
-        <button class="wk-btn" type="submit">Get it free →</button>
+        <a class="btn-ghost" href="/check">Check a domain</a>
       </div>
-      <div class="wk-msg" data-msg></div>
-    </form>
-      </div>
-      <div class="plan" style="border-color:rgba(60,240,138,.4)">
-        <h3>TERMINAL</h3>
-        <div class="price">€79<span style="font-size:14px;color:var(--dim)">/mo</span></div>
+      <div class="tier">
+        <p class="eyebrow">Terminal</p>
+        <div class="price">&euro;79</div>
+        <div class="per">per month, VAT added</div>
         <ul>
-          <li>Full per-domain dataset + weekly history</li>
-          <li>Publisher panel &amp; per-country editions</li>
-          <li>JSON / CSV feed + API access</li>
-          <li>TollBit &amp; pay-per-crawl adoption tracking</li>
+          <li>Full per-domain dataset, weekly</li>
+          <li>Country editions</li>
+          <li>Accumulating history from the baseline</li>
+          <li>JSON and CSV, 1,000 calls a month</li>
         </ul>
-        <a class="btn" href="#" id="cta">Subscribe →</a>
-        <div style="margin-top:12px;font-family:'Spline Sans Mono',monospace;font-size:11.5px;color:var(--dim)">Instant access · cancel anytime · <a href="/success.html" style="display:none">.</a></div>
+        <a class="btn" id="cta" href="#access">Subscribe &mdash; &euro;79/mo</a>
+      </div>
+      <div class="tier">
+        <p class="eyebrow">Machine</p>
+        <div class="price">$20</div>
+        <div class="per">per crawl, USDC on Base</div>
+        <ul>
+          <li>One weekly edition, settled on-chain</li>
+          <li>No account, no invoice</li>
+          <li>History withheld</li>
+          <li>Verified automatically</li>
+        </ul>
+        <a class="btn-ghost" href="/methodology">Read the spec</a>
       </div>
     </div>
-  
-    <div style="margin-top:16px;background:var(--panel);border:1px solid var(--line);padding:24px">
-      <div style="font-family:'Spline Sans Mono',monospace;font-size:15px;letter-spacing:.04em;color:var(--bright)">ENTERPRISE &amp; FEED LICENSING</div>
-      <p class="body" style="margin:10px 0 0;font-size:16px">Using the index inside your own product, dashboard, or research? Feed licensing covers redistribution, custom sector cuts, historical archives, and delivery straight into your pipeline. Priced annually.</p>
-      <a class="btn" href="mailto:hello@crawlpriceindex.com?subject=Feed%20licensing%20enquiry">Talk to us &rarr;</a>
-    </div>
-</div>
+  </div>
 </section>
 
-<footer>
+<footer class="foot">
   <div class="wrap">
-    <div>THE CRAWL PRICE INDEX · <span id="year"></span> · an independent observatory of the machine-readable web</div>
-    <p class="disc">Method: we request <span class="mono">robots.txt</span> and homepages across the Tranco top-N and a fixed publisher panel, under a self-identified research user-agent plus documented crawler identities, and record status codes, headers, and 402 payment signals. We store no page content. Block rates reflect <span class="mono">robots.txt</span> directives, which sites may or may not enforce. Prices reflect what crawler-facing responses disclosed at scan time and change without notice. Not investment, legal, or licensing advice. · <a href="/methodology.html">Full methodology</a> · <a href="/status.html">status</a> · <a href="/changelog.html">changelog</a> · <a href="/privacy.html">privacy</a> · <a href="/security.html">security</a> · <a href="/terms.html">Terms &amp; licence</a> · <a href="/recover.html">Recover key</a> · <a href="/index.json">Data feed</a> · <a href="/llms.txt">llms.txt</a></p>
+    <div class="foot-grid">
+      <div>
+        <h4>The Crawl Price Index</h4>
+        <p class="colophon">An independent record of AI-crawler policy and observed crawl prices. Published weekly from Luxembourg. We are not a payment rail, and we sell access to no one's content but our own.</p>
+      </div>
+      <div>
+        <h4>The index</h4>
+        <a href="/check">Check a domain</a>
+        <a href="/world">Country editions</a>
+        <a href="/sample">Data sample</a>
+        <a href="/changelog">Changelog</a>
+      </div>
+      <div>
+        <h4>Method</h4>
+        <a href="/methodology">Methodology</a>
+        <a href="/status">Coverage and caveats</a>
+        <a href="/panel.json">The 30-domain panel</a>
+        <a href="/openapi.json">API specification</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="/terms">Terms</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/security">Security</a>
+        <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>&copy; 2026 The Crawl Price Index. Figures on this page are from the edition of <span id="asof-foot">&mdash;</span>.</span>
+      <span>Every figure here is reproducible from our published method.</span>
+    </div>
   </div>
 </footer>
 
 <script id="data" type="application/json">{"asof":"09 Aug 2026, 10:47 UTC","robots_parsed":27067,"tranco_top_n":50000,"observed_price":"$0.50","block_gpt":15.3,"pub_multiple":5.3,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"10","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":14.9},{"bot":"GPTBot","rate":15.3},{"bot":"Bytespider","rate":14.3},{"bot":"ClaudeBot","rate":13.4},{"bot":"Google-Extended","rate":12.3},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":2.9}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
 <script>
-  const D = JSON.parse(document.getElementById('data').textContent);
-  const $ = (s)=>document.querySelector(s);
+(function(){
+  var STRIPE_LINK = "https://buy.stripe.com/3cI9AV3WpcB3cQo0dc8Ra00";
+  var CONTACT_EMAIL = "hello@crawlpriceindex.com";
+  var DASH = "\u2014";
+  var D = {};
+  try { D = JSON.parse(document.getElementById("data").textContent) || {}; } catch (e) { D = {}; }
 
-  // ---- Terminal checkout config ----------------------------------------
-  // Paste your Stripe Payment Link between the quotes to go live.
-  // Until then the Subscribe button falls back to an enquiry email so no
-  // interested buyer is ever lost.
-  const STRIPE_LINK = "https://buy.stripe.com/3cI9AV3WpcB3cQo0dc8Ra00";
-  const CONTACT_EMAIL = "hello@crawlpriceindex.com";
-  (function wireCTA(){
-    const linkReady = STRIPE_LINK && !STRIPE_LINK.startsWith('__');
-    for (const cta of document.querySelectorAll('#cta, #cta-hero')) {
-      if (linkReady) { cta.href = STRIPE_LINK; }
-      else {
-        cta.href = 'mailto:' + CONTACT_EMAIL + '?subject=Terminal%20access';
-        cta.textContent = 'Request access \u2192';
-      }
+  function num(n){ return (n === null || n === undefined || isNaN(n)) ? DASH : Number(n).toLocaleString("en-GB"); }
+  function set(id, v){ var el = document.getElementById(id); if (el && v !== null && v !== undefined && v !== "") el.textContent = v; }
+  function esc(s){ return String(s === null || s === undefined ? "" : s).replace(/[&<>"]/g, function(c){
+    return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]; }); }
+
+  var topn = D.tranco_top_n, parsed = D.robots_parsed, gpt = D.block_gpt;
+  var asof = D.asof || "";
+  var asofShort = asof.split(",")[0] || asof;
+
+  set("asof-eyebrow", asofShort);
+  set("asof-foot", asofShort);
+  set("obs-asof", asofShort);
+  if (topn) set("lede-topn", num(topn));
+  set("f-topn", num(topn));
+  set("f-parsed", num(parsed));
+  set("f-gpt", (gpt === null || gpt === undefined) ? null : gpt + "%");
+  set("f-price", D.observed_price);
+  set("obs-price", D.observed_price);
+
+  var t = D.ticker || [];
+  var priced = null, i;
+  for (i = 0; i < t.length; i++) { if (t[i][1] === "PRICED") { priced = t[i]; break; } }
+  if (priced) {
+    set("obs-domain", priced[0]);
+    var unit = document.getElementById("obs-unit");
+    if (unit) unit.textContent = String(priced[2] || "per crawl");
+  }
+
+  if (topn && parsed !== null && parsed !== undefined && gpt !== null && gpt !== undefined) {
+    var noRobots = topn - parsed;
+    var blocked = Math.round(parsed * gpt / 100);
+    var open = parsed - blocked;
+    var bar = document.getElementById("cov-bar");
+    var key = document.getElementById("cov-key");
+    if (bar) bar.innerHTML =
+      '<div class="s-none" style="width:' + (100 * noRobots / topn).toFixed(2) + '%"></div>' +
+      '<div class="s-open" style="width:' + (100 * open / topn).toFixed(2) + '%"></div>' +
+      '<div class="s-block" style="width:' + (100 * blocked / topn).toFixed(2) + '%"></div>';
+    // Printed figures come straight from the payload. The only derived number is
+    // the blocked count, which would carry rounding error, so it is shown as the
+    // exact percentage of the parsed set instead.
+    if (key) key.innerHTML =
+      '<div class="key-row"><span class="sw s-none"></span><span>No robots.txt published</span>' +
+        '<span class="key-n">' + num(noRobots) + '</span><span class="key-p">' +
+        (100 * noRobots / topn).toFixed(1) + '%</span></div>' +
+      '<div class="key-row"><span class="sw s-open"></span><span>Publishes a robots.txt we can read</span>' +
+        '<span class="key-n">' + num(parsed) + '</span><span class="key-p">' +
+        (100 * parsed / topn).toFixed(1) + '%</span></div>' +
+      '<div class="key-row"><span class="sw s-block"></span><span>Of those, blocks GPTBot by name</span>' +
+        '<span class="key-n">' + gpt + '%</span><span class="key-p">of ' + num(parsed) + '</span></div>';
+  }
+
+  var br = D.block_rows || [];
+  if (br.length) {
+    var max = 0;
+    for (i = 0; i < br.length; i++) { if (br[i].rate > max) max = br[i].rate; }
+    if (!max) max = 1;
+    var host = document.getElementById("rates");
+    if (host) host.innerHTML = br.map(function(r){
+      return '<div class="rate-row"><span>' + esc(r.bot) + '</span>' +
+        '<div class="rate-track"><div class="rate-fill" style="width:' +
+        (100 * r.rate / max).toFixed(1) + '%"></div></div>' +
+        '<span class="rate-val">' + r.rate + '%</span></div>';
+    }).join("");
+  }
+
+  var board = document.getElementById("board");
+  if (board && t.length) {
+    board.innerHTML = t.slice(0, 8).map(function(r){
+      var cls = String(r[1] || "").replace(/[^A-Z]/g, "");
+      return '<tr><td class="dom">' + esc(r[0]) + '</td><td><span class="tag tag-' + cls + '">' +
+        esc(r[1]) + '</span></td><td>' + esc(r[2]) + '</td></tr>';
+    }).join("");
+  }
+
+  var ready = STRIPE_LINK && STRIPE_LINK.indexOf("__") !== 0;
+  var ctas = document.querySelectorAll("#cta, #cta-top");
+  for (i = 0; i < ctas.length; i++) {
+    if (ready) { ctas[i].href = STRIPE_LINK; }
+    else {
+      ctas[i].href = "mailto:" + CONTACT_EMAIL + "?subject=Terminal%20access";
+      ctas[i].textContent = "Request access";
     }
-  })();
-
-  // Weekly Crawl signup — every form marked data-wk
-  (function wireWeekly(){
-    document.querySelectorAll('form[data-wk]').forEach(function(f){
-      const input = f.querySelector('input');
-      const msg = f.querySelector('[data-msg]');
-      f.addEventListener('submit', async function(e){
-        e.preventDefault();
-        const email = input.value.trim();
-        if (!email) return;
-        msg.textContent = 'sending\u2026';
-        try {
-          const r = await fetch('https://api.crawlpriceindex.com/v1/subscribe', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email })
-          });
-          const j = await r.json();
-          msg.textContent = j.message || j.error || 'something went wrong';
-        } catch (err) { msg.textContent = 'network error \u2014 try again'; }
-      });
-    });
-  })();
-
-  // header
-  $('#asof').textContent = D.asof;
-  $('#parsed').textContent = D.robots_parsed.toLocaleString();
-  $('#topn').textContent = D.tranco_top_n.toLocaleString();
-  $('#year').textContent = new Date().getFullYear();
-
-  // ticker (doubled for seamless loop)
-  const tape = $('#tape');
-  const mk = (t)=>`<span class="tick"><span class="dom">${t[0]}</span><span class="tag ${t[1]}">${t[1]}</span><span class="val">${t[2]}</span></span>`;
-  tape.innerHTML = (D.ticker.map(mk).join('')).repeat(2);
-
-  // big number band
-  const band = $('#band');
-  const cells = [
-    {n:D.observed_price, k:'Highest observed pay-per-crawl quote (Stack Overflow → ClaudeBot)', g:true},
-    {n:D.block_gpt+'%', k:'of the '+D.robots_parsed.toLocaleString()+' domains scanned this week block GPTBot in robots.txt'},
-    {n:D.pub_multiple+'×', k:'more sites block OpenAI training bot (GPTBot) than its search bot (OAI-SearchBot)'},
-    {n:D.signal_classes, k:'distinct paywall / pricing signal types observed this scan'},
-  ];
-  band.innerHTML = cells.map(c=>`<div class="cell"><div class="n ${c.g?'g':''}">${c.n}</div><div class="k">${c.k}</div></div>`).join('');
-
-  // posture cards
-  $('#postureCards').innerHTML = D.posture.map(p=>`<div class="card ${p.hi?'hi':''}"><div class="t">${p.t}</div><div class="big">${p.n}</div><div class="d">${p.d}</div></div>`).join('');
-
-  // block table
-  const tb = $('#blockTable tbody');
-  const max = Math.max(...D.block_rows.map(r=>r.rate));
-  tb.innerHTML = D.block_rows.map(r=>`<tr><td class="bot">${r.bot}</td><td><div class="bar"><i style="width:${(r.rate/max*100).toFixed(0)}%"></i></div></td><td class="num">${r.rate}%</td></tr>`).join('');
-
-  // taxonomy cards
-  $('#taxCards').innerHTML = D.taxonomy.map(t=>`<div class="card"><div class="t">${t.t}</div><div class="big" style="font-size:22px">${t.ex}</div><div class="d">${t.d}</div></div>`).join('');
-
-  // trends teaser — reads trends-public.json if present; else honest baseline
-  fetch('/trends-public.json').then(r=>r.ok?r.json():null).then(tp=>{
-    if(!tp) return;
-    if(tp.maturity && tp.maturity!=='baseline' && tp.top_movers_teaser && tp.top_movers_teaser.length){
-      const arrow=d=>d==='up'?'▲':'▼';
-      const byMetric=(kw)=>tp.top_movers_teaser.find(m=>m.metric.toLowerCase().includes(kw));
-      const price=byMetric('price'), bot=byMetric('block'), country=byMetric('blocking');
-      if(price) document.getElementById('mv-price').textContent = arrow(price.direction)+' moving';
-      if(bot) document.getElementById('mv-bots').textContent = arrow(bot.direction)+' '+bot.metric.split(' ')[0];
-      if(country) document.getElementById('mv-countries').textContent = arrow(country.direction)+' '+country.metric.split(' ')[0];
-    }
-  }).catch(()=>{});
+  }
+})();
 </script>
 </body>
 </html>

@@ -8,18 +8,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#0b0d0e;--panel:#121517;--line:#232a2d;--dim:#6b787d;--fg:#d7dee1;--bright:#f2f6f7;--signal:#3cf08a;--amber:#f0b23c;--red:#f0553c}
+  :root{--ink:#FBFAF8;--panel:#F2EFE9;--line:#DCD7CE;--dim:#6E6A64;--fg:#14181D;--bright:#14181D;--signal:#1C5D4A;--amber:#9C7A2C;--red:#A33A2A}
   *{box-sizing:border-box}
   body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.55}
-  .mono{font-family:"Spline Sans Mono",monospace}
+  .mono{font-family:"Archivo","Helvetica Neue",Arial,sans-serif}
   .wrap{max-width:920px;margin:0 auto;padding:0 24px}
   header{padding:56px 0 36px;border-bottom:1px solid var(--line)}
-  .back{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--signal);text-decoration:none}
-  .eyebrow{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:20px}
+  .back{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--signal);text-decoration:none}
+  .eyebrow{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:20px}
   h1{font-size:clamp(32px,5.4vw,54px);font-weight:500;color:var(--bright);margin:.3em 0 .25em;letter-spacing:-.015em}
   h1 em{font-style:italic;color:var(--signal)}
   .lede{font-size:clamp(17px,2.2vw,21px);color:var(--fg);max-width:36em;margin:0}
-  .asof{margin-top:20px;font-family:"Spline Sans Mono",monospace;font-size:12.5px;color:var(--dim)}
+  .asof{margin-top:20px;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12.5px;color:var(--dim)}
 
   section{padding:48px 0;border-bottom:1px solid var(--line)}
   h2{font-size:clamp(24px,3.4vw,34px);font-weight:500;color:var(--bright);margin:0 0 .5em;letter-spacing:-.01em}
@@ -28,15 +28,15 @@
   /* ranked country bars */
   .rank{display:flex;flex-direction:column;gap:2px;margin-top:10px}
   .row{display:grid;grid-template-columns:150px 1fr 62px;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
-  .row .c{font-family:"Spline Sans Mono",monospace;font-size:14px;color:var(--bright);display:flex;align-items:baseline;gap:8px}
+  .row .c{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:14px;color:var(--bright);display:flex;align-items:baseline;gap:8px}
   .row .c .n{font-size:11px;color:var(--dim)}
-  .track{position:relative;height:22px;background:#161b1e;border-radius:2px;overflow:hidden}
+  .track{position:relative;height:22px;background:#F2EFE9;border-radius:2px;overflow:hidden}
   .track>i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}
-  .row .pct{font-family:"Spline Sans Mono",monospace;font-size:15px;color:var(--bright);text-align:right}
-  .baseline{display:flex;align-items:center;gap:10px;margin-top:16px;font-family:"Spline Sans Mono",monospace;font-size:12.5px;color:var(--dim)}
+  .row .pct{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:15px;color:var(--bright);text-align:right}
+  .baseline{display:flex;align-items:center;gap:10px;margin-top:16px;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12.5px;color:var(--dim)}
   .baseline .dot{width:10px;height:2px;background:var(--dim);display:inline-block}
 
-  table{width:100%;border-collapse:collapse;font-family:"Spline Sans Mono",monospace;font-size:13.5px;margin-top:14px}
+  table{width:100%;border-collapse:collapse;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:13.5px;margin-top:14px}
   th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right}
   th:first-child,td:first-child{text-align:left}
   th{color:var(--dim);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
@@ -44,10 +44,11 @@
   td .n{color:var(--dim);font-size:11px}
 
   .note{background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--amber);padding:15px 18px;font-size:14.5px;color:var(--fg);margin-top:24px;font-family:"Newsreader",serif;max-width:44em}
-  footer{padding:40px 0 70px;color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:12px}
+  footer{padding:40px 0 70px;color:var(--dim);font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12px}
   footer a{color:var(--fg)}
   @media(max-width:620px){.row{grid-template-columns:110px 1fr 52px;gap:8px}.row .c{font-size:12px}}
 </style>
+<link rel="stylesheet" href="/theme.css">
 </head>
 <body>
 <header><div class="wrap">
@@ -110,7 +111,7 @@
       <div class="pct">••</div>
     </div>
     <div style="margin-top:16px;padding:16px 18px;border:1px solid var(--line);border-left:2px solid var(--signal);background:var(--panel);border-radius:2px">
-      <div style="font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--bright);margin-bottom:6px">🔒 Full country index is a Terminal feature</div>
+      <div style="font-family:'Archivo','Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--bright);margin-bottom:6px">🔒 Full country index is a Terminal feature</div>
       <div style="font-size:14px;color:var(--fg);max-width:44em">All ${D.rows.length} countries, the per-crawler breakdown, and weekly history are part of the Terminal subscription. Free tier shows the top ${FREE}.
       <a href="/#access" style="color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)">See Terminal access →</a></div>
     </div>` : '');
