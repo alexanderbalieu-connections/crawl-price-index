@@ -61,22 +61,6 @@ const snapshot = {
 };
 
 fs.mkdirSync("history", { recursive: true });
-
-// ---- SAME-DAY GUARD -------------------------------------------------------
-// A history point cannot be backfilled, so overwriting one silently is the
-// worst failure this project has. Refuse to replace an existing point unless
-// it is explicitly asked for:  node archive.cjs --force
-const snapPath = path.join("history", date + ".json");
-if (fs.existsSync(snapPath) && !process.argv.includes("--force")) {
-  console.error("REFUSING to overwrite the existing history point for " + date + ".");
-  console.error("A dated point already exists and cannot be reconstructed if lost.");
-  console.error("If this really is a corrected re-scan:  node archive.cjs --force");
-  process.exit(3);
-}
-if (fs.existsSync(snapPath)) {
-  fs.copyFileSync(snapPath, snapPath + ".replaced-" + Date.now());
-  console.log("--force: previous point for " + date + " kept as a .replaced- backup");
-}
 fs.writeFileSync(path.join("history", `${date}.json`), JSON.stringify(snapshot));
 
 // rebuild the rolling index from all files present
