@@ -37,7 +37,7 @@ let spacing = cfg.base_spacing_ms || 120;
 // Daily time budget: scan for about this long, then stop and checkpoint.
 // The next daily run resumes where this one left off. A full TOP_N sweep
 // completes over several days, then rebuild+publish, then a fresh cycle.
-const TIME_BUDGET_MS = (cfg.daily_minutes || 15) * 60 * 1000;
+const TIME_BUDGET_MS = (Number(process.env.CPI_MINUTES) || cfg.daily_minutes || 15) * 60 * 1000;
 const PROGRESS = ".scan-progress.json";
 // ---- Web Bot Auth: sign outgoing requests (flag: web_bot_auth) ------------
 try {

@@ -6,73 +6,59 @@
 <title>What could your site charge AI? — The Crawl Price Index</title>
 <meta name="description" content="Free tool: enter your domain to see your AI-crawler policy fingerprint, how you compare to 27,000+ scanned domains, a benchmark price, and honest revenue estimates — with ready-to-paste setup files.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%230b0d0e%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%233cf08a%27/%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#FBFAF8;--panel:#F2EFE9;--line:#DCD7CE;--dim:#6E6A64;--fg:#14181D;--bright:#14181D;--signal:#1C5D4A;--amber:#9C7A2C;--red:#A33A2A;--blue:#1D4E6F}
+  :root{--ink:#0b0d0e;--panel:#121517;--line:#232a2d;--dim:#6b787d;--fg:#d7dee1;--bright:#f2f6f7;--signal:#3cf08a;--amber:#f0b23c;--red:#f0553c;--blue:#6ba7f0}
   *{box-sizing:border-box}
   body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;font-size:17px;line-height:1.55}
-  .mono{font-family:"Archivo","Helvetica Neue",Arial,sans-serif}
-  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
   a{color:var(--signal)}
-  header{padding:40px 0 8px}
-  .crumb{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--signal)}
-  .crumb a{text-decoration:none}
-  h1{font-size:clamp(30px,5vw,52px);line-height:1.04;font-weight:500;color:var(--bright);margin:.35em 0 .2em}
-  h1 em{font-style:italic;color:var(--signal)}
-  .lede{max-width:640px;color:var(--fg)}
-  .meta{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12.5px;color:var(--dim);margin-top:14px}
   .card{background:var(--panel);border:1px solid var(--line);padding:22px;margin:26px 0}
   .row{display:flex;gap:10px;flex-wrap:wrap}
-  input[type=text]{flex:1;min-width:220px;background:var(--ink);border:1px solid var(--line);color:var(--fg);font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:15px;padding:14px 14px;outline:none}
+  input[type=text]{flex:1;min-width:220px;background:var(--ink);border:1px solid var(--line);color:var(--fg);font-family:"Spline Sans Mono",monospace;font-size:15px;padding:14px 14px;outline:none}
   input[type=text]:focus{border-color:var(--signal)}
-  .go{cursor:pointer;background:var(--signal);border:0;color:#ffffff;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:.04em;padding:0 26px}
-  .go:hover{background:#14483A}
   .go:disabled{opacity:.5;cursor:wait}
-  .ghost{cursor:pointer;background:transparent;border:1px solid var(--signal);color:var(--signal);font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12.5px;padding:9px 14px}
-  .ghost:hover{background:var(--signal);color:#ffffff}
-  .k{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
-  .msg{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12.5px;color:var(--dim);margin-top:10px;min-height:1.2em}
+  .k{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+  .msg{font-family:"Spline Sans Mono",monospace;font-size:12.5px;color:var(--dim);margin-top:10px;min-height:1.2em}
   /* fingerprint grid */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
   .cell{background:var(--ink);padding:10px 10px 9px}
-  .cell .b{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:11.5px;color:var(--bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .cell .v{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:11px;margin-top:3px}
-  .v-blocked{color:var(--red)}.v-allowed{color:var(--signal)}.v-partial{color:var(--amber)}.v-unlisted{color:var(--dim)}.v-none{color:#8A867E}
+  .cell .b{font-family:"Spline Sans Mono",monospace;font-size:11.5px;color:var(--bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell .v{font-family:"Spline Sans Mono",monospace;font-size:11px;margin-top:3px}
+  .v-blocked{color:var(--red)}.v-allowed{color:var(--signal)}.v-partial{color:var(--amber)}.v-unlisted{color:var(--dim)}.v-none{color:#4a5457}
   .statline{display:flex;gap:26px;flex-wrap:wrap;margin:16px 0 4px}
-  .stat .n{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:30px;color:var(--bright)}
+  .stat .n{font-family:"Spline Sans Mono",monospace;font-size:30px;color:var(--bright)}
   .stat .n.g{color:var(--signal)}
   .stat .l{font-size:13px;color:var(--dim)}
-  .bar{height:8px;background:#EDE9E1;border-radius:2px;margin-top:14px;position:relative}
+  .bar{height:8px;background:#1a1f22;border-radius:2px;margin-top:14px;position:relative}
   .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--signal);border-radius:2px}
   .bar b{position:absolute;top:-4px;width:2px;height:16px;background:var(--bright)}
   /* estimator */
-  label{display:block;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:16px 0 6px}
-  select{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--fg);font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:13.5px;padding:11px 10px;outline:none}
+  label{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:16px 0 6px}
+  select{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--fg);font-family:"Spline Sans Mono",monospace;font-size:13.5px;padding:11px 10px;outline:none}
   select:focus{border-color:var(--signal)}
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   @media(max-width:640px){.cols{grid-template-columns:1fr}}
   input[type=range]{width:100%;accent-color:var(--signal);margin-top:6px}
-  .price{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:26px;color:var(--bright);margin-top:2px}
-  .band{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12px;color:var(--dim)}
+  .price{font-family:"Spline Sans Mono",monospace;font-size:26px;color:var(--bright);margin-top:2px}
+  .band{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
   .band em{color:var(--signal);font-style:normal}
   .scen{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:18px}
   @media(max-width:640px){.scen{grid-template-columns:1fr}}
   .sc{background:var(--ink);padding:16px}
-  .sc .t{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
-  .sc .m{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:28px;margin-top:6px;color:var(--bright)}
+  .sc .t{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+  .sc .m{font-family:"Spline Sans Mono",monospace;font-size:28px;margin-top:6px;color:var(--bright)}
   .sc .m.g{color:var(--signal)}
   .sc .d{font-size:13px;color:var(--dim);margin-top:6px;line-height:1.45}
-  .truth{border-left:3px solid var(--amber);background:#F5EFE0;padding:12px 14px;font-size:14px;color:#6E4E14;margin-top:16px;line-height:1.5}
+  .truth{border-left:3px solid var(--amber);background:#15130d;padding:12px 14px;font-size:14px;color:#e8dcc0;margin-top:16px;line-height:1.5}
   /* artifacts */
-  pre{background:var(--ink);border:1px solid var(--line);padding:14px;overflow:auto;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12px;line-height:1.5;color:var(--fg);margin:8px 0 0}
+  pre{background:var(--ink);border:1px solid var(--line);padding:14px;overflow:auto;font-family:"Spline Sans Mono",monospace;font-size:12px;line-height:1.5;color:var(--fg);margin:8px 0 0}
   .art{margin-top:22px}
   .art .head{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .steps{font-size:15.5px;line-height:1.65;margin:8px 0 0;padding-left:20px}
   .steps li{margin-bottom:8px}
-  .steps .mono{font-size:13px;color:var(--bright)}
-  footer{padding:34px 0 50px;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:12px;color:var(--dim)}
+  footer{padding:34px 0 50px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
   .hide{display:none}
-  ::selection{background:var(--signal);color:#ffffff}
+  ::selection{background:var(--signal);color:#000}
   @media (prefers-reduced-motion: no-preference){
     .card{animation:up .35s ease both}
     @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -81,8 +67,18 @@
 <link rel="stylesheet" href="/theme.css">
 </head>
 <body>
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check" aria-current="page">Check a domain</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" href="/#access">Subscribe</a>
+  </nav>
+</div></div>
 <header><div class="wrap">
-  <div class="crumb"><a href="/">← The Crawl Price Index</a> · free tool</div>
+  <p class="eyebrow">Free tool</p>
   <h1>What could your site charge <em>AI</em>?</h1>
   <p class="lede">Enter a domain. We check it against this week's scan of the Tranco top 50,000 — your AI-crawler policy fingerprint, how you compare to the web, a benchmark price, and the exact files to start charging. No signup needed.</p>
   <div class="meta" id="topmeta">checking index…</div>
@@ -92,7 +88,7 @@
   <div class="card">
     <div class="k">Step 1 · your domain</div>
     <div class="row">
-      <input type="text" id="dom" placeholder="example.com" autocomplete="off" spellcheck="false" inputmode="url">
+      <span class="ac-wrap"><input type="text" id="dom" placeholder="example.com" autocomplete="off" spellcheck="false" inputmode="url"><div class="ac" id="ac" role="listbox"></div></span>
       <button class="go" id="check">Check →</button>
     </div>
     <div class="msg" id="cmsg"></div>
@@ -309,7 +305,8 @@
       if (j.context && !ctx){ ctx = j.context; }
       if (j.found){
         state.rank = j.rank || null;
-        $("cmsg").textContent = "";
+        $("cmsg").innerHTML = '<span class="ok">\u2713 Found in this week\u2019s index\u2014scanned ' +
+          ((j.context && j.context.asof) || (ctx && ctx.asof) || "this week") + '</span>';
         renderFingerprint(j);
       } else {
         state.rank = null;
@@ -319,7 +316,10 @@
         $("bandtxt").textContent = band.txt; $("pr").value = band.def;
         recompute();
       }
-      document.getElementById("est").scrollIntoView({behavior:"smooth", block:"start"});
+      var _t = document.getElementById("fp");
+      if (!_t || _t.classList.contains("hide")) _t = document.getElementById("est");
+      var _y = _t.getBoundingClientRect().top + window.pageYOffset - 16;
+      window.scrollTo({ top: _y, behavior: "smooth" });
     }).catch(function(){ $("cmsg").textContent = "Lookup unavailable right now — the estimator below still works."; })
       .finally(function(){ $("check").disabled = false; });
   }
@@ -361,6 +361,65 @@
   renderArtifacts(PRICES[6]);
   recompute();
 })();
+
+  /* cpi-suggest — type-ahead over the indexed domain list */
+  (function(){
+    var input = document.getElementById("dom"), box = document.getElementById("ac");
+    if (!input || !box) return;
+    var list = null, loading = false, items = [], sel = -1;
+
+    function load(){
+      if (list || loading) return;
+      loading = true;
+      fetch("/suggest.txt").then(function(r){ return r.ok ? r.text() : ""; })
+        .then(function(t){ list = t ? t.split("\n").filter(Boolean) : []; render(); })
+        .catch(function(){ list = []; });
+    }
+    function close(){ box.classList.remove("open"); box.innerHTML = ""; items = []; sel = -1; }
+    function choose(v){ input.value = v; close(); var b = document.getElementById("check"); if (b) b.click(); }
+
+    function render(){
+      var q = input.value.trim().toLowerCase().replace(/^https?:\/\//,"").replace(/\/.*$/,"");
+      if (!list || q.length < 2){ close(); return; }
+      var pre = [], sub = [];
+      for (var i = 0; i < list.length && pre.length + sub.length < 400; i++){
+        var d = list[i];
+        if (d.indexOf(q) === 0) pre.push(d);
+        else if (d.indexOf(q) > -1) sub.push(d);
+      }
+      items = pre.concat(sub).slice(0, 8);
+      if (!items.length){ close(); return; }
+      box.innerHTML = items.map(function(d, i){
+        return '<button type="button" role="option" data-i="' + i + '">' + d +
+               '<span class="rk">#' + (list.indexOf(d) + 1) + '</span></button>';
+      }).join("");
+      box.classList.add("open");
+      sel = -1;
+    }
+
+    input.addEventListener("focus", load);
+    input.addEventListener("input", function(){ load(); render(); });
+    input.addEventListener("keydown", function(e){
+      if (!box.classList.contains("open")) return;
+      var btns = box.querySelectorAll("button");
+      if (e.key === "ArrowDown" || e.key === "ArrowUp"){
+        e.preventDefault();
+        sel += (e.key === "ArrowDown" ? 1 : -1);
+        if (sel < 0) sel = btns.length - 1;
+        if (sel >= btns.length) sel = 0;
+        btns.forEach(function(b){ b.classList.remove("sel"); });
+        if (btns[sel]){ btns[sel].classList.add("sel"); btns[sel].scrollIntoView({block:"nearest"}); }
+      } else if (e.key === "Enter" && sel > -1){
+        e.preventDefault(); choose(items[sel]);
+      } else if (e.key === "Escape"){ close(); }
+    });
+    box.addEventListener("click", function(e){
+      var b = e.target.closest("button"); if (b) choose(items[+b.getAttribute("data-i")]);
+    });
+    document.addEventListener("click", function(e){
+      if (!box.contains(e.target) && e.target !== input) close();
+    });
+  })();
 </script>
 </body>
 </html>

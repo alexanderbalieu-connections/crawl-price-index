@@ -1,54 +1,61 @@
 {
-  "generated_utc": "2026-08-09T10:47:13.783Z",
+  "generated_utc": "2026-08-15T10:32:09.050Z",
   "tranco_top_n": 50000,
-  "robots_parsed": 27067,
+  "robots_parsed": 26953,
+  "tdmrep": {
+    "probed": 2000,
+    "well_known": 11,
+    "header": 36,
+    "policy": 30,
+    "adoption_pct": 2.35
+  },
   "block_rates": {
     "GPTBot": {
-      "blocked": 4135,
-      "rate_pct": 15.3
+      "blocked": 4155,
+      "rate_pct": 15.4
     },
     "CCBot": {
-      "blocked": 4040,
-      "rate_pct": 14.9
+      "blocked": 4073,
+      "rate_pct": 15.1
     },
     "Bytespider": {
-      "blocked": 3871,
-      "rate_pct": 14.3
+      "blocked": 3896,
+      "rate_pct": 14.5
     },
     "ClaudeBot": {
-      "blocked": 3637,
-      "rate_pct": 13.4
+      "blocked": 3662,
+      "rate_pct": 13.6
     },
     "Google-Extended": {
-      "blocked": 3334,
-      "rate_pct": 12.3
+      "blocked": 3352,
+      "rate_pct": 12.4
     },
     "Amazonbot": {
-      "blocked": 3245,
-      "rate_pct": 12
+      "blocked": 3277,
+      "rate_pct": 12.2
     },
     "meta-externalagent": {
-      "blocked": 3243,
-      "rate_pct": 12
+      "blocked": 3271,
+      "rate_pct": 12.1
     },
     "Applebot-Extended": {
-      "blocked": 3122,
-      "rate_pct": 11.5
+      "blocked": 3151,
+      "rate_pct": 11.7
     },
     "anthropic-ai": {
-      "blocked": 1526,
-      "rate_pct": 5.6
+      "blocked": 1534,
+      "rate_pct": 5.7
     },
     "PerplexityBot": {
-      "blocked": 1349,
-      "rate_pct": 5
-    },
-    "cohere-ai": {
-      "blocked": 1341,
+      "blocked": 1352,
       "rate_pct": 5
     },
     "Diffbot": {
-      "blocked": 1340,
+      "blocked": 1347,
+      "rate_pct": 5
+    },
+    "cohere-ai": {
+      "blocked": 1346,
       "rate_pct": 5
     },
     "ChatGPT-User": {
@@ -60,19 +67,19 @@
       "rate_pct": 4.5
     },
     "Timpibot": {
-      "blocked": 944,
+      "blocked": 956,
       "rate_pct": 3.5
     },
     "OAI-SearchBot": {
-      "blocked": 798,
-      "rate_pct": 2.9
+      "blocked": 803,
+      "rate_pct": 3
     },
     "AI2Bot": {
-      "blocked": 700,
+      "blocked": 705,
       "rate_pct": 2.6
     },
     "Perplexity-User": {
-      "blocked": 542,
+      "blocked": 547,
       "rate_pct": 2
     }
   },
@@ -125,8 +132,9 @@
     ],
     "maxpriceFlips": [
       "pressgazette.co.uk: claudebot=403 +maxprice=200",
-      "stackoverflow.com: claudebot=402 +maxprice=400"
+      "stackoverflow.com: claudebot=402 +maxprice=400",
+      "www.digiday.com: claudebot=200 +maxprice=429"
     ]
   },
-  "runtime_s": 8210
+  "runtime_s": 9638
 }

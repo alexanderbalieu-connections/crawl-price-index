@@ -21,6 +21,20 @@ const DAY = 86400000;
 const mtime = p => { try { return fs.statSync(p).mtimeMs; } catch (e) { return null; } };
 const say = m => console.log("  gate: " + m);
 
+// --days : print days since the last edition and exit. Used by cpi.command
+// to warn BEFORE a long scan that the result would be held.
+if (process.argv.includes("--days")) {
+  let le = null;
+  try {
+    const idx = JSON.parse(fs.readFileSync("history-index.json", "utf8"));
+    if (idx.latest_snapshot) le = Date.parse(idx.latest_snapshot + "T12:00:00Z");
+  } catch (e) {}
+  if (le === null) le = mtime("paid-dataset.json");
+  if (le === null) { console.log("999"); process.exit(0); }
+  console.log(((Date.now() - le) / DAY).toFixed(1));
+  process.exit(0);
+}
+
 // A sweep is mid-flight: nothing to decide.
 if (fs.existsSync(".scan-progress.json")) { say("sweep still in progress"); process.exit(20); }
 
@@ -51,7 +65,14 @@ if (harvest <= lastEdition) { say("harvest already published; nothing pending");
 const days = (Date.now() - lastEdition) / DAY;
 
 if (FORCE) {
-  say("--force given: publishing " + days.toFixed(1) + " days after the last edition");
+  fs.writeFileSync(".publish-force", new Date().toISOString());
+  say("--force: marker written. The next gate check will publish this harvest.");
+  process.exit(0);
+}
+// a marker from an earlier --force overrides the minimum interval once
+if (fs.existsSync(".publish-force")) {
+  fs.unlinkSync(".publish-force");
+  say("publish-force marker found: publishing " + days.toFixed(1) + " days after the last edition");
   process.exit(0);
 }
 if (days >= MIN_DAYS) {

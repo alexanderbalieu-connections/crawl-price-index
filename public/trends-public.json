@@ -2,10 +2,10 @@
   "maturity": "early",
   "history_span": {
     "first": "2026-08-08",
-    "latest": "2026-08-09",
-    "points": 2
+    "latest": "2026-08-15",
+    "points": 3
   },
-  "headline": "Biggest movers over the last month, from 2 dated snapshots since 2026-08-08.",
+  "headline": "Biggest movers over the last month, from 3 dated snapshots since 2026-08-08.",
   "top_movers_teaser": [],
   "full_trends": "Terminal subscription — full deltas, all windows, every metric, complete history."
 }

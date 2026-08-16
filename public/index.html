@@ -10,14 +10,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* tokens-unified */
 :root{
-  --ink:#14181D;
-  --paper:#FBFAF8;
+  --fg:#14181D;
+  --ink:#FBFAF8;
   --panel:#F2EFE9;
-  --rule:#DCD7CE;
-  --muted:#6E6A64;
-  --ledger:#1C5D4A;
-  --brass:#9C7A2C;
+  --line:#DCD7CE;
+  --dim:#6E6A64;
+  --signal:#1C5D4A;
+  --amber:#9C7A2C;
   --serif:"Newsreader",Georgia,serif;
   --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
   --wrap:1140px;
@@ -25,130 +26,103 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);
+body{margin:0;background:var(--ink);color:var(--fg);
   font-family:var(--sans);font-size:16.5px;line-height:1.6;font-variant-numeric:tabular-nums}
-.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
 a{color:inherit}
-:focus-visible{outline:2px solid var(--ledger);outline-offset:3px}
-
-/* masthead */
-.masthead{border-bottom:1px solid var(--rule);background:var(--paper)}
-.masthead .wrap{display:flex;align-items:center;gap:22px;height:74px}
-.mark{font-family:var(--serif);font-size:21px;letter-spacing:-.01em;text-decoration:none;white-space:nowrap}
-.mark b{color:var(--ledger);font-weight:400}
-.nav{margin-left:auto;display:flex;align-items:center;gap:24px}
-.nav a.lnk{font-size:14px;color:var(--muted);text-decoration:none}
-.nav a.lnk:hover{color:var(--ink)}
-a.btn,a.btn-ghost{display:inline-block;font-family:var(--sans);font-size:14px;font-weight:500;
-  text-decoration:none;padding:9px 17px;border:1px solid var(--ink);line-height:1.4}
-a.btn{background:var(--ink);color:var(--paper)}
-a.btn:hover{background:var(--ledger);border-color:var(--ledger);color:#ffffff}
-a.btn-ghost{background:transparent;color:var(--ink)}
-a.btn-ghost:hover{background:var(--ink);color:var(--paper)}
-
-.eyebrow{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0}
-
-/* hero */
-.hero{padding:74px 0 58px;border-bottom:1px solid var(--rule)}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:start}
-.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(38px,5vw,60px);
-  line-height:1.08;letter-spacing:-.02em;margin:16px 0 22px}
-.hero h1 i{font-style:italic;color:var(--ledger)}
-.lede{font-size:18px;color:var(--muted);max-width:44ch;margin:0 0 30px}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
 /* signature observation */
-.obs{border:1px solid var(--ink);background:var(--panel);padding:26px;margin:0}
+.obs{border:1px solid var(--fg);background:var(--panel);padding:26px;margin:0}
 .obs-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
-  padding-bottom:14px;border-bottom:1px solid var(--rule)}
+  padding-bottom:14px;border-bottom:1px solid var(--line)}
 .obs-domain{font-family:var(--serif);font-size:20px}
 .obs-body{display:flex;align-items:baseline;gap:14px;padding:22px 0 6px}
 .obs-price{font-family:var(--serif);font-size:clamp(52px,6vw,74px);line-height:.9;
-  letter-spacing:-.03em;color:var(--ledger)}
-.obs-unit{font-size:14px;color:var(--muted);line-height:1.35}
-.obs-meta{border-top:1px solid var(--rule);margin-top:16px;padding-top:14px;
-  display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;font-size:12.5px;color:var(--muted)}
-.obs-meta b{display:block;color:var(--ink);font-weight:500;font-size:13px}
+  letter-spacing:-.03em;color:var(--signal)}
+.obs-unit{font-size:14px;color:var(--dim);line-height:1.35}
+.obs-meta{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;font-size:12.5px;color:var(--dim)}
+.obs-meta b{display:block;color:var(--fg);font-weight:500;font-size:13px}
 
 /* figures */
-.figures{border-bottom:1px solid var(--rule);padding:44px 0}
-.fig-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule)}
-.fig{background:var(--paper);padding:24px 20px}
+.figures{border-bottom:1px solid var(--line);padding:44px 0}
+.fig-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line)}
+.fig{background:var(--ink);padding:24px 20px}
 .fig .n{font-family:var(--serif);font-size:clamp(28px,3.3vw,41px);line-height:1;
   letter-spacing:-.02em;display:block}
-.fig .l{font-size:12.5px;color:var(--muted);margin-top:9px;display:block;line-height:1.45}
+.fig .l{font-size:12.5px;color:var(--dim);margin-top:9px;display:block;line-height:1.45}
 
 /* sections */
-.section{padding:70px 0;border-bottom:1px solid var(--rule)}
+.section{padding:70px 0;border-bottom:1px solid var(--line)}
 .section h2{font-family:var(--serif);font-weight:400;font-size:clamp(27px,3vw,36px);
   letter-spacing:-.015em;line-height:1.18;margin:14px 0 0;max-width:22ch}
-.intro{color:var(--muted);max-width:58ch;margin:16px 0 0}
+.intro{color:var(--dim);max-width:58ch;margin:16px 0 0}
 .split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:60px;align-items:start}
 
 /* coverage bar */
-.bar{display:flex;height:60px;border:1px solid var(--ink);overflow:hidden}
+.bar{display:flex;height:60px;border:1px solid var(--fg);overflow:hidden}
 .s-none{background:var(--panel)}
 .s-open{background:#CFC9BD}
-.s-block{background:var(--ledger)}
-.key{margin-top:22px;display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.key-row{background:var(--paper);display:grid;grid-template-columns:14px 1fr auto auto;
+.s-block{background:var(--signal)}
+.key{margin-top:22px;display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+.key-row{background:var(--ink);display:grid;grid-template-columns:14px 1fr auto auto;
   gap:14px;align-items:center;padding:11px 14px;font-size:14px}
 .sw{width:12px;height:12px;border:1px solid rgba(0,0,0,.18)}
 .key-n{font-weight:500}
-.key-p{color:var(--muted);font-size:13px;min-width:52px;text-align:right}
-.caveat{border-left:2px solid var(--brass);padding:4px 0 4px 20px;margin-top:26px;
-  font-size:14.5px;color:var(--muted);max-width:56ch}
-.caveat b{color:var(--ink);font-weight:500}
+.key-p{color:var(--dim);font-size:13px;min-width:52px;text-align:right}
+.caveat{border-left:2px solid var(--amber);padding:4px 0 4px 20px;margin-top:26px;
+  font-size:14.5px;color:var(--dim);max-width:56ch}
+.caveat b{color:var(--fg);font-weight:500}
 
 /* block-rate chart */
 .rates{display:grid;gap:12px}
 .rate-row{display:grid;grid-template-columns:150px 1fr 52px;gap:14px;align-items:center;font-size:14px}
-.rate-track{height:12px;background:var(--panel);border:1px solid var(--rule)}
-.rate-fill{height:100%;background:var(--ledger)}
-.rate-val{text-align:right;color:var(--muted);font-size:13px}
+.rate-track{height:12px;background:var(--panel);border:1px solid var(--line)}
+.rate-fill{height:100%;background:var(--signal)}
+.rate-val{text-align:right;color:var(--dim);font-size:13px}
 
 /* signals board */
 .board{width:100%;border-collapse:collapse;margin-top:30px;font-size:14.5px}
 .board th{text-align:left;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--muted);font-weight:600;padding:0 14px 12px 0;border-bottom:1px solid var(--ink)}
-.board td{padding:13px 14px 13px 0;border-bottom:1px solid var(--rule);vertical-align:baseline}
+  color:var(--dim);font-weight:600;padding:0 14px 12px 0;border-bottom:1px solid var(--fg)}
+.board td{padding:13px 14px 13px 0;border-bottom:1px solid var(--line);vertical-align:baseline}
 .board td.dom{font-family:var(--serif);font-size:17px}
 .tag{display:inline-block;font-size:11px;letter-spacing:.1em;font-weight:600;
-  padding:3px 8px;border:1px solid var(--rule);white-space:nowrap}
-.tag-PRICED{color:#ffffff;background:var(--ledger);border-color:var(--ledger)}
-.tag-GATED{color:var(--brass);border-color:var(--brass)}
-.tag-LICENSING{color:var(--muted)}
-.tag-FREE{color:var(--muted)}
+  padding:3px 8px;border:1px solid var(--line);white-space:nowrap}
+.tag-PRICED{color:#ffffff;background:var(--signal);border-color:var(--signal)}
+.tag-GATED{color:var(--amber);border-color:var(--amber)}
+.tag-LICENSING{color:var(--dim)}
+.tag-FREE{color:var(--dim)}
 
 /* claims */
-.claims{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
-  border:1px solid var(--rule);margin-top:34px}
-.claim{background:var(--paper);padding:26px 24px}
+.claims{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:34px}
+.claim{background:var(--ink);padding:26px 24px}
 .claim h3{font-family:var(--serif);font-weight:400;font-size:19px;margin:12px 0 8px}
-.claim p{margin:0;font-size:14.5px;color:var(--muted)}
-.claim-obs .eyebrow{color:var(--ledger)}
-.claim-disc .eyebrow{color:var(--brass)}
+.claim p{margin:0;font-size:14.5px;color:var(--dim)}
 
 /* tiers */
-.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);
-  border:1px solid var(--rule);margin-top:38px}
-.tier{background:var(--paper);padding:30px 26px;display:flex;flex-direction:column}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:38px}
+.tier{background:var(--ink);padding:30px 26px;display:flex;flex-direction:column}
 .tier .price{font-family:var(--serif);font-size:38px;letter-spacing:-.02em;margin:14px 0 4px}
-.tier .per{font-size:13px;color:var(--muted)}
-.tier ul{list-style:none;padding:0;margin:20px 0 26px;font-size:14.5px;color:var(--muted)}
-.tier li{padding:7px 0;border-bottom:1px solid var(--rule)}
+.tier .per{font-size:13px;color:var(--dim)}
+.tier ul{list-style:none;padding:0;margin:20px 0 26px;font-size:14.5px;color:var(--dim)}
+.tier li{padding:7px 0;border-bottom:1px solid var(--line)}
 .tier li:last-child{border-bottom:0}
 .tier a{margin-top:auto;text-align:center}
 
 /* footer */
-.foot{padding:52px 0 64px;font-size:13.5px;color:var(--muted)}
+.foot{padding:52px 0 64px;font-size:13.5px;color:var(--dim)}
 .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
-.foot h4{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
+.foot h4{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--fg);
   margin:0 0 14px;font-weight:600}
-.foot a{display:block;text-decoration:none;padding:4px 0;color:var(--muted)}
-.foot a:hover{color:var(--ink)}
+.foot a{display:block;text-decoration:none;padding:4px 0;color:var(--dim)}
+.foot a:hover{color:var(--fg)}
 .colophon{max-width:38ch}
-.foot-base{margin-top:44px;padding-top:20px;border-top:1px solid var(--rule);
+.foot-base{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
   display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:12.5px}
 
 @media (max-width:900px){
@@ -156,28 +130,25 @@ a.btn-ghost:hover{background:var(--ink);color:var(--paper)}
   .fig-grid{grid-template-columns:repeat(2,1fr)}
   .claims,.tiers{grid-template-columns:1fr}
   .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
-  .nav a.lnk{display:none}
-  .hero{padding:50px 0 42px}
   .section{padding:52px 0}
   .rate-row{grid-template-columns:120px 1fr 46px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<link rel="stylesheet" href="/theme.css">
 </head>
 <body>
 
-<header class="masthead">
-  <div class="wrap">
-    <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
-    <nav class="nav">
-      <a class="lnk" href="/check">Check a domain</a>
-      <a class="lnk" href="/world">Country editions</a>
-      <a class="lnk" href="/methodology">Methodology</a>
-      <a class="btn-ghost" href="/sample">Weekly email</a>
-      <a class="btn" id="cta-top" href="#access">Subscribe</a>
-    </nav>
-  </div>
-</header>
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" href="/#access">Subscribe</a>
+  </nav>
+</div></div>
 
 <section class="hero">
   <div class="wrap hero-grid">
@@ -308,7 +279,7 @@ a.btn-ghost:hover{background:var(--ink);color:var(--paper)}
         </ul>
         <a class="btn-ghost" href="/check">Check a domain</a>
       </div>
-      <div class="tier">
+      <div class="tier featured">
         <p class="eyebrow">Terminal</p>
         <div class="price">&euro;79</div>
         <div class="per">per month, VAT added</div>
@@ -372,7 +343,7 @@ a.btn-ghost:hover{background:var(--ink);color:var(--paper)}
   </div>
 </footer>
 
-<script id="data" type="application/json">{"asof":"09 Aug 2026, 10:47 UTC","robots_parsed":27067,"tranco_top_n":50000,"observed_price":"$0.50","block_gpt":15.3,"pub_multiple":5.3,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"10","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":14.9},{"bot":"GPTBot","rate":15.3},{"bot":"Bytespider","rate":14.3},{"bot":"ClaudeBot","rate":13.4},{"bot":"Google-Extended","rate":12.3},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":2.9}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
+<script id="data" type="application/json">{"asof":"15 Aug 2026, 10:32 UTC","robots_parsed":26953,"tranco_top_n":50000,"observed_price":"$0.50","block_gpt":15.4,"pub_multiple":5.1,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"9","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":15.1},{"bot":"GPTBot","rate":15.4},{"bot":"Bytespider","rate":14.5},{"bot":"ClaudeBot","rate":13.6},{"bot":"Google-Extended","rate":12.4},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":3}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
 <script>
 (function(){
   var STRIPE_LINK = "https://buy.stripe.com/3cI9AV3WpcB3cQo0dc8Ra00";
