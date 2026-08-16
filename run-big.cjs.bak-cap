@@ -246,18 +246,13 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
   // Late-sweep timeouts are partly our own adaptive throttling; a single calm
   // retry (low concurrency, longer budget) recovers transient misses honestly.
   if (retryables.length) {
-    const RETRY_CAP_MS = 45 * 60000, retryT0 = Date.now();
-    let retryDone = 0;
-    console.log(`\nRetry pass: ${retryables.length} network-level failures · concurrency 4 · 8s budget · 45 min cap`);
+    console.log(`\nRetry pass: ${retryables.length} network-level failures, concurrency 4, 15s budget…`);
     const rq = [...retryables];
     const recovered = [];
     async function retryWorker() {
       while (rq.length) {
         const { d, rank } = rq.shift();
-        if (Date.now() - retryT0 > RETRY_CAP_MS) { rq.length = 0; break; }
-        const r = await getRobots(d, 8000);
-        retryDone++;
-        if (retryDone % 500 === 0) console.log(`  retry ${retryDone}/${retryables.length} · ${Math.round((Date.now()-retryT0)/60000)} min`);
+        const r = await getRobots(d, 15000);
         if (r.status === 200 && r.body && !/^\s*</.test(r.body)) {
           fetched++;
           const v = parseRobots(r.body);

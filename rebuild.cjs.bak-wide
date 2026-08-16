@@ -315,10 +315,6 @@ const paidDataset = {
   corrections: readCorrections(),
   gtld_baseline: gtldBaseline,
 };
-// wide_probe: honest-identity scan of top-N + all blockers (additive key)
-if (fs.existsSync("wide-probe.json")) {
-  try { paidDataset.wide_probe = JSON.parse(fs.readFileSync("wide-probe.json", "utf8")); } catch (e) {}
-}
 fs.writeFileSync("paid-dataset.json", JSON.stringify(paidDataset));
 // safety: make sure paid-dataset.json is gitignored so it can NEVER be pushed public
 try {

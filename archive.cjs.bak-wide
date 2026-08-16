@@ -52,9 +52,6 @@ const snapshot = {
   coverage: { tranco_top_n: summary.tranco_top_n, robots_parsed: summary.robots_parsed },
   block_rates: Object.fromEntries(Object.entries(summary.block_rates || {}).map(([k, v]) => [k, v.rate_pct])),
   top_observed_price_usd: topPrice,
-  wide_probe: (function () { try { const w = JSON.parse(fs.readFileSync("wide-probe.json", "utf8")).summary;
-    return { probed: w.probed, p402: w.p402, priced: w.priced.length, tollbit: w.tollbit,
-             cf_fronted: w.cf_fronted, noai: w.x_robots_noai, llms_txt: w.llms_txt }; } catch (e) { return null; } })(),
   signal_counts: {
     tollbit_gated: (signals.tollbit_gated || []).length,
     licensing_402: (signals.licensing_402 || []).length,
