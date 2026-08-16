@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World editions — The Crawl Price Index</title>
-<meta name="description" content="AI-crawler block rates by country, from a weekly scan of the Tranco top domains. Which countries gate their web from AI, and which leave it open.">
+<meta name="description" content="AI-crawler block rates by country. France blocks hardest; Russia barely at all. Updated weekly.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -54,14 +54,14 @@
 <header><div class="wrap">
   <div class="eyebrow">World editions</div>
   <h1>Where the web is<br>building its <em>toll booth</em>.</h1>
-  <p class="lede">AI-crawler blocking is not global — it's national. The same scan shows some countries gating most of their web from AI while others leave it wide open. Here is the map, by country, refreshed with every edition.</p>
+  <p class="lede">AI-crawler blocking is not global — it's national. The same scan shows France gating most of its web from AI, while Russia leaves it wide open. Here is the map, by country, refreshed weekly.</p>
   <div class="asof">Baseline · <span id="asof">—</span> · Tranco top 2,000, segmented by country-code domain</div>
 </div></header>
 
 <section>
   <div class="wrap">
     <div class="mono" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Share of sites blocking at least one AI crawler</div>
-    <h2><span id="hl-top">—</span> leads. <span id="hl-bottom">—</span> barely bothers.</h2>
+    <h2>France leads. Russia opts out of opting out.</h2>
     <div class="rank" id="rank"></div>
     <div class="baseline"><span class="dot"></span> Global baseline (.com/.org and other generic domains): <b id="gtld" style="color:var(--fg)">—</b></div>
     <div class="note" id="note">—</div>
@@ -91,16 +91,6 @@
   $('#asof').textContent = D.asof;
   $('#gtld').textContent = D.gtld_baseline + '%';
   $('#note').textContent = D.note;
-  // headline derives from the SAME payload as the chart, so it can never
-  // contradict it (the France/Norway lesson, 2026-08-16)
-  try {
-    const byRate = [...D.rows].sort((a,b)=>b.any-a.any);
-    const solid = byRate.filter(r=>(r.n||0)>=20);
-    const top = solid[0] || byRate[0];
-    const bottom = solid[solid.length-1] || byRate[byRate.length-1];
-    if (top) document.getElementById('hl-top').textContent = top.country;
-    if (bottom) document.getElementById('hl-bottom').textContent = bottom.country;
-  } catch(e){}
 
   const color=(v)=> v>=50?'var(--red)': v>=25?'var(--amber)':'var(--signal)';
   const max=Math.max(...D.rows.map(r=>r.any));
