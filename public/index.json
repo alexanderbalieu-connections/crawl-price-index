@@ -1,30 +1,30 @@
 {
   "name": "The Crawl Price Index",
   "description": "Living observatory of the crawl economy. Free headline tier — full dataset requires subscription.",
-  "generated_utc": "2026-08-15T10:32:09.050Z",
+  "generated_utc": "2026-08-16T17:24:29.987Z",
   "cadence": "weekly",
   "coverage": {
     "tranco_top_n": 50000,
-    "robots_parsed": 26953
+    "robots_parsed": 28048
   },
   "block_rates_top2000": {
-    "GPTBot": 15.4,
-    "CCBot": 15.1,
-    "Bytespider": 14.5,
-    "ClaudeBot": 13.6,
-    "Google-Extended": 12.4,
-    "Amazonbot": 12.2,
-    "meta-externalagent": 12.1,
-    "Applebot-Extended": 11.7,
-    "anthropic-ai": 5.7,
+    "GPTBot": 15.2,
+    "CCBot": 14.8,
+    "Bytespider": 14.2,
+    "ClaudeBot": 13.4,
+    "Google-Extended": 12.2,
+    "Amazonbot": 11.9,
+    "meta-externalagent": 11.9,
+    "Applebot-Extended": 11.5,
+    "anthropic-ai": 5.6,
     "PerplexityBot": 5,
-    "Diffbot": 5,
-    "cohere-ai": 5,
+    "cohere-ai": 4.9,
+    "Diffbot": 4.9,
     "ChatGPT-User": 4.7,
-    "Claude-Web": 4.5,
+    "Claude-Web": 4.4,
     "Timpibot": 3.5,
     "OAI-SearchBot": 3,
-    "AI2Bot": 2.6,
+    "AI2Bot": 2.5,
     "Perplexity-User": 2
   },
   "observed_prices_headline": [
@@ -40,9 +40,9 @@
       "n": 54
     },
     "least_blocking": {
-      "country": "Serbia",
-      "any_ai_block_pct": 0,
-      "n": 23
+      "country": "China",
+      "any_ai_block_pct": 3.9,
+      "n": 155
     }
   },
   "enforcement_headline": {
@@ -50,14 +50,14 @@
     "panel_checks": 66
   },
   "tdmrep_headline": {
-    "adoption_pct": 2.35,
+    "adoption_pct": 2.45,
     "domains_probed": 2000
   },
   "methodology_version": "2026-08-10.1",
   "freshness": {
-    "sweep_at": "2026-08-16T08:35:54.161Z",
-    "rows_with_reading": 26974,
-    "rows_without_reading": 23048,
+    "sweep_at": "2026-08-16T17:24:30.237Z",
+    "rows_with_reading": 28069,
+    "rows_without_reading": 21953,
     "note": "observed=no means the domain did not yield a robots.txt reading in this sweep. Rates are computed over rows_with_reading only."
   },
   "evidence_summary": {

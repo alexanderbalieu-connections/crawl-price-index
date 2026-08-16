@@ -1,85 +1,85 @@
 {
-  "generated_utc": "2026-08-15T10:32:09.050Z",
+  "generated_utc": "2026-08-16T17:24:29.987Z",
   "tranco_top_n": 50000,
-  "robots_parsed": 26953,
+  "robots_parsed": 28048,
   "tdmrep": {
     "probed": 2000,
     "well_known": 11,
-    "header": 36,
-    "policy": 30,
-    "adoption_pct": 2.35
+    "header": 38,
+    "policy": 31,
+    "adoption_pct": 2.45
   },
   "block_rates": {
     "GPTBot": {
-      "blocked": 4155,
-      "rate_pct": 15.4
+      "blocked": 4258,
+      "rate_pct": 15.2
     },
     "CCBot": {
-      "blocked": 4073,
-      "rate_pct": 15.1
+      "blocked": 4150,
+      "rate_pct": 14.8
     },
     "Bytespider": {
-      "blocked": 3896,
-      "rate_pct": 14.5
+      "blocked": 3984,
+      "rate_pct": 14.2
     },
     "ClaudeBot": {
-      "blocked": 3662,
-      "rate_pct": 13.6
+      "blocked": 3758,
+      "rate_pct": 13.4
     },
     "Google-Extended": {
-      "blocked": 3352,
-      "rate_pct": 12.4
-    },
-    "Amazonbot": {
-      "blocked": 3277,
+      "blocked": 3428,
       "rate_pct": 12.2
     },
+    "Amazonbot": {
+      "blocked": 3351,
+      "rate_pct": 11.9
+    },
     "meta-externalagent": {
-      "blocked": 3271,
-      "rate_pct": 12.1
+      "blocked": 3350,
+      "rate_pct": 11.9
     },
     "Applebot-Extended": {
-      "blocked": 3151,
-      "rate_pct": 11.7
+      "blocked": 3218,
+      "rate_pct": 11.5
     },
     "anthropic-ai": {
-      "blocked": 1534,
-      "rate_pct": 5.7
+      "blocked": 1564,
+      "rate_pct": 5.6
     },
     "PerplexityBot": {
-      "blocked": 1352,
-      "rate_pct": 5
-    },
-    "Diffbot": {
-      "blocked": 1347,
+      "blocked": 1394,
       "rate_pct": 5
     },
     "cohere-ai": {
-      "blocked": 1346,
-      "rate_pct": 5
+      "blocked": 1374,
+      "rate_pct": 4.9
+    },
+    "Diffbot": {
+      "blocked": 1371,
+      "rate_pct": 4.9
     },
     "ChatGPT-User": {
-      "blocked": 1280,
+      "blocked": 1319,
       "rate_pct": 4.7
     },
     "Claude-Web": {
-      "blocked": 1214,
-      "rate_pct": 4.5
+      "blocked": 1238,
+      "rate_pct": 4.4
     },
     "Timpibot": {
-      "blocked": 956,
+      "blocked": 976,
       "rate_pct": 3.5
     },
     "OAI-SearchBot": {
-      "blocked": 803,
+      "blocked": 835,
       "rate_pct": 3
     },
     "AI2Bot": {
-      "blocked": 705,
-      "rate_pct": 2.6
+      "blocked": 713,
+      "rate_pct": 2.5
     },
     "Perplexity-User": {
-      "blocked": 547,
+      "blocked": 558,
       "rate_pct": 2
     }
   },
@@ -132,9 +132,8 @@
     ],
     "maxpriceFlips": [
       "pressgazette.co.uk: claudebot=403 +maxprice=200",
-      "stackoverflow.com: claudebot=402 +maxprice=400",
-      "www.digiday.com: claudebot=200 +maxprice=429"
+      "stackoverflow.com: claudebot=402 +maxprice=400"
     ]
   },
-  "runtime_s": 9638
+  "runtime_s": 29520
 }

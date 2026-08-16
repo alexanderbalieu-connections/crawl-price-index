@@ -99,17 +99,32 @@ function loadDomains() {
 }
 
 // ---- fetch + parse (self-contained) ---------------------------------------
-async function getRobots(domain) {
+async function fetchRobotsOnce(host, ms) {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 10000);
+  const t = setTimeout(() => ctrl.abort(), ms);
   try {
-    const res = await fetch(`https://${domain}/robots.txt`, { redirect: "follow", signal: ctrl.signal, headers: { "User-Agent": HONEST_UA, Accept: "*/*" } });
+    const res = await fetch(`https://${host}/robots.txt`, { redirect: "follow", signal: ctrl.signal, headers: { "User-Agent": HONEST_UA, Accept: "*/*" } });
     let body = "";
     if (res.status === 200) { try { body = (await res.text()).slice(0, 500000); } catch {} }
     else { try { res.body?.cancel(); } catch {} }
     return { status: res.status, body, tdm: res.headers.get("tdm-reservation"), tdmPolicy: res.headers.get("tdm-policy") };
   } catch (e) { return { status: 0, body: "", err: e.name === "AbortError" ? "timeout" : (e.cause?.code || "err") }; }
   finally { clearTimeout(t); }
+}
+// METHODOLOGY v2 (2026-08-16): if the bare apex fails at the network level
+// (no DNS, refused, timeout), retry once on www.<domain> — Tranco lists
+// registrable domains, but many sites only answer on www. Same honest,
+// signed crawler; one extra attempt; failure reason recorded either way.
+async function getRobots(domain, ms) {
+  ms = ms || 10000;
+  let r = await fetchRobotsOnce(domain, ms);
+  if (r.status === 0 && !domain.startsWith("www.")) {
+    const w = await fetchRobotsOnce("www." + domain, ms);
+    if (w.status !== 0) { w.via = "www"; return w; }
+    w.err = r.err || w.err;
+    return w;
+  }
+  return r;
 }
 function parseRobots(txt) {
   const result = {}; if (!txt) return result;
@@ -154,6 +169,8 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
   }
 
   let i = prog.nextIndex, fetched = prog.fetched;
+  const failures = [];        // rank,domain,reason for every unparsed domain
+  const retryables = [];      // network-level failures worth one gentle retry
   // block counts: if resuming, recompute from the partial CSV already on disk
   const blockCounts = Object.fromEntries(ROBOTS_BOTS.map(b => [b, 0]));
   if (prog.nextIndex > 0 && fs.existsSync(OUT)) {
@@ -197,6 +214,10 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
           rows.push([rank, d, ...ROBOTS_BOTS.map(b => v[b] || "unlisted")].join(","));
         } else {
           rows.push([rank, d, ...ROBOTS_BOTS.map(() => "no_robots")].join(","));
+          // census of WHY, kept out of the main CSV so nothing downstream changes
+          const why = r.status === 0 ? (r.err || "net") : ("http_" + r.status);
+          failures.push(rank + "," + d + "," + why);
+          if (r.status === 0) retryables.push({ d, rank });
         }
         await sleep(spacing);
       }
@@ -220,6 +241,50 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
     const pct = ((i / domains.length) * 100).toFixed(1);
     console.log(`  ${i}/${domains.length} (${pct}%) · parsed ${fetched} · ${Math.round((Date.now()-t0)/1000)}s · chunk pushback ${(pushRate*100).toFixed(0)}%`);
   }
+
+  // ---- retry pass: one gentle second attempt at network-level failures ------
+  // Late-sweep timeouts are partly our own adaptive throttling; a single calm
+  // retry (low concurrency, longer budget) recovers transient misses honestly.
+  if (retryables.length) {
+    console.log(`\nRetry pass: ${retryables.length} network-level failures, concurrency 4, 15s budget…`);
+    const rq = [...retryables];
+    const recovered = [];
+    async function retryWorker() {
+      while (rq.length) {
+        const { d, rank } = rq.shift();
+        const r = await getRobots(d, 15000);
+        if (r.status === 200 && r.body && !/^\s*</.test(r.body)) {
+          fetched++;
+          const v = parseRobots(r.body);
+          for (const b of ROBOTS_BOTS) if (v[b] === "blocked") blockCounts[b]++;
+          recovered.push({ rank, d, line: [rank, d, ...ROBOTS_BOTS.map(b => v[b] || "unlisted")].join(",") });
+        }
+        await sleep(250);
+      }
+    }
+    await Promise.all(Array.from({ length: 4 }, retryWorker));
+    if (recovered.length) {
+      // replace the placeholder no_robots rows in the CSV with the real ones
+      const got = new Map(recovered.map(x => [x.rank + "," + x.d + ",", x.line]));
+      const lines = fs.readFileSync(OUT, "utf8").split("\n");
+      for (let li = 1; li < lines.length; li++) {
+        const key = lines[li].split(",").slice(0, 2).join(",") + ",";
+        if (got.has(key)) lines[li] = got.get(key);
+      }
+      fs.writeFileSync(OUT, lines.join("\n"));
+      const gotSet = new Set(recovered.map(x => x.d));
+      for (let fi = failures.length - 1; fi >= 0; fi--) {
+        if (gotSet.has(failures[fi].split(",")[1])) failures.splice(fi, 1);
+      }
+    }
+    console.log(`Retry pass recovered ${recovered.length} of ${retryables.length}.`);
+  }
+
+  // failure census — separate file, nothing downstream changes shape
+  fs.writeFileSync("scan-failures.csv", "rank,domain,reason\n" + failures.join("\n") + "\n");
+  const reasons = {};
+  for (const f of failures) { const w = f.split(",")[2]; reasons[w] = (reasons[w] || 0) + 1; }
+  console.log("Unparsed census:", JSON.stringify(reasons));
 
   // done with harvest — clear checkpoint
   fs.unlinkSync(PROGRESS);
