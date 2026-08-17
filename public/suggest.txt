@@ -12,39 +12,54 @@ www.economist.com
 youtube.com
 www.ft.com
 amazonaws.com
-www.forbes.com
+www.businessinsider.com
 apple.com
+www.forbes.com
 instagram.com
-www.theverge.com
 mail.ru
-www.tomshardware.com
+www.theverge.com
 fbcdn.net
-www.spiegel.de
 twitter.com
+www.cnet.com
 dzen.ru
-www.heise.de
-www.lemonde.fr
+www.zdnet.com
+www.tomshardware.com
+www.pcgamer.com
 googlevideo.com
-www.telegraph.co.uk
-www.independent.co.uk
-www.thespruce.com
-www.seriouseats.com
-www.investopedia.com
+www.polygon.com
+www.spiegel.de
+www.heise.de
+www.golem.de
 amazon.com
-www.healthline.com
-www.reddit.com
+www.lemonde.fr
+www.lefigaro.fr
+www.corriere.it
 bing.com
-www.digiday.com
+www.telegraph.co.uk
 github.com
+www.independent.co.uk
 wikipedia.org
 whatsapp.net
+www.howtogeek.com
 fastly.net
+www.makeuseof.com
+www.androidpolice.com
+www.xda-developers.com
+www.slashgear.com
 doubleclick.net
+www.thespruce.com
+www.seriouseats.com
 netflix.com
+www.investopedia.com
+www.healthline.com
+www.webmd.com
 wordpress.org
+www.digitaltrends.com
+www.reddit.com
 digicert.com
 youtu.be
 gandi.net
+www.digiday.com
 x.com
 pinterest.com
 tiktok.com
@@ -68,6 +83,7 @@ qq.com
 opera.com
 cloudflare-dns.com
 mozilla.org
+nic.ru
 samsung.com
 yandex.ru
 wordpress.com
@@ -182,6 +198,7 @@ aliyun.com
 gnu.org
 amplitude.com
 drom.ru
+un.org
 ea.com
 checkpoint.com
 weebly.com
@@ -450,6 +467,7 @@ discordapp.com
 unpkg.com
 zoho.com
 amazon.com.br
+myspace.com
 recaptcha.net
 thenai.org
 pexels.com
@@ -540,6 +558,7 @@ theconversation.com
 huffpost.com
 lwsdns.com
 youronlinechoices.com
+futbin.com
 app-ads-services.com
 bol.com
 xing.com
@@ -617,6 +636,7 @@ pandora.com
 clarin.com
 upenn.edu
 dribbble.com
+vivo.com
 lanacion.com.ar
 he.net
 namu.wiki
@@ -706,6 +726,7 @@ canada.ca
 labs.google
 wiktionary.org
 dlsite.com
+youporn.com
 livescore.com
 ladepeche.fr
 lc.chat
@@ -746,16 +767,12 @@ calculator.net
 usnews.com
 pornone.com
 playhop.com
-lookmovie2.to
 xhsocial.com
 thisvid.com
 funpay.com
+youjizz.com
 ruliweb.com
 meteofrance.com
-iqiyi.com
-smadex.com
-jalan.net
-asurascans.com
 sotwe.com
 turkiye.gov.tr
 digikala.com
@@ -785,6 +802,7 @@ buzzfeed.com
 sex-studentki.team
 nikkansports.com
 mangabuff.ru
+bookmyshow.com
 dagbladet.no
 novinky.cz
 action.com
@@ -822,6 +840,7 @@ ixl.com
 nesine.com
 otomoto.pl
 sozcu.com.tr
+simpcity.cr
 betway.co.za
 protothema.gr
 blic.rs
@@ -846,6 +865,7 @@ eenadu.net
 myinstants.com
 jagran.com
 ekstrabladet.dk
+toyhou.se
 missav.live
 luxuretv.com
 fedoraproject.org
@@ -869,6 +889,7 @@ wpastra.com
 xnxx2.com
 testbook.com
 akismet.com
+torob.com
 xnxx.es
 dogdrip.net
 sondakika.com
@@ -961,6 +982,7 @@ redwap.sex
 hentai.name
 sexalarab.com
 6opo.com
+njavtv.com
 colliderporn.com
 diretta.it
 arabxn.sex
@@ -978,19 +1000,16 @@ arabtnt.com
 administracionelectronica.gob.es
 jra.go.jp
 afribaba.com
-vymanga.com
 twkan.com
 alphapolis.co.jp
 librus.pl
 an1.com
 pornhat.one
 darkero.com
-oddspark.com
 autoplius.lt
 xpaja.net
 turbo.az
 flashscore.mobi
-skipthegames.com
 yallakora.com
 escort.club
 pornoborshch.com
@@ -1052,7 +1071,6 @@ bpexch.live
 maynoe.com
 xn--12c1ezaww.com
 yasyadong01.tv
-mobcup.fm
 desitelugusex.com
 mangaraw.ac
 kkstories.com
@@ -1098,6 +1116,7 @@ usps.com
 oreilly.com
 gdemoideti.ru
 xhchannel.com
+groww.in
 samsungknox.com
 xinhuanet.com
 nps.gov
@@ -1141,6 +1160,7 @@ ford.com
 hqporner.com
 adrta.com
 intercom.com
+wb.gov.in
 meetup.com
 artfight.net
 deezer.com
@@ -1220,6 +1240,7 @@ jakarta.go.id
 hostpoint.ch
 nezakr.net
 sogou.com
+mos.ru
 instructure.com
 beget.com
 sweb.ru
@@ -1321,7 +1342,6 @@ expedia.com
 vox.com
 mixcloud.com
 klarna.com
-polymarket.com
 cctv.com
 istockphoto.com
 duke.edu
@@ -1425,7 +1445,6 @@ x5.ru
 ny.gov
 mpg.de
 miro.com
-co.com
 usc.edu
 express.co.uk
 sendbird.com
@@ -1616,6 +1635,7 @@ registry.in
 iop.org
 strato.de
 prezi.com
+optimove.net
 cookieyes.com
 wa.gov
 tealiumiq.com
@@ -1635,6 +1655,7 @@ ipapi.co
 ubisoft.com
 tvsquared.com
 sportradar.com
+narod.ru
 crazyegg.com
 wanadoo.fr
 kpmg.com
@@ -1800,11 +1821,11 @@ docusign.com
 hootsuite.com
 shopee.com.my
 tagesschau.de
+ifood.com.br
 x-cdn-static.com
 billboard.com
 freshdesk.com
 xero.com
-zemanta.com
 ex.co
 dnsimple.com
 profi.ru
@@ -1894,7 +1915,6 @@ handelsblatt.com
 apnic.net
 4shared.com
 hrw.org
-betcity.ru
 atom.com
 google.co.th
 lavanguardia.com
@@ -1913,6 +1933,7 @@ artstation.com
 telstra.com
 postman.com
 nicovideo.jp
+ke.com
 servidoresdns.net
 register.it
 iterable.com
@@ -1925,7 +1946,6 @@ frdmhere.com
 digitaltrends.com
 blogspot.co.uk
 federalregister.gov
-nalog.ru
 braze.eu
 entrust.net
 revcontent.com
@@ -1940,6 +1960,7 @@ feedly.com
 nzherald.co.nz
 weatherbug.net
 go.dev
+ipcc.ch
 bale.ai
 chron.com
 sfr.fr
@@ -1980,6 +2001,7 @@ bitly.com
 habr.com
 abc.es
 google.gr
+excite.co.jp
 razorpay.com
 br.de
 e-recht24.de
@@ -2107,7 +2129,6 @@ aws.com
 shopee.vn
 dji.com
 liberation.fr
-quillbot.com
 piano.io
 google.cl
 freelancer.com
@@ -2144,7 +2165,6 @@ tori.fi
 sivc.ac.th
 qvdt3feo.com
 themegrill.com
-uscis.gov
 banahosting.com
 bostonglobe.com
 dynamicyield.com
@@ -2289,6 +2309,7 @@ iinet.net.au
 zoominfo.com
 ctrip.com
 wayground.com
+alamy.com
 uefa.com
 emojipedia.org
 steaminventoryhelper.com
@@ -2507,7 +2528,6 @@ tanium.com
 foreignpolicy.com
 aviasales.ru
 sendsay.ru
-www.gob.mx
 paycomonline.net
 appnext.com
 ably.io
@@ -2591,6 +2611,7 @@ jivosite.com
 nationalacademies.org
 spaceship.com
 crex.com
+hyperliquid.xyz
 doujindesu.tv
 drugs.com
 tunein.com
@@ -2863,7 +2884,6 @@ nato.int
 google.com.cu
 laposte.fr
 menards.com
-batdongsan.com.vn
 knowyourmeme.com
 bookshop.org
 serpro.gov.br
@@ -2989,6 +3009,7 @@ thinkwithgoogle.com
 rutracker.org
 pdflib.com
 pearson.com
+rainbird.com
 imperial.ac.uk
 atptour.com
 uio.no
@@ -3096,8 +3117,8 @@ ltn.com.tw
 skechers.com
 gao.gov
 cgtn.com
-thepiratebay.org
 greenend.org.uk
+pixels.com
 pathofexile.com
 cricketwireless.com
 rentalcars.com
@@ -3128,7 +3149,6 @@ metal-archives.com
 inaturalist.org
 tudelft.nl
 google.mk
-tradedoubler.com
 oclc.org
 github.blog
 jiosaavn.com
@@ -3170,7 +3190,6 @@ royalcaribbean.com
 cbs.com
 hola.com
 vfsglobal.com
-4chan.org
 tradeinn.com
 harborfreight.com
 gencat.cat
@@ -3215,7 +3234,6 @@ gamerant.com
 sankei.com
 boingboing.net
 airasia.com
-pavietnam.net
 sexlog.com
 tritondigital.com
 empik.com
@@ -3374,6 +3392,7 @@ daraz.pk
 beacons.ai
 concursolutions.com
 delfi.lt
+betano.com
 informer.com
 jiji.com
 axa.com
@@ -3414,7 +3433,6 @@ sbnation.com
 pointclickcare.com
 xunlei.com
 google.ie
-faberlic.com
 vdsina.ru
 tal.com
 zepto.com
@@ -3544,7 +3562,6 @@ movieweb.com
 beehiiv.com
 muni.cz
 bbcgoodfood.com
-playerok.com
 zearn.org
 securedvisit.com
 trustedshops.com
@@ -3614,11 +3631,9 @@ irecommend.ru
 tiny.cc
 eurogamer.net
 xxxbp.pro
-williamhill.com
 ilgiornale.it
 supplyframe.com
 so-net.ne.jp
-emol.com
 mixi.jp
 sfchronicle.com
 fsf.org
@@ -3636,7 +3651,6 @@ mynet.com
 theporndude.com
 gsa.gov
 sport1.de
-rutarget.ru
 eater.com
 tate.org.uk
 literotica.com
@@ -3656,6 +3670,7 @@ carnet.hr
 megaphone.fm
 reserved.com
 telecinco.es
+author.today
 11st.co.kr
 ura.news
 citigroup.com
@@ -3669,6 +3684,7 @@ gmw.cn
 unodc.org
 dawn.com
 jooble.org
+smotrim.ru
 maine.gov
 b92.net
 procyclingstats.com
@@ -3705,6 +3721,7 @@ camscanner.com
 dhnet.be
 hackernoon.com
 gbnews.com
+unctad.org
 midilibre.fr
 wpzoom.com
 nicehash.com
@@ -3722,7 +3739,6 @@ goodrx.com
 wyze.com
 liveramp.com
 ub.edu
-zol.com.cn
 bambuser.com
 racingpost.com
 jornada.com.mx
@@ -3747,7 +3763,6 @@ superbthemes.com
 statefarm.com
 consumerfinance.gov
 rit.edu
-hai8g.com
 google.mu
 heute.at
 stihi.ru
@@ -3759,7 +3774,6 @@ freeconvert.com
 findmykids.org
 tue.nl
 cnnindonesia.com
-tui.co.uk
 poder360.com.br
 getpublica.com
 gva.es
@@ -3860,6 +3874,7 @@ chunichi.co.jp
 ajc.com
 upravel.com
 pracuj.pl
+1mg.com
 heraldo.es
 raptive.com
 tn.com.ar
@@ -3938,6 +3953,7 @@ joongang.co.kr
 farsnews.ir
 mywot.com
 buzzfeednews.com
+sikayetvar.com
 google.com.kh
 bankier.pl
 rp-online.de
@@ -4001,7 +4017,6 @@ sofifa.com
 playmogo.com
 newsnow.co.uk
 google.com.vc
-pricecharting.com
 kathimerini.gr
 ixigo.com
 manchestereveningnews.co.uk
@@ -4060,7 +4075,6 @@ gtranslate.net
 nishinippon.co.jp
 storm.mg
 html-load.cc
-smartape.ru
 syr.edu
 hextom.com
 globaltimes.cn
@@ -4193,6 +4207,7 @@ google.com.bo
 tagsrvcs.com
 censor.net
 indiewire.com
+tube8.com
 freeones.com
 amazon.sg
 ole.com.ar
@@ -4288,6 +4303,7 @@ nic.ch
 ygosu.com
 leadsquared.com
 kth.se
+boulanger.com
 nami.org
 google.lk
 eldebate.com
@@ -4362,6 +4378,7 @@ doodle.com
 optum.com
 halodoc.com
 heroeswm.ru
+nypl.org
 tickettailor.com
 google.tm
 destentor.nl
@@ -4436,7 +4453,6 @@ prokerala.com
 uvm.edu
 smbc-card.com
 jetpunk.com
-mahaonline.gov.in
 dmv.org
 ncl.ac.uk
 wikiwiki.jp
@@ -4450,6 +4466,7 @@ adorocinema.com
 bebee.com
 buildkite.com
 dotloop.com
+fineartamerica.com
 auntmia.com
 camwhores.tv
 calm.com
@@ -4505,7 +4522,6 @@ domclick.ru
 xhbox.today
 attentivemobile.com
 sch.gr
-vu.nl
 ottadvisors.com
 taz.de
 chronopost.fr
@@ -4597,8 +4613,6 @@ gaymaletube.com
 super.cz
 oikotie.fi
 xvideos3.com
-dot-st.com
-oceanofpdf.com
 yesplay.bet
 cashify.in
 emlakjet.com
@@ -4687,11 +4701,9 @@ logi.com
 thecut.com
 geny.com
 revistaoeste.com
-lpsg.com
 ldplayer.net
 javhdporn.net
 nova.rs
-netdna-ssl.com
 ccc.eu
 bustimes.org
 horoscope.com
@@ -4814,6 +4826,7 @@ servedbyadbutler.com
 bqsex.com
 flashscore.pl
 hostpapa.com
+hentaicity.com
 espn.com.ar
 chunkbase.com
 weebcentral.com
@@ -4887,7 +4900,6 @@ iucn.org
 espn.com.mx
 digisport.ro
 win2day.at
-ikman.lk
 onlinekhabar.com
 samarth.edu.in
 toast.com
@@ -4904,6 +4916,7 @@ yenicaggazetesi.com
 nordpass.com
 mixnews.lv
 kaliscan.io
+temple.edu
 brasil247.com
 tivo.com
 ruhr24.de
@@ -5035,7 +5048,6 @@ skyscanner.es
 curalate.com
 cinecalidad.am
 freeporno.xxx
-clickr.pro
 obqj2.com
 tolunastart.com
 mywellness.com
@@ -5075,6 +5087,7 @@ storysaver.net
 gamerxyt.com
 musics-fa.com
 eyefinity.com
+onlinejobs.ph
 icicibank.com
 shaalaa.com
 google.bj
@@ -5209,6 +5222,7 @@ imgflip.com
 canalblog.com
 ziare.com
 dignitymemorial.com
+tanishq.co.in
 wri.org
 securly.com
 bustybus.com
@@ -5228,6 +5242,7 @@ pron.click
 macroaxis.com
 ponta.jp
 grapee.jp
+sdna.gr
 getmodsapk.com
 amd.online
 wuytg.com
@@ -5348,7 +5363,6 @@ mycima.cc
 decathlon.pl
 bahesab.ir
 bakecaincontrii.com
-anime-sama.to
 f-secure.com
 xlxx.mobi
 josporn.club
@@ -5402,6 +5416,7 @@ alphatv.gr
 mantis-intelligence.com
 boylove.cc
 a-yz.com
+hsex.tv
 pkok11.com
 otter.ai
 arabxn.com
@@ -5431,7 +5446,6 @@ destacamos.com
 mlookalporno.com
 arabsex1.com
 truyenfull.today
-avtub.net
 victronenergy.com
 tala.ir
 languagetoolplus.com
@@ -5550,7 +5564,6 @@ google.ms
 nepremicnine.net
 gdpr-info.eu
 albumaty.com
-taplink.cc
 filmix.my
 riovagas.com.br
 luvyaa.co
@@ -5582,7 +5595,6 @@ zefoy.com
 brainyquote.com
 realtimetrains.co.uk
 solopornoitaliani.xxx
-betfair.com
 yakkun.com
 searchy.io
 todorelatos.com
@@ -5616,7 +5628,6 @@ meteored.cl
 dwin1.com
 crickexnow.com
 easyhomescreen.com
-kisskh.nl
 andpad.jp
 best-hit.tv
 avtub.wiki
@@ -5677,7 +5688,6 @@ daringfireball.net
 tamilgun.now
 turf-fr.com
 cisf.gov.in
-strikeout.im
 forogore.net
 arcor.de
 law.com
@@ -5689,11 +5699,9 @@ novinhabucetuda.com
 css-tricks.com
 itu.ch
 lameteoagricole.net
-aagag.com
 freundin.de
 bokepbox.tv
 alerts.in.ua
-garotocomlocal.com.br
 sexallarab.com
 dizy.com
 meczyki.pl
@@ -5752,7 +5760,6 @@ jadwalnonton.com
 betclic.ci
 tudn.com
 locanto.com.mx
-just-smilenext.jp
 jatengprov.go.id
 nakheelteam.cc
 thenkiri.com
@@ -5850,6 +5857,7 @@ desipussy.in
 copernicus.eu
 contentstack.io
 adcam.org
+pagalnew.com
 arabhubx.site
 paymetrust.net
 kiro.dev
@@ -5904,6 +5912,7 @@ scoalarutiera.ro
 viranet.app
 eduvulcan.pl
 ratkojat.fi
+dg-datenschutz.de
 google.st
 cnr.cn
 adapty.io
@@ -5946,6 +5955,7 @@ google.cv
 pari-betting.com
 loteriasdehoy.co
 bjx.com.cn
+pornokk.com
 1x1x5.com
 ethiolottery.et
 enterprise.com
@@ -5981,7 +5991,6 @@ indiadafa.com
 inews.co.uk
 alastonsuomi.com
 ulluwebseries.one
-loadedfiles.org
 sex-masry.com
 biess.fin.ec
 interestingengineering.com
@@ -6030,6 +6039,7 @@ hela-lankaa-ads.com
 uqam.ca
 promptseen.com
 workable.com
+logicmonitor.com
 storytv.co.in
 printerval.com
 unibe.ch
@@ -6327,6 +6337,7 @@ drexel.edu
 landingsite.ai
 womensecret.com
 land.gov.bd
+trueachievements.com
 mczbf.com
 eleman.net
 electrek.co
@@ -6339,6 +6350,7 @@ s2517.com
 cults3d.com
 purchasely.io
 sendpulse.com
+belta.by
 uptodate.com
 bama.ir
 minepi.com
@@ -6386,6 +6398,7 @@ hermes.com
 13o.net
 stayfreeapps.com
 ala.org
+titan.co.in
 horsereality.com
 soax.com
 izooto.com
@@ -6407,6 +6420,7 @@ samsungsds.com
 marapets.com
 bonusprint.co.uk
 ic3.gov
+cerdas.com
 uc.edu
 egihosting.com
 informationweek.com
@@ -6573,6 +6587,7 @@ loppytoonn.com
 qadcuteo.cc
 flathub.org
 apachehaus.com
+thedrive.com
 adultfriendfinder.com
 funinexch.com
 openvpn.net
@@ -6589,7 +6604,6 @@ imoim.app
 qualys.eu
 anikoto.cz
 fextralife.com
-vegamovies.mq
 convertio.co
 zola.com
 faire.com
@@ -6724,6 +6738,7 @@ nitropay.com
 bsky.social
 adspector.io
 34sp.com
+axinntus.com
 pogovorim.by
 abc7.com
 engenius.ai
@@ -7101,7 +7116,6 @@ moviesda.bet
 nagawinplus.com
 olxcun.com
 prmovies.farm
-skymovieshd.spot
 tamilprint60.art
 tamilprint61.art
 tickettolords.com
@@ -7272,8 +7286,6 @@ g2288.com
 ageverif.com
 blendlabs.com
 iadb.org
-1xbet.com
-komus.ru
 politifact.com
 fozzy.com
 tasteofhome.com
@@ -7307,8 +7319,6 @@ iracing.com
 goodnotes.com
 ariba.com
 300624.com
-piensasolutions.com
-samoletplus.ru
 wildapricot.org
 candy.ai
 pxltgr.com
@@ -7358,6 +7368,7 @@ vocabulary.com
 tgstat.com
 ally.com
 frame.io
+36kr.com
 nominalia.com
 diabetesjournals.org
 thepioneerwoman.com
@@ -7403,7 +7414,6 @@ stoloto.ru
 acog.org
 crates.io
 oneplus.com
-breakingtrumpnews.icu
 cookieinformation.com
 unlp.edu.ar
 maxon.net
@@ -7428,7 +7438,6 @@ elisa.fi
 penzu.com
 hmv.co.jp
 uab.edu
-hottrumpnews.icu
 corporatefinanceinstitute.com
 fortiguard.com
 dict.cc
@@ -7547,7 +7556,6 @@ iwara.tv
 lalibre.be
 sans.org
 storeland.ru
-camsite26.lol
 ctyun.cn
 belastingdienst.nl
 talksport.com
@@ -7569,7 +7577,6 @@ utdallas.edu
 syfy.com
 weezevent.com
 grupoloading.com
-cochranelibrary.com
 justhost.ru
 evite.com
 mobygames.com
@@ -7697,6 +7704,7 @@ bathandbodyworks.com
 swisscom.com
 england.nhs.uk
 ahrq.gov
+devicetrust.com
 tribuna.com
 jalbum.net
 atw.hu
@@ -7919,6 +7927,7 @@ theprint.in
 samba.org
 infomoney.com.br
 trademe.co.nz
+writeablog.net
 pandora.net
 jjshouse.com
 soso.com
@@ -7979,7 +7988,6 @@ rappler.com
 kew.org
 skf.com
 lh.pl
-assemblee-nationale.fr
 vzw.com
 packetstream.io
 prevention.com
@@ -8128,7 +8136,6 @@ autoscout24.com
 truthout.org
 lianjia.com
 loupan.com
-beniculturali.it
 sitezoogle.com
 sika.com
 dimensions.ai
@@ -8175,6 +8182,7 @@ schemaapp.com
 nbcchicago.com
 loccitane.com
 nga.gov
+thieme-connect.com
 rippling.com
 advfn.com
 fatum.ru
@@ -8199,7 +8207,6 @@ fcbarcelona.com
 almanac.com
 toss.im
 protonvpn.com
-psnprofiles.com
 kuula.co
 einpresswire.com
 element.io
@@ -8209,6 +8216,7 @@ artillex-studios.com
 pinterest.es
 siteimproveanalytics.com
 wm.edu
+newfold-dev.site
 bookofra-play.com
 axiombid.com
 apkcombo.com
@@ -8256,6 +8264,7 @@ yes24.com
 inpost.pl
 wiz.io
 mappy.com
+citizen.co.za
 blm.gov
 uni-bayreuth.de
 freesound.org
@@ -8335,6 +8344,7 @@ blossomthemes.com
 pcisecuritystandards.org
 bhf.org.uk
 mun.ca
+anotepad.com
 podigee.io
 versatel.de
 pastemagazine.com
@@ -8369,7 +8379,6 @@ z.ai
 krisha.kz
 vibrantdreamscape.com
 otempo.com.br
-auctor.tv
 vniiftri.ru
 myswitzerland.com
 kent.edu
@@ -8400,7 +8409,9 @@ novofon.com
 gamedeveloper.com
 harley-davidson.com
 mopo.de
+nintendolife.com
 toomics.com
+equalweb.com
 gdpr.eu
 bluebillywig.com
 postermywall.com
@@ -8444,7 +8455,7 @@ mainroll.com
 sucuri.net
 nebraska.gov
 nrf.com
-betway.com
+postheaven.net
 swgoh.gg
 du.edu
 sil.org
@@ -8469,7 +8480,6 @@ restream.io
 cityam.com
 pngwing.com
 gay0day.com
-cultura.gov.it
 alocdn.com
 wpmet.com
 salemove.com
@@ -8577,6 +8587,7 @@ tds.bid
 metu.edu.tr
 mediafax.ro
 mta.info
+wealthsimple.com
 naturalnews.com
 jobkorea.co.kr
 chatango.com
@@ -8633,6 +8644,7 @@ theshow.com
 tes.com
 postcodebase.com
 711proxy.com
+zenwriting.net
 tresensa.com
 strath.ac.uk
 podomatic.com
@@ -8655,7 +8667,6 @@ bliink.io
 444.hu
 eurosport.com
 maya.ph
-artic.edu
 rotowire.com
 hottopic.com
 accorhotels.com
@@ -8771,8 +8782,6 @@ peerj.com
 desktop.com.br
 shiseido.co.jp
 panini.com.br
-nielseniq.com
-spanishdict.com
 estrepublicain.fr
 privacypolicies.com
 pushnami.com
@@ -9037,6 +9046,7 @@ minimax.io
 zen.co.uk
 liverpool.ac.uk
 medpagetoday.com
+blogfreely.net
 smarturl.it
 deltaork.com
 petmd.com
@@ -9086,7 +9096,6 @@ udg.mx
 nwu.ac.za
 agpd.es
 alistapart.com
-lbkrs.com
 engage7.com
 darpa.mil
 gurufocus.com
@@ -9188,7 +9197,6 @@ gliacloud.com
 divephotoguide.com
 survata.com
 flodesk.com
-s.id
 windfinder.com
 fitchratings.com
 vuze.com
@@ -9206,6 +9214,7 @@ hktdc.com
 vodafone.co.uk
 locum.ru
 fau.edu
+sarenet.es
 plati.market
 quotidiano.net
 colgate.com
@@ -9270,7 +9279,6 @@ duden.de
 gracenote.com
 postandcourier.com
 pakwheels.com
-erli.pl
 h3c.com
 vagaro.com
 wacom.com
@@ -9286,7 +9294,6 @@ useamp.com
 limitlesstcg.com
 express.de
 35.net
-wowma.jp
 bundesliga.com
 saatchiart.com
 gamersky.com
@@ -9313,7 +9320,7 @@ thedodo.com
 smartfit.com.br
 up.ac.za
 mijn.host
-admthop.com
+tu-dortmund.de
 letour.fr
 dotabuff.com
 bouyguestelecom.fr
@@ -9394,7 +9401,6 @@ abebooks.de
 smartlook.com
 edupage.org
 wpconsent.com
-tui.nl
 kagoya.net
 dek-d.com
 jcrew.com
@@ -9500,7 +9506,7 @@ tempo.co
 logos.com
 hamariweb.com
 withings.com
-uc3m.es
+audioboom.com
 clickn.co.kr
 wimbledon.com
 flashback.org
@@ -9533,6 +9539,7 @@ xiph.org
 etonline.com
 plejada.pl
 omnissa.com
+vidkern.shop
 ethyca.com
 eurosport.it
 webshots.com
@@ -9655,7 +9662,6 @@ calculatorsoup.com
 puntoticket.com
 docdroid.net
 heavyfetish.com
-sebrae.com.br
 tvanouvelles.ca
 porofessor.gg
 emag.hu
@@ -9666,8 +9672,6 @@ selfhost.de
 cbs.nl
 nownews.com
 steam-chat.com
-selfstudys.com
-jn.pt
 starz.com
 devtodev.com
 mochahost.com
@@ -9727,6 +9731,7 @@ some.porn
 1stdibs.com
 canterbury.ac.nz
 worldmarket.com
+polito.it
 alternativeto.net
 allegrolokalnie.pl
 komonews.com
@@ -9753,7 +9758,6 @@ simontokx.tv
 essex.ac.uk
 ametsoc.org
 eurowings.com
-en-thunderscans.com
 turo.com
 delgarm.com
 softwareadvice.com
@@ -9789,7 +9793,6 @@ rugbyrama.fr
 manager-magazin.de
 updatestar.com
 tracker.network
-elwatannews.com
 polar.com
 saucelabs.com
 zerodepositcasino.co.uk
@@ -9808,7 +9811,6 @@ upsellit.com
 777spinslots.com
 os-content.com
 jsbin.com
-equibase.com
 scaleway.com
 o2online.de
 giveawayoftheday.com
@@ -9861,6 +9863,7 @@ newsnationnow.com
 a1.by
 contactout.com
 twincities.com
+dweb.link
 ine.es
 cervantesvirtual.com
 hidglobal.com
@@ -9879,7 +9882,6 @@ meross.com
 solutionslabkit.com
 tokenex.com
 blackview.hk
-sportscardspro.com
 ukfast.net
 elliemae.com
 shape.com
@@ -9925,8 +9927,8 @@ bna.com.ar
 paris.cl
 dukeupress.edu
 sysco.com
-goo.su
 promart.pe
+wehkamp.nl
 ostrovok.ru
 oasis-open.org
 porn.com
@@ -10099,6 +10101,7 @@ profitwell.com
 quenq.com
 workabroad.ph
 inquisitr.com
+dataprev.gov.br
 finna.fi
 gazduire.net
 eba.gov.tr
@@ -10164,6 +10167,7 @@ t-mobile.pl
 ilogy.ru
 wilsoncenter.org
 ilmatieteenlaitos.fi
+clasohlson.com
 galaxite.net
 realmoneygaming.ca
 government.nl
@@ -10230,13 +10234,11 @@ discoverpilgrim.com
 philpapers.org
 metafilter.com
 gamcore.com
-srv224.com
 bwin.com
 motorolasolutions.com
 trustedsite.com
 thebase.in
 mylife.com
-hometax.go.kr
 jysk.de
 buap.mx
 whop.com
@@ -10305,7 +10307,6 @@ mic.com
 uit.no
 clubready.com
 bamlabs.com
-exshinetech.com
 govtschemes.in
 spotlightstores.com
 sportmail.ru
@@ -10403,6 +10404,7 @@ nbcdfw.com
 nlcbplaywhelotto.com
 ulule.com
 lingojam.com
+k-words.io
 rankmath.com
 trackcourier.io
 wazzup24.com
@@ -10547,12 +10549,12 @@ crummydevioussucculent.com
 dailyroutine.lifestyle
 dear-lottery.in
 dreamexch.ai
-funinrace360.com
 gamenila.com
 mdg188sky.site
 mkedit.in
 mmua.in
 yash7777.com
+memurlar.net
 clickondetroit.com
 fashion-press.net
 bloomberght.com
@@ -10587,6 +10589,7 @@ gifyu.com
 courier-journal.com
 comanicilikeiste.com
 raycast.com
+ras.ru
 zimmo.be
 reelshort.com
 scotusblog.com
@@ -10713,6 +10716,7 @@ scroll.in
 forsal.pl
 halykbank.kz
 webspace.uz
+r01.ru
 maptiler.com
 nanocosmos.de
 isaca.org
@@ -10732,10 +10736,8 @@ zx2c4.com
 mangafreak.me
 thefa.com
 tillster.com
-pulsz.com
 first-colo.net
 porn4fans.com
-creditchina.gov.cn
 prlog.org
 ptb.de
 sicnoticias.pt
@@ -10769,7 +10771,6 @@ rarlab.com
 othoba.com
 acb.com.vn
 pocket7games.com
-sharkninja.com
 resend.com
 usertesting.com
 quince.com
@@ -10852,7 +10853,6 @@ viamichelin.com
 clan.su
 gumtree.com.au
 stuba.sk
-live24.gr
 somethingawful.com
 adultsearch.com
 kantar.com
@@ -10885,6 +10885,7 @@ meshy.ai
 jamesclear.com
 opensubtitles.org
 verywellfit.com
+elysee.fr
 2ip.ru
 volkswagenag.com
 nexverse.ai
@@ -11005,6 +11006,7 @@ asmhentai.com
 crucial.com.au
 hpage.com
 simonwillison.net
+bithumb.com
 oxfordreference.com
 iihs.org
 gayporno.fm
@@ -11380,7 +11382,6 @@ studenti.it
 vijaysales.com
 istat.it
 anygay.com
-qcc.com
 pcpitstop.com
 audible.ca
 itaka.pl
@@ -11443,7 +11444,6 @@ cursorinfo.co.il
 nethouse.ru
 privatehomeclips.com
 mythic-beasts.com
-mediaworld.it
 sportsport.ba
 foodsharing.de
 rmrp.ru
@@ -11466,6 +11466,8 @@ juraforum.de
 hw.ac.uk
 toprecepty.cz
 wenthemes.com
+viettel.vn
+www.gov.za
 doxy.me
 hmgroup.com
 bravotv.com
@@ -11482,7 +11484,6 @@ hushmail.com
 yieldify.com
 celebjihad.com
 sirv.com
-medibang.com
 mtt.ru
 findglocal.com
 zzztube.com
@@ -11581,7 +11582,6 @@ edmedix.com
 caixabank.es
 pornohammer.com
 gx.games
-roseltorg.ru
 flashscore.com.tr
 jisin.jp
 xbiz.ne.jp
@@ -11751,7 +11751,6 @@ mt.co.kr
 wku.edu
 beltelecom.by
 lotteryusa.com
-hydrahd.ru
 bazar.bg
 jollytur.com
 malaysiaairlines.com
@@ -11779,7 +11778,6 @@ deliveroo.co.uk
 museodelprado.es
 dns.sb
 trafficguard.ai
-fapfolder.club
 gigazine.net
 aiaa.org
 wzrkt.com
@@ -11998,3 +11996,5 @@ vencord.dev
 1kuji.com
 weather.gc.ca
 iett.istanbul
+templetoons.com
+bricodepot.es

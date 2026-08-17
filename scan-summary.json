@@ -1,7 +1,7 @@
 {
-  "generated_utc": "2026-08-16T17:24:29.987Z",
+  "generated_utc": "2026-08-17T23:26:13.299Z",
   "tranco_top_n": 50000,
-  "robots_parsed": 28048,
+  "robots_parsed": 27975,
   "tdmrep": {
     "probed": 2000,
     "well_known": 11,
@@ -11,75 +11,75 @@
   },
   "block_rates": {
     "GPTBot": {
-      "blocked": 4258,
+      "blocked": 4243,
       "rate_pct": 15.2
     },
     "CCBot": {
-      "blocked": 4150,
+      "blocked": 4140,
       "rate_pct": 14.8
     },
     "Bytespider": {
-      "blocked": 3984,
+      "blocked": 3969,
       "rate_pct": 14.2
     },
     "ClaudeBot": {
-      "blocked": 3758,
+      "blocked": 3749,
       "rate_pct": 13.4
     },
     "Google-Extended": {
-      "blocked": 3428,
+      "blocked": 3416,
       "rate_pct": 12.2
     },
-    "Amazonbot": {
-      "blocked": 3351,
+    "meta-externalagent": {
+      "blocked": 3340,
       "rate_pct": 11.9
     },
-    "meta-externalagent": {
-      "blocked": 3350,
+    "Amazonbot": {
+      "blocked": 3337,
       "rate_pct": 11.9
     },
     "Applebot-Extended": {
-      "blocked": 3218,
+      "blocked": 3207,
       "rate_pct": 11.5
     },
     "anthropic-ai": {
-      "blocked": 1564,
+      "blocked": 1565,
       "rate_pct": 5.6
     },
     "PerplexityBot": {
-      "blocked": 1394,
+      "blocked": 1390,
       "rate_pct": 5
     },
     "cohere-ai": {
-      "blocked": 1374,
+      "blocked": 1375,
       "rate_pct": 4.9
     },
     "Diffbot": {
-      "blocked": 1371,
+      "blocked": 1365,
       "rate_pct": 4.9
     },
     "ChatGPT-User": {
-      "blocked": 1319,
+      "blocked": 1321,
       "rate_pct": 4.7
     },
     "Claude-Web": {
-      "blocked": 1238,
+      "blocked": 1240,
       "rate_pct": 4.4
     },
     "Timpibot": {
-      "blocked": 976,
+      "blocked": 974,
       "rate_pct": 3.5
     },
     "OAI-SearchBot": {
-      "blocked": 835,
+      "blocked": 837,
       "rate_pct": 3
     },
     "AI2Bot": {
-      "blocked": 713,
+      "blocked": 712,
       "rate_pct": 2.5
     },
     "Perplexity-User": {
-      "blocked": 558,
+      "blocked": 559,
       "rate_pct": 2
     }
   },
@@ -135,5 +135,5 @@
       "stackoverflow.com: claudebot=402 +maxprice=400"
     ]
   },
-  "runtime_s": 29520
+  "runtime_s": 21374
 }

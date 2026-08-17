@@ -1,11 +1,11 @@
 {
   "name": "The Crawl Price Index",
   "description": "Living observatory of the crawl economy. Free headline tier — full dataset requires subscription.",
-  "generated_utc": "2026-08-16T17:24:29.987Z",
+  "generated_utc": "2026-08-17T23:26:13.299Z",
   "cadence": "weekly",
   "coverage": {
     "tranco_top_n": 50000,
-    "robots_parsed": 28048
+    "robots_parsed": 27975
   },
   "block_rates_top2000": {
     "GPTBot": 15.2,
@@ -13,8 +13,8 @@
     "Bytespider": 14.2,
     "ClaudeBot": 13.4,
     "Google-Extended": 12.2,
-    "Amazonbot": 11.9,
     "meta-externalagent": 11.9,
+    "Amazonbot": 11.9,
     "Applebot-Extended": 11.5,
     "anthropic-ai": 5.6,
     "PerplexityBot": 5,
@@ -41,13 +41,13 @@
     },
     "least_blocking": {
       "country": "China",
-      "any_ai_block_pct": 3.9,
-      "n": 155
+      "any_ai_block_pct": 4,
+      "n": 149
     }
   },
   "enforcement_headline": {
-    "declared_blocks_enforced_pct": 62.1,
-    "panel_checks": 66
+    "declared_blocks_enforced_pct": 46.2,
+    "panel_checks": 118
   },
   "tdmrep_headline": {
     "adoption_pct": 2.45,
@@ -55,9 +55,9 @@
   },
   "methodology_version": "2026-08-10.1",
   "freshness": {
-    "sweep_at": "2026-08-16T17:24:30.237Z",
-    "rows_with_reading": 28069,
-    "rows_without_reading": 21953,
+    "sweep_at": "2026-08-17T23:26:13.723Z",
+    "rows_with_reading": 28011,
+    "rows_without_reading": 22026,
     "note": "observed=no means the domain did not yield a robots.txt reading in this sweep. Rates are computed over rows_with_reading only."
   },
   "evidence_summary": {
