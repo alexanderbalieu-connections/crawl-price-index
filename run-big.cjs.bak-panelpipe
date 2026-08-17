@@ -302,11 +302,8 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
   // ---- signal panel: reuse scan.cjs's fixed ~50-domain panel via its own run,
   // but WITHOUT re-harvesting 50k. We run scan.cjs restricted to the panel by
   // pointing --domains at a tiny panel file, so it only does the signal probes.
-  // panel is now assembled by build-panel.cjs: fixed spine + wide-probe
-  // signal promotions + rotating audit sample. Writes .panel.txt.
-  try { execSync("node build-panel.cjs", { stdio: "inherit" }); }
-  catch (e) { console.log("(build-panel failed — falling back to spine only)");
-    try { fs.copyFileSync("panel-spine.txt", ".panel.txt"); } catch (e2) {} }
+  const PANEL = ["www.nytimes.com","www.theguardian.com","www.reuters.com","apnews.com","www.wired.com","www.theatlantic.com","www.economist.com","www.ft.com","www.forbes.com","time.com","www.theverge.com","techcrunch.com","arstechnica.com","www.tomshardware.com","www.spiegel.de","www.hardwareluxx.de","www.heise.de","www.lemonde.fr","elpais.com","www.telegraph.co.uk","www.independent.co.uk","www.thespruce.com","www.seriouseats.com","www.investopedia.com","www.healthline.com","stackoverflow.com","www.reddit.com","medium.com","www.digiday.com","niemanlab.org"];
+  fs.writeFileSync(".panel.txt", PANEL.join("\n"));
   let panelFindings = { p402: [], prices: [], tollbit: [], paymentHeaders: [], maxpriceFlips: [] };
   try {
     // scan.cjs with --domains runs BOTH robots + panel on just these ~30 domains

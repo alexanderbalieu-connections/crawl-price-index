@@ -203,8 +203,15 @@ function loadDomains() {
   const signalRows = [["domain", "test", "status", "stack", "signal_headers", "note"]];
   const findings = { p402: [], prices: [], tollbit: [], paymentHeaders: [], maxpriceFlips: [] };
   if (!flag("--no-panel")) {
-    console.log(`\nSignal panel: ${PANEL.length} domains x ${IDENTITIES.length} identities (polite, sequential)\n`);
-    for (const [i, domain] of PANEL.entries()) {
+    // PANEL_FROM_DOMAINS: a custom --domains list overrides the fixed research
+    // panel, so experiments (e.g. the 152-domain stratified study) actually
+    // probe what they were pointed at. Default behaviour unchanged.
+    const customPanel = opt("--domains", null);
+    const EFFECTIVE_PANEL = customPanel
+      ? fs.readFileSync(customPanel, "utf8").split(/\r?\n/).map((x) => x.trim()).filter(Boolean)
+      : PANEL;
+    console.log(`\nSignal panel: ${EFFECTIVE_PANEL.length} domains x ${IDENTITIES.length} identities (polite, sequential)\n`);
+    for (const [i, domain] of EFFECTIVE_PANEL.entries()) {
       const statuses = {};
       for (const id of IDENTITIES) {
         const res = await get(`https://${domain}/`, id.ua, id.extraHeaders, false);
@@ -221,7 +228,7 @@ function loadDomains() {
       }
       if (statuses["claudebot"] !== statuses["claudebot_maxprice"])
         findings.maxpriceFlips.push(`${domain}: claudebot=${statuses["claudebot"]} +maxprice=${statuses["claudebot_maxprice"]}`);
-      console.log(`  [${i + 1}/${PANEL.length}] ${domain} b:${statuses["browser"]} g:${statuses["gptbot"]} c:${statuses["claudebot"]} h:${statuses["honest_bot"]} c$:${statuses["claudebot_maxprice"]}`);
+      console.log(`  [${i + 1}/${EFFECTIVE_PANEL.length}] ${domain} b:${statuses["browser"]} g:${statuses["gptbot"]} c:${statuses["claudebot"]} h:${statuses["honest_bot"]} c$:${statuses["claudebot_maxprice"]}`);
     }
     fs.writeFileSync("scan-signals.csv", signalRows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n"));
   }
