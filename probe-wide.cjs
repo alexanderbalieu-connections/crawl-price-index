@@ -27,16 +27,16 @@ const BOTS_START_COL = 2;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function get(url) {
+async function get(url, wantBody) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), TIMEOUT);
   try {
-    const res = await fetch(url, { redirect: "manual", signal: ctrl.signal,
+    const res = await fetch(url, { redirect: "follow", signal: ctrl.signal,
       headers: { "User-Agent": HONEST_UA, Accept: "*/*" } });
     const headers = {};
     res.headers.forEach((v, k) => { headers[k.toLowerCase()] = v; });
     let snippet = "";
-    if (res.status === 402) { try { snippet = (await res.text()).slice(0, 400); } catch (e) {} }
+    if (res.status === 402 || wantBody) { try { snippet = (await res.text()).slice(0, 400); } catch (e) {} }
     else { try { res.body?.cancel(); } catch (e) {} }
     return { status: res.status, headers, snippet };
   } catch (e) {
@@ -82,8 +82,8 @@ async function get(url) {
           const m = (sig + " " + home.snippet).match(/crawler-price=\s*((?:USD\s*)?\d[\d.]*(?:\s*\/\s*crawl)?|[A-Z]{3}\s*\d[\d.]*)/i);
           if (m) { row.price = m[1].trim(); sum.priced.push(domain + ": " + row.price); }
         }
-        const llms = await get("https://" + domain + "/llms.txt");
-        if (llms.status === 200) { row.llms = 1; sum.llms_txt++; }
+        const llms = await get("https://" + domain + "/llms.txt", true); // llms_body_check: fetch a little body
+        if (llms.status === 200 && llms.snippet && !/^\s*<(!doctype|html|head|body)/i.test(llms.snippet)) { row.llms = 1; sum.llms_txt++; }
       }
       out.push(row);
       sum.probed++;
