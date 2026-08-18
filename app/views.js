@@ -986,6 +986,8 @@
     account:  { title: "Account & data", render: account }
   };
   function route(tab) {
+    var box = EL("drill");                 // a drill panel belongs to the view that opened it
+    if (box) { box.style.display = "none"; box.innerHTML = ""; }
     var t = TABS[tab];
     EL("page-title").textContent = t ? t.title : (tab.charAt(0).toUpperCase() + tab.slice(1));
     if (t) { t.render(); }
