@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — The Crawl Price Index</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23FBFAF8%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%231C5D4A%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBFAF8;--fg:#14181D;--dim:#5F5B54;--line:#D8D2C8;--sand:#F4F1EB;--signal:#1C5D4A;--amber:#8A6A1F;--blue:#1D4E6F;--serif:'Newsreader',serif;--sans:'Archivo',sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans)}
+.masthead{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:10}
+.masthead .wrap{max-width:1240px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.mark{font-family:var(--serif);font-size:19px;color:var(--fg);text-decoration:none;white-space:nowrap}
+.mark b{color:var(--signal)}
+.mark .app{font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-left:8px;vertical-align:2px}
+.user-zone{display:flex;align-items:center;gap:12px}
+#user-btn{min-width:32px;min-height:32px}
+nav.tabs{border-bottom:1px solid var(--line);background:var(--bg)}
+nav.tabs .wrap{max-width:1240px;margin:0 auto;padding:0 24px;display:flex;gap:4px;overflow-x:auto}
+nav.tabs a{padding:12px 14px;font-size:13.5px;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs a.on{color:var(--signal);border-bottom-color:var(--signal);font-weight:600}
+main{max-width:1240px;margin:0 auto;padding:28px 24px 60px}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--signal);font-weight:600;margin:0 0 6px}
+h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 20px;letter-spacing:-.01em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{border:1px solid var(--line);border-radius:4px;background:#fff;padding:20px;min-width:0}
+.panel.wide{grid-column:1/-1}
+.panel .ix{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);font-weight:600;border-bottom:2px solid var(--signal);padding-bottom:8px;margin-bottom:14px}
+.placeholder{color:var(--dim);font-size:13.5px;padding:34px 0;text-align:center;background:var(--sand);border:1px dashed var(--line);border-radius:3px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+<script src="/config.js"></script>
+<script src="/clerk-loader.js"></script>
+</head>
+<body>
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/dashboard">The Crawl Price Index<b>.</b><span class="app">Terminal</span></a>
+  <div class="user-zone">
+    <span id="plan-badge" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:600"></span>
+    <div id="user-btn"></div>
+  </div>
+</div></div>
+<nav class="tabs"><div class="wrap">
+  <a href="#overview" class="on" data-tab="overview">Overview</a>
+  <a href="#crawlers" data-tab="crawlers">Crawlers</a>
+  <a href="#changes" data-tab="changes">Changes</a>
+  <a href="#domains" data-tab="domains">Domains</a>
+  <a href="#segments" data-tab="segments">Segments</a>
+  <a href="#wire" data-tab="wire">Wire evidence</a>
+  <a href="#account" data-tab="account">Account &amp; data</a>
+</div></nav>
+<main id="main">
+  <p class="eyebrow">Edition <span id="ed">—</span></p>
+  <h1 id="page-title">Overview</h1>
+  <div class="grid" id="content">
+    <div class="panel wide"><div class="ix">Loading</div><div class="placeholder">Checking your session…</div></div>
+  </div>
+</main>
+<script>
+// Shell only: auth gate + tab router. Views arrive in the next build days.
+window.CPI_ON_CLERK_READY = function (clerk) {
+  if (!clerk.user) { window.location.href = "/"; return; }
+  clerk.mountUserButton(document.getElementById("user-btn"), {
+    appearance: { variables: { colorPrimary: "#1C5D4A" } }, afterSignOutUrl: "/"
+  });
+  document.getElementById("content").innerHTML =
+    '<div class="panel wide"><div class="ix">Welcome</div><div class="placeholder">Signed in as ' +
+    (clerk.user.primaryEmailAddress ? clerk.user.primaryEmailAddress.emailAddress : clerk.user.id) +
+    '. Dashboard views land here over the coming days.</div></div>';
+};
+// tab router (content swapped per tab in later build days)
+document.querySelectorAll("nav.tabs a").forEach(function (a) {
+  a.addEventListener("click", function () {
+    document.querySelectorAll("nav.tabs a").forEach(function (x) { x.classList.remove("on"); });
+    a.classList.add("on");
+    document.getElementById("page-title").textContent = a.textContent;
+  });
+});
+</script>
+</body>
+</html>

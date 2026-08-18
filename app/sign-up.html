@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account — The Crawl Price Index</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBFAF8;--fg:#14181D;--dim:#5F5B54;--line:#D8D2C8;--signal:#1C5D4A;--serif:'Newsreader',serif;--sans:'Archivo',sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column}
+.masthead{border-bottom:1px solid var(--line)}.masthead .wrap{max-width:1080px;margin:0 auto;padding:18px 24px}
+.mark{font-family:var(--serif);font-size:20px;color:var(--fg);text-decoration:none}.mark b{color:var(--signal)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.card{width:100%;max-width:440px}.card h1{font-family:var(--serif);font-weight:400;font-size:32px;margin:0 0 6px}
+.card .sub{color:var(--dim);font-size:14.5px;margin:0 0 26px}
+.cl-card,.cl-cardBox{box-shadow:none!important;border:1px solid var(--line)!important;border-radius:4px!important}
+</style>
+<script src="/config.js"></script><script src="/clerk-loader.js"></script>
+</head>
+<body>
+<div class="masthead"><div class="wrap"><a class="mark" href="https://crawlpriceindex.com">The Crawl Price Index<b>.</b></a></div></div>
+<main><div class="card">
+  <h1>Create your account.</h1>
+  <p class="sub">Free to create. Subscriptions are managed after sign-in.</p>
+  <div id="auth-slot"></div>
+</div></main>
+<script>
+window.CPI_ON_CLERK_READY = function (clerk) {
+  if (clerk.user) { window.location.href = "/dashboard"; return; }
+  clerk.mountSignUp(document.getElementById("auth-slot"), {
+    appearance: { variables: { colorPrimary: "#1C5D4A", fontFamily: "'Archivo', sans-serif", borderRadius: "4px" } },
+    afterSignInUrl: "/dashboard", afterSignUpUrl: "/dashboard", signInUrl: "/"
+  });
+};
+</script>
+</body>
+</html>
