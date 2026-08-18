@@ -55,7 +55,7 @@
   },
   "methodology_version": "2026-08-10.1",
   "freshness": {
-    "sweep_at": "2026-08-17T23:26:13.723Z",
+    "sweep_at": "2026-08-18T07:17:24.981Z",
     "rows_with_reading": 28011,
     "rows_without_reading": 22026,
     "note": "observed=no means the domain did not yield a robots.txt reading in this sweep. Rates are computed over rows_with_reading only."
