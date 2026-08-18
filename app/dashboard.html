@@ -72,6 +72,22 @@ table.mx th.rh{text-align:right;white-space:nowrap;padding-right:8px;color:var(-
 table.mx td{padding:4px 6px;text-align:center;border:1px solid #fff;color:var(--fg);min-width:46px}
 table.mx td.diag{background:var(--sand)}
 @media(max-width:800px){.kpis{grid-template-columns:1fr 1fr}.lbrow{grid-template-columns:104px 1fr 54px 74px}.strow{grid-template-columns:104px 1fr}}
+
+#drill{border:1px solid var(--signal);border-radius:4px;background:#fff;padding:20px;margin-bottom:20px}
+.dd-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border-bottom:2px solid var(--signal);padding-bottom:12px;margin-bottom:16px}
+.dd-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);font-weight:600}
+.dd-title{font-family:var(--serif);font-size:28px;line-height:1.1;margin-top:2px}
+.dd-close{border:1px solid var(--line);background:var(--sand);border-radius:3px;padding:7px 12px;font-family:var(--sans);font-size:12px;color:var(--dim);cursor:pointer}
+.dd-close:hover{border-color:var(--signal);color:var(--signal)}
+.dd-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+.dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dd-card{border:1px solid var(--line);border-radius:3px;padding:14px;background:var(--sand);min-width:0}
+.dd-h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:10px}
+.dd-card .hrow{grid-template-columns:auto 1fr 92px}
+.lbrow.clickable{cursor:pointer;border-radius:2px}
+.lbrow.clickable:hover{background:var(--sand)}
+.lbrow.clickable:hover .nm{color:var(--signal);font-weight:600}
+@media(max-width:800px){.dd-kpis{grid-template-columns:1fr 1fr}.dd-grid{grid-template-columns:1fr}}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 <script src="/config.js"></script>
@@ -98,6 +114,7 @@ table.mx td.diag{background:var(--sand)}
 <main id="main">
   <p class="eyebrow">Edition <span id="ed">—</span></p>
   <h1 id="page-title">Overview</h1>
+  <div id="drill" style="display:none"></div>
   <div class="grid" id="content">
     <div class="panel wide"><div class="ix">Loading</div><div class="placeholder">Checking your session…</div></div>
   </div>

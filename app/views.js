@@ -29,7 +29,7 @@
       'Change is versus the previous edition.</p>' +
       '<div class="lb">' + c.map(function (x, i) {
         var w = top.blocked_pct ? (x.blocked_pct / top.blocked_pct * 100) : 0;
-        return '<div class="lbrow"><span class="nm">' + esc(x.name) + '</span>' +
+        return '<div class="lbrow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span>' +
           '<span class="bar"><span style="width:' + w.toFixed(1) + '%"></span></span>' +
           '<span class="v">' + x.blocked_pct.toFixed(2) + '%</span>' +
           '<span class="d">' + delta(x.delta_pp) + '</span></div>';
@@ -75,6 +75,7 @@
 
     EL("content").innerHTML = h;
     if (D.trend && D.trend.length >= 2) drawTrend();
+    wireDrill();
   }
 
   function kpiRow() {
@@ -168,9 +169,10 @@
     h += '<section class="panel wide"><div class="ix">Co-treatment similarity</div>' +
       '<p class="sub">Among domains with an explicit policy for <em>both</em>, the share where the two crawlers receive the <b>same</b> status. High values mean the web treats them as interchangeable.</p>' +
       matrixTable(D.cotreat_matrix, D.matrix_crawlers, function (v) { return v == null ? "—" : v.toFixed(0) + "%"; }, "#1C5D4A") +
-      '<p class="foot">Unlisted and no-robots cells are excluded from this calculation, so it reflects deliberate decisions only.</p></section>';
+      '<p class="foot">Unlisted and no-robots cells are excluded from this calculation, so it reflects deliberate decisions only. Click any crawler name or cell for detail.</p></section>';
 
     EL("content").innerHTML = h;
+    wireDrill();
   }
 
   function matrixTable(m, names, fmtv, hue) {
@@ -182,11 +184,115 @@
       h += '<tr><th class="rh">' + esc(names[i]) + '</th>' + row.map(function (v, j) {
         if (i === j) return '<td class="diag"></td>';
         var a = (v == null || !mx) ? 0 : Math.min(1, v / mx);
-        return '<td style="background:' + hue + Math.round(a * 200 + 10).toString(16).padStart(2, "0") + '" title="' +
-          esc(names[i]) + ' vs ' + esc(names[j]) + '">' + fmtv(v) + '</td>';
+        return '<td data-a="' + esc(names[i]) + '" data-b="' + esc(names[j]) + '" style="cursor:pointer;background:' + hue + Math.round(a * 200 + 10).toString(16).padStart(2, "0") + '" title="' +
+          esc(names[i]) + ' vs ' + esc(names[j]) + ' — click for ' + esc(names[i]) + ' detail">' + fmtv(v) + '</td>';
       }).join("") + '</tr>';
     });
     return h + '</tbody></table></div>';
+  }
+
+
+  /* ---------- DRILL-DOWN: crawler detail ---------- */
+  function crawlerDetail(name) {
+    var x = null; D.crawlers.forEach(function (c) { if (c.name === name) x = c; });
+    if (!x) return;
+    var i = D.matrix_crawlers.indexOf(name);
+    var tot = x.blocked + x.partial + x.allowed + x.unlisted + x.no_robots;
+
+    // rank bands for this crawler
+    var bands = D.rank_bands.map(function (b) { return { band: b.band, n: b.n, v: b.blocked_pct[name] }; })
+      .filter(function (b) { return b.v != null; });
+    var bmax = Math.max.apply(null, bands.map(function (b) { return b.v; })) || 1;
+
+    // top ccTLDs for this crawler
+    var tlds = (D.tld.rows || []).map(function (t) { return { tld: t.tld, n: t.n, v: t.blocked_pct[name] }; })
+      .filter(function (t) { return t.v != null; }).sort(function (a, b) { return b.v - a.v; });
+    var topT = tlds.slice(0, 6), tmax = topT.length ? topT[0].v : 1;
+
+    // most/least similarly treated peers
+    var peers = [];
+    if (i >= 0 && D.cotreat_matrix[i]) {
+      D.cotreat_matrix[i].forEach(function (v, j) {
+        if (j !== i && v != null) peers.push({ name: D.matrix_crawlers[j], v: v });
+      });
+      peers.sort(function (a, b) { return b.v - a.v; });
+    }
+    // who is excluded in favour of whom
+    var exclOut = [], exclIn = [];
+    if (i >= 0) {
+      D.exclusion_matrix[i].forEach(function (v, j) { if (j !== i && v > 0) exclOut.push({ name: D.matrix_crawlers[j], v: v }); });
+      D.exclusion_matrix.forEach(function (row, j) { if (j !== i && row[i] > 0) exclIn.push({ name: D.matrix_crawlers[j], v: row[i] }); });
+      exclOut.sort(function (a, b) { return b.v - a.v; }); exclIn.sort(function (a, b) { return b.v - a.v; });
+    }
+
+    var h = '<div class="dd-head"><div><div class="dd-eyebrow">Crawler detail</div><div class="dd-title">' + esc(name) + '</div></div>' +
+      '<button class="dd-close" id="dd-close">Close &times;</button></div>' +
+      '<div class="dd-kpis">' +
+        kpi(x.blocked_pct.toFixed(2) + "%", "explicitly blocked") +
+        kpi(x.allowed_pct.toFixed(2) + "%", "explicitly allowed") +
+        kpi(x.explicit_policy_pct.toFixed(2) + "%", "any explicit policy") +
+        kpi(x.delta_pp == null ? "—" : (x.delta_pp > 0 ? "+" : "") + x.delta_pp.toFixed(2) + "pp", "change vs previous edition") +
+      '</div>';
+
+    h += '<div class="dd-grid">';
+    // states
+    h += '<div class="dd-card"><div class="dd-h">Declared states</div>' +
+      ["blocked","partial","allowed","unlisted","no_robots"].map(function (st) {
+        return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + STATE_LABELS[st] + '</span>' +
+          '<span class="hb"><span style="width:' + (tot ? x[st] / tot * 100 : 0).toFixed(1) + '%;background:' + STATE_COLORS[st] + '"></span></span>' +
+          '<span class="hv">' + fmt(x[st]) + '</span></div>';
+      }).join("") + '</div>';
+    // rank bands
+    h += '<div class="dd-card"><div class="dd-h">By panel rank band</div>' +
+      bands.map(function (b) {
+        return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + b.band + '</span>' +
+          '<span class="hb"><span style="width:' + (b.v / bmax * 100).toFixed(1) + '%"></span></span>' +
+          '<span class="hv">' + b.v.toFixed(1) + '%</span></div>';
+      }).join("") + '<p class="foot">Rank band is position in the index frame &mdash; not traffic or site size. n per band: ' +
+      bands.map(function (b) { return b.n; }).join(" / ") + '</p></div>';
+    // ccTLD
+    h += '<div class="dd-card"><div class="dd-h">Highest-blocking ccTLD groups</div>' +
+      topT.map(function (t) {
+        return '<div class="hrow"><span class="hk" style="width:auto">' + esc(t.tld) + '</span>' +
+          '<span class="hb"><span style="width:' + (t.v / tmax * 100).toFixed(1) + '%"></span></span>' +
+          '<span class="hv">' + t.v.toFixed(1) + '% <span style="opacity:.6">n=' + t.n + '</span></span></div>';
+      }).join("") + '<p class="foot">ccTLD is a domain-suffix classification &mdash; not operator location, ownership, or audience. Minimum n=' + D.tld.min_n + '.</p></div>';
+    // peers + exclusion
+    h += '<div class="dd-card"><div class="dd-h">Treated most alike</div>' +
+      peers.slice(0, 4).map(function (p) {
+        return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + esc(p.name) + '</span>' +
+          '<span class="hb"><span style="width:' + p.v.toFixed(0) + '%"></span></span><span class="hv">' + p.v.toFixed(0) + '%</span></div>';
+      }).join("") +
+      (peers.length ? '<div class="dd-h" style="margin-top:14px">Treated least alike</div>' +
+        peers.slice(-3).reverse().map(function (p) {
+          return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + esc(p.name) + '</span>' +
+            '<span class="hb"><span style="width:' + p.v.toFixed(0) + '%;background:#A33A2A"></span></span><span class="hv">' + p.v.toFixed(0) + '%</span></div>';
+        }).join("") : "") +
+      '<p class="foot">Share of domains with an explicit policy for both that give them the same status.</p></div>';
+    h += '</div>';
+
+    if (exclOut.length || exclIn.length) {
+      h += '<div class="dd-card" style="margin-top:14px"><div class="dd-h">Selective exclusion</div>' +
+        (exclOut.length ? '<p class="sub" style="margin:6px 0">' + esc(name) + ' is blocked while another is explicitly allowed &mdash; most often against <b>' +
+          esc(exclOut[0].name) + '</b> (' + exclOut[0].v.toFixed(2) + '% of indexed domains).</p>' : '') +
+        (exclIn.length ? '<p class="sub" style="margin:6px 0">Conversely, <b>' + esc(exclIn[0].name) + '</b> is blocked while ' + esc(name) +
+          ' is allowed on ' + exclIn[0].v.toFixed(2) + '% of indexed domains.</p>' : '') +
+        '</div>';
+    }
+
+    var box = EL("drill");
+    box.innerHTML = h; box.style.display = "block";
+    EL("dd-close").addEventListener("click", function () { box.style.display = "none"; });
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function wireDrill() {
+    document.querySelectorAll(".lbrow.clickable").forEach(function (r) {
+      r.addEventListener("click", function () { crawlerDetail(r.dataset.crawler); });
+    });
+    document.querySelectorAll("table.mx td[data-a]").forEach(function (td) {
+      td.addEventListener("click", function () { crawlerDetail(td.dataset.a); });
+    });
   }
 
   /* ---------- router ---------- */
