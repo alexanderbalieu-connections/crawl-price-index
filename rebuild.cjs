@@ -423,6 +423,7 @@ try {
   const { execSync } = require("child_process");
   execSync("node archive.cjs", { stdio: "inherit" });
   execSync("node archive-editions.cjs", { stdio: "inherit" });
+  execSync("node compute-dashboard.cjs", { stdio: "inherit" });
   execSync("node trends.cjs", { stdio: "inherit" });
   // fold trends into the paid dataset so subscribers get history + deltas
   if (fs.existsSync("paid-dataset.json") && fs.existsSync("trends.json")) {
