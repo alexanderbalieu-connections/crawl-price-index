@@ -455,9 +455,14 @@ img,svg{max-width:100%;height:auto}
    ========================================================================== */
 @media (min-width:900px){
   .panels{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
-  .panels > .panel{margin:0;height:100%}  /* grid gap handles spacing; equal height */
+  .panels > .panel{margin:0;height:100%;min-width:0}  /* min-width:0 stops wide children blowing out the grid */
   .panels > .panel.wide,
   .panels > .panel.close{grid-column:1 / -1}   /* full-width panels */
   /* a panel that holds a long Q&A list is automatically full width */
   .panels > .panel:has(.q-list){grid-column:1 / -1}
 }
+
+/* overflow guards: nothing may force the layout wider than the screen */
+.panel{overflow-wrap:break-word}
+.panel svg{max-width:100%;height:auto}
+.panel .calc-bars,.panel .tick{max-width:100%}

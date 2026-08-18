@@ -339,6 +339,24 @@ function swapPayload(file, newPayloadObj) {
   fs.writeFileSync(file, h);
 }
 
+
+// ---- history series for the homepage trend chart -------------------------
+function buildHistory() {
+  const dir = "history";
+  if (!fs.existsSync(dir)) return [];
+  const focus = ["GPTBot", "ClaudeBot", "CCBot", "Google-Extended"];
+  return fs.readdirSync(dir).filter(f => f.endsWith(".json")).sort().map(f => {
+    try {
+      const h = JSON.parse(fs.readFileSync(dir + "/" + f, "utf8"));
+      const br = h.block_rates || {};
+      const rates = {}; focus.forEach(k => rates[k] = br[k] != null ? br[k] : 0);
+      const d = new Date(h.date || f.replace(".json", ""));
+      const label = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+      return { date: label, rates };
+    } catch (e) { return null; }
+  }).filter(Boolean);
+}
+
 // ---- 5) rebuild index.html payload ----------------------------------------
 const asof = new Date(summary.generated_utc).toISOString().slice(0, 16).replace("T", ", ") + " UTC";
 const asofNice = new Date(summary.generated_utc).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
@@ -347,7 +365,7 @@ const indexPayload = {
   asof: `${asofNice}, ${new Date(summary.generated_utc).toISOString().slice(11,16)} UTC`,
   robots_parsed: summary.robots_parsed,
   tranco_top_n: summary.tranco_top_n,
-  observed_price: topPrice,
+  observed_price: topPrice.replace(/^\$/, ""), // bare number; template adds the $
   block_gpt: gpt,
   pub_multiple: +asymmetry,
   signal_classes: signalClasses,
@@ -364,6 +382,7 @@ const indexPayload = {
   ],
   block_rows: ["CCBot", "GPTBot", "Bytespider", "ClaudeBot", "Google-Extended", "PerplexityBot", "ChatGPT-User", "OAI-SearchBot"]
     .filter(k => br[k]).map(k => ({ bot: k, rate: br[k].rate_pct })),
+  history: buildHistory(),
   taxonomy: [
     { t: "Cloudflare PPC", ex: "crawler-price: USD 0.5", d: "402 with an x402 price quote, settled on Cloudflare rails." },
     { t: "TollBit token", ex: "x-tollbit-forwarded: true", d: "402 demanding a marketplace token." },
