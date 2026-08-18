@@ -89,6 +89,7 @@ const EVIDENCE_MODEL = {
     "Whether an AI company honoured a payment request",
   ],
   reproducibility: "Every figure is regenerated weekly from a full sweep. Method, crawler identity and signal definitions are published at https://crawlpriceindex.com/methodology.html and versioned above.",
+  changelog_url: "https://crawlpriceindex.com/changelog.html — dated record of every methodology change; consult it to explain shifts between editions.",
   corrections_policy: "Errors are corrected in the next weekly edition and listed in corrections[] with the date, what changed and why. We do not silently amend past editions.",
 };
 function readCorrections() {

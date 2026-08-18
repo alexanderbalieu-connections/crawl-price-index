@@ -13,7 +13,7 @@ const LINK = '<link rel="stylesheet" href="/theme.css">';
 
 const CURRENT = {
   "check.html": "/check", "world.html": "/world",
-  "methodology.html": "/methodology", "status.html": "/methodology",
+  "why.html": "/why", "methodology.html": "/methodology", "status.html": "/methodology",
   "changelog.html": "/methodology", "sample.html": "/sample"
 };
 // pages that are mostly text get one narrow measure
@@ -28,7 +28,8 @@ function bar(cur) {
     '  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>',
     '  <nav>',
     item("/check", "Check a domain"),
-    item("/world", "Country editions"),
+    item("/why", "Why it matters"),
+    item("/world", "World editions"),
     item("/methodology", "Methodology"),
     '    <a class="ghost" href="/sample">Weekly email</a>',
     '    <a class="btn" href="/#access">Subscribe</a>',

@@ -18,53 +18,38 @@ try { corrections = JSON.parse(fs.readFileSync("corrections.json", "utf8")); } c
 const gen = d.generated_utc || new Date().toISOString();
 const ageDays = ((Date.now() - Date.parse(gen)) / 86400000);
 const enf = d.enforcement || null;
-const HEAD = (title, desc) => `<!DOCTYPE html>
+const MAST = (cur) => `<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology"${cur==="method"?' aria-current="page"':""}>Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" href="/#access">Subscribe</a>
+  </nav>
+</div></div>`;
+// STATUS_THEME_V2: pages inherit palette, type and masthead from theme.css
+const HEAD = (title, desc, cur) => `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} — The Crawl Price Index</title>
 <meta name="description" content="${desc}">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%230b0d0e%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%233cf08a%27/%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{--ink:#0b0d0e;--panel:#121517;--line:#232a2d;--dim:#6b787d;--fg:#d7dee1;--bright:#f2f6f7;--signal:#3cf08a;--amber:#f0b23c}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;font-size:17px;line-height:1.6}
-  .wrap{max-width:800px;margin:0 auto;padding:0 24px}
-  a{color:var(--signal)}
-  header{padding:44px 0 20px;border-bottom:1px solid var(--line)}
-  .crumb{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--signal)}
-  .crumb a{text-decoration:none}
-  h1{font-size:clamp(28px,5vw,42px);line-height:1.05;font-weight:500;color:var(--bright);margin:.3em 0 .2em}
-  h2{font-size:21px;font-weight:500;color:var(--bright);margin:34px 0 10px}
-  .mono{font-family:"Spline Sans Mono",monospace}
-  .band{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:22px 0}
-  .cell{background:var(--ink);padding:16px}
-  .cell .n{font-family:"Spline Sans Mono",monospace;font-size:24px;color:var(--bright)}
-  .cell .n.g{color:var(--signal)}
-  .cell .k{font-size:13px;color:var(--dim);margin-top:5px}
-  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px}
-  th,td{text-align:left;padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
-  th{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:500}
-  .ok{color:var(--signal)} .warn{color:var(--amber)}
-  .box{background:var(--panel);border-left:3px solid var(--amber);padding:14px 16px;margin:18px 0;font-size:15.5px}
-  .entry{border-bottom:1px solid var(--line);padding:16px 0}
-  .entry .d{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--signal)}
-  .entry .t{color:var(--bright);font-size:18px;margin:4px 0}
-  ul{padding-left:22px} li{margin-bottom:6px}
-  footer{margin-top:50px;padding:22px 0 60px;border-top:1px solid var(--line);font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
 </head>
-<body>`;
+<body class="prose">
+${MAST(cur)}`;
 const FOOT = `<footer>THE CRAWL PRICE INDEX · <a href="/methodology.html">methodology</a> · <a href="/privacy.html">privacy</a> · <a href="/security.html">security</a> · <a href="/terms.html">terms</a> · <a href="/">index</a></footer>
 </div></body></html>`;
 
 // ---------- status.html ----------
 const fresh = ageDays < 9;
-const status = HEAD("Status &amp; coverage", "Live coverage, freshness and known caveats for the Crawl Price Index dataset.")
+const status = HEAD("Status &amp; coverage", "Live coverage, freshness and known caveats for the Crawl Price Index dataset.", "method")
 + `<header><div class="wrap">
-  <div class="crumb"><a href="/">← The Crawl Price Index</a></div>
+  <p class="eyebrow">Status</p>
   <h1>Status &amp; coverage</h1>
   <p style="margin:0;max-width:620px">What is in the current edition, how fresh it is, and what we know is imperfect about it. Generated automatically from the published dataset — this page cannot drift from reality.</p>
 </div></header>
@@ -115,18 +100,18 @@ fs.writeFileSync("public/status.html", status);
 
 // ---------- changelog.html ----------
 const entries = log.length ? log : [];
-const changelog = HEAD("Changelog", "Dated record of what changed in the Crawl Price Index product and method.")
+const changelog = HEAD("Changelog", "Dated record of what changed in the Crawl Price Index product and method.", "method")
 + `<header><div class="wrap">
-  <div class="crumb"><a href="/">← The Crawl Price Index</a></div>
+  <p class="eyebrow">Product &amp; method</p>
   <h1>Changelog</h1>
   <p style="margin:0;max-width:620px">What changed, when, and why. Method changes carry the methodology version they introduced.</p>
 </div></header>
 <div class="wrap">
-` + (entries.length ? entries.map(e => `  <div class="entry">
-    <div class="d">${e.date}${e.methodology_version ? ' · methodology ' + e.methodology_version : ""}</div>
-    <div class="t">${e.title}</div>
-    <div>${e.detail || ""}</div>
-  </div>`).join("\n") : "<p>No entries yet.</p>") + FOOT;
+` + (entries.length ? entries.map(e => `  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">${e.date}${e.methodology_version ? ' &middot; methodology ' + e.methodology_version : ""}</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">${e.title}</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">${e.detail || ""}</p>
+  </article>`).join("\n") : "<p>No entries yet.</p>") + FOOT;
 fs.writeFileSync("public/changelog.html", changelog);
 
 console.log("status.html  → " + Number(cov.robots_parsed || 0).toLocaleString() + " parsed, " + ageDays.toFixed(1) + " days old, " + (enf ? enf.enforced_pct + "% enforced (n=" + enf.n + ")" : "no enforcement figure"));

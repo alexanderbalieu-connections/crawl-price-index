@@ -6,26 +6,31 @@
 <title>Recover your key — The Crawl Price Index</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#0b0d0e;--panel:#121517;--line:#232a2d;--dim:#6b787d;--fg:#d7dee1;--bright:#f2f6f7;--signal:#3cf08a}
   *{box-sizing:border-box;margin:0}
   body{background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
-  .wrap{max-width:520px;padding:40px 28px;width:100%}
-  .back{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--signal);text-decoration:none}
-  h1{font-size:clamp(28px,5vw,40px);font-weight:500;color:var(--bright);margin:.4em 0 .3em}
   p{color:var(--fg);font-size:17px;line-height:1.6;margin-bottom:18px}
-  .mono{font-family:"Spline Sans Mono",monospace}
   input{width:100%;font-family:"Spline Sans Mono",monospace;font-size:15px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--bright);margin-bottom:12px}
   input:focus{outline:none;border-color:var(--signal)}
   button{font-family:"Spline Sans Mono",monospace;font-size:14px;letter-spacing:.04em;padding:12px 20px;border:1px solid var(--signal);background:var(--signal);color:#000;border-radius:6px;cursor:pointer;font-weight:600}
   button:disabled{opacity:.5;cursor:default}
   .msg{margin-top:16px;font-family:"Spline Sans Mono",monospace;font-size:13px;color:var(--dim);line-height:1.6}
 </style>
+<link rel="stylesheet" href="/theme.css">
 </head>
-<body>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" href="/#access">Subscribe</a>
+  </nav>
+</div></div>
   <div class="wrap">
-    <a class="back" href="/">← The Crawl Price Index</a>
     <h1>Recover your API key</h1>
     <p>Enter the email on your subscription. If it's active, we'll email your key to it.</p>
     <input id="email" type="email" placeholder="you@company.com" autocomplete="email">
