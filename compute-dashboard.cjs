@@ -253,13 +253,90 @@ function buildTrend() {
   }).filter(Boolean);
 }
 
+
+// ---- consensus metrics from the design reviews ---------------------------
+// crawler role/vendor tags (labels only — never asserts company behaviour)
+const CRAWLER_META = {
+  "GPTBot":{v:"OpenAI",r:"training"}, "OAI-SearchBot":{v:"OpenAI",r:"search"}, "ChatGPT-User":{v:"OpenAI",r:"user-initiated"},
+  "ClaudeBot":{v:"Anthropic",r:"training"}, "Claude-Web":{v:"Anthropic",r:"user-initiated"}, "anthropic-ai":{v:"Anthropic",r:"training"},
+  "PerplexityBot":{v:"Perplexity",r:"search"}, "Perplexity-User":{v:"Perplexity",r:"user-initiated"},
+  "Google-Extended":{v:"Google",r:"training"}, "CCBot":{v:"Common Crawl",r:"training"},
+  "Bytespider":{v:"ByteDance",r:"training"}, "Amazonbot":{v:"Amazon",r:"search"},
+  "Applebot-Extended":{v:"Apple",r:"training"}, "meta-externalagent":{v:"Meta",r:"training"},
+  "cohere-ai":{v:"Cohere",r:"training"}, "AI2Bot":{v:"AI2",r:"training"},
+  "Timpibot":{v:"Timpi",r:"training"}, "Diffbot":{v:"Diffbot",r:"training"},
+};
+
+// composite: domains blocking AT LEAST ONE crawler (the headline number
+// reviewers said was missing — "is 15% high or low?" needs a frame-level anchor)
+let anyBlocked = 0;
+const anyByBand = BANDS.map(() => ({ n: 0, blocked: 0 }));
+for (const r of cur.rows) {
+  const parsed = r.st.some(s => s !== "no_robots");
+  if (!parsed) continue;
+  const blocks = r.st.some(s => s === "blocked");
+  if (blocks) anyBlocked++;
+  for (let bi = 0; bi < BANDS.length; bi++) {
+    if (r.rank >= BANDS[bi][0] && r.rank <= BANDS[bi][1]) {
+      anyByBand[bi].n++; if (blocks) anyByBand[bi].blocked++;
+      break;
+    }
+  }
+}
+
+// rank concentration: what share of each crawler's blocked domains sit in the top 10k
+const concentration = {};
+C.forEach((name, ci) => {
+  let tot = 0, top10k = 0;
+  for (const r of cur.rows) {
+    if (r.st[ci] !== "blocked") continue;
+    tot++; if (r.rank <= 10000) top10k++;
+  }
+  concentration[name] = tot ? +(top10k / tot * 100).toFixed(1) : null;
+});
+
+// significance: is this week's move the largest since the index began?
+function moverSignificance() {
+  const t = buildTrend();
+  if (t.length < 2) return {};
+  const out = {};
+  Object.keys(t[t.length - 1].rates).forEach(name => {
+    const deltas = [];
+    for (let i = 1; i < t.length; i++) {
+      const a = t[i - 1].rates[name], b = t[i].rates[name];
+      if (a != null && b != null) deltas.push(+(b - a).toFixed(3));
+    }
+    if (!deltas.length) return;
+    const latest = deltas[deltas.length - 1];
+    const maxUp = Math.max(...deltas), maxDown = Math.min(...deltas);
+    out[name] = {
+      latest, editions: deltas.length + 1,
+      is_largest_increase: deltas.length > 1 && latest === maxUp && latest > 0,
+      is_largest_decrease: deltas.length > 1 && latest === maxDown && latest < 0,
+      avg: +(deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(3),
+    };
+  });
+  return out;
+}
+
 // ---- assemble ------------------------------------------------------------
 const out = {
   generated_utc: new Date().toISOString(),
   edition: curDate,
   editions: edFiles.map(f => f.slice(0, 10)),
   panel: { domains: N, robots_parsed: PARSED, crawlers: C.length, denominator_note: `Primary rates are % of the ${PARSED.toLocaleString("en-GB")} domains with a readable robots.txt (matches published index figures); blocked_pct_panel is % of the full ${N.toLocaleString("en-GB")}-domain frame. Neither is "the web".` },
-  crawlers,
+  crawlers: crawlers.map(c => Object.assign({}, c, {
+    vendor: (CRAWLER_META[c.name] || {}).v || "other",
+    role: (CRAWLER_META[c.name] || {}).r || "other",
+    top10k_share_of_blocks: concentration[c.name],
+  })),
+  any_ai: {
+    pct: +(anyBlocked / PARSED * 100).toFixed(2), count: anyBlocked, denominator: PARSED,
+    by_band: BANDS.map((b, i) => ({ band: `${b[0]}-${b[1]}`, n: anyByBand[i].n,
+      pct: anyByBand[i].n ? +(anyByBand[i].blocked / anyByBand[i].n * 100).toFixed(2) : null })),
+    definition: "Share of parsed domains that explicitly block at least one of the 18 tracked crawlers in robots.txt.",
+  },
+  significance: moverSignificance(),
   selective: { count: selective, pct: +(selective / N * 100).toFixed(2), definition: ">=1 crawler explicitly blocked AND >=1 explicitly allowed or partial" },
   restriction_hist: restrictionHist,
   diversity_hist: diversityHist,

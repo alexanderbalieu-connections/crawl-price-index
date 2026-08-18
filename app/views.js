@@ -18,7 +18,121 @@
       (up ? "▲" : "▼") + " " + Math.abs(v).toFixed(2) + "pp</span>";
   }
 
-  /* ---------- OVERVIEW ---------- */
+
+  /* ---------- WEEKLY BRIEF (replaces the control-panel overview) ---------- */
+  function sigPhrase(name) {
+    var g = (D.significance || {})[name];
+    if (!g || g.editions < 3) return "";
+    if (g.is_largest_increase) return " — its largest weekly rise since the index began";
+    if (g.is_largest_decrease) return " — its largest weekly fall since the index began";
+    return "";
+  }
+  function movers() {
+    return D.crawlers.filter(function (c) { return c.delta_pp != null; })
+      .slice().sort(function (a, b) { return Math.abs(b.delta_pp) - Math.abs(a.delta_pp); });
+  }
+  function headlineSentence() {
+    var any = D.any_ai, mv = movers(), top = D.crawlers[0];
+    var s1 = 'As of edition ' + esc(D.edition) + ', <b>' + any.pct + '%</b> of the ' + fmt(any.denominator) +
+      ' parsed top-50k domains explicitly block at least one of the ' + D.panel.crawlers +
+      ' tracked AI crawlers. <b>' + esc(top.name) + '</b> is the most blocked at <b>' + top.blocked_pct.toFixed(2) + '%</b>.';
+    if (mv.length) {
+      var m = mv[0];
+      s1 += ' The largest move this edition was <b>' + esc(m.name) + '</b>, ' +
+        (m.delta_pp > 0 ? "up" : "down") + ' ' + Math.abs(m.delta_pp).toFixed(2) + 'pp' + sigPhrase(m.name) + '.';
+    }
+    return s1;
+  }
+  function brief() {
+    var any = D.any_ai, mv = movers();
+    var h = '';
+    // 1. the lead
+    h += '<section class="panel wide lead"><div class="ix">This edition</div>' +
+      '<p class="leadline">' + headlineSentence() + '</p>' +
+      '<div class="ctrls" style="margin-top:6px">' +
+        '<button class="btnx copybtn" id="copy-lead">Copy this sentence</button>' +
+        '<span class="foot" style="border:0;padding:0;margin:0;align-self:center">Free to cite with attribution to The Crawl Price Index.</span>' +
+      '</div></section>';
+
+    // 2. the composite + concentration
+    h += '<section class="panel"><div class="ix">The headline number</div>' +
+      '<div class="big">' + any.pct + '%</div>' +
+      '<p class="sub">of parsed domains block at least one tracked AI crawler (' + fmt(any.count) + ' of ' + fmt(any.denominator) + ').</p>' +
+      '<div class="dd-card"><div class="dd-h">By panel rank band</div>' +
+      any.by_band.filter(function (b) { return b.pct != null; }).map(function (b) {
+        var mx = Math.max.apply(null, any.by_band.map(function (z) { return z.pct || 0; })) || 1;
+        return '<div class="hrow"><span class="hk">' + b.band + '</span><span class="hb"><span style="width:' +
+          (b.pct / mx * 100).toFixed(1) + '%"></span></span><span class="hv">' + b.pct.toFixed(1) + '%</span></div>';
+      }).join("") + '</div>' +
+      '<p class="foot">' + esc(any.definition) + ' Rank band is sampling position in the Tranco frame, not traffic.</p></section>';
+
+    // 3. biggest movements
+    h += '<section class="panel"><div class="ix">Biggest movements</div>' +
+      (mv.length
+        ? '<div class="lb">' + mv.slice(0, 6).map(function (m) {
+            var mx = Math.max.apply(null, mv.map(function (z) { return Math.abs(z.delta_pp); })) || 1;
+            return '<div class="lbrow clickable" data-crawler="' + esc(m.name) + '"><span class="nm">' + esc(m.name) + '</span>' +
+              '<span class="bar"><span style="width:' + (Math.abs(m.delta_pp) / mx * 100).toFixed(1) +
+              '%;background:' + (m.delta_pp > 0 ? "#A33A2A" : "#1C5D4A") + '"></span></span>' +
+              '<span class="v">' + m.blocked_pct.toFixed(2) + '%</span><span class="d">' + delta(m.delta_pp) + '</span></div>';
+          }).join("") + '</div>' +
+          '<p class="foot">Change versus the previous edition. Full leaderboard on ' + link("crawlers","Crawlers") + '.</p>'
+        : '<div class="empty">Movement needs a previous edition to compare against. One is archived every week.</div>') +
+      '</section>';
+
+    // 4. what changed + notable domains
+    h += '<section class="panel wide"><div class="ix">What changed</div>';
+    if (D.changes.available) {
+      var tr = D.changes.transitions, keys = Object.keys(tr).sort(function (a, b) { return tr[b] - tr[a]; });
+      h += '<p class="sub"><b>' + fmt(D.changes.total_changes) + '</b> policy changes across <b>' +
+        fmt(D.changes.changed_domains) + '</b> domains between ' + esc(D.changes.interval) + '. ' +
+        (keys.length ? 'Most common: <b>' + fmt(tr[keys[0]]) + '</b> moved ' +
+          (STATE_LABELS[keys[0].split("->")[0]] || "") + ' &rarr; ' + (STATE_LABELS[keys[0].split("->")[1]] || "") + '.' : '') + '</p>' +
+        '<div class="ctrls"><button class="btnx" data-goto="changes">See the ' + fmt(D.changes.total_changes) + ' changes</button>' +
+        '<button class="btnx" data-goto="domains" style="background:#1D4E6F;border-color:#1D4E6F">Look up a domain</button></div>' +
+        '<div id="notable"></div>';
+    } else {
+      h += '<div class="empty">' + esc(D.changes.note) + ' Per-domain editions are archived weekly; the first comparison appears once two exist.</div>';
+    }
+    h += '</section>';
+
+    // 5. trend
+    h += '<section class="panel wide' + (D.trend && D.trend.length >= 2 ? ' pclick" data-drill="trend' : '') + '">' +
+      '<div class="ix">Trend</div>' +
+      (D.trend && D.trend.length >= 2
+        ? '<div style="position:relative"><svg id="sv-trend" viewBox="0 0 620 300" style="width:100%;height:auto"></svg><div id="tt-trend" class="tt"></div></div><div class="legend" id="lg-trend"></div>' +
+          (D.trend.length < 6 ? '<p class="foot">Early series: ' + D.trend.length + ' editions. Direction is meaningful; call movements &ldquo;largest since the index began&rdquo;, never a long-run trend.</p>' : '')
+        : '<div class="empty">The trend needs at least two editions.</div>') + '</section>';
+
+    // 6. methodology footer, demoted from KPI prominence
+    h += '<section class="panel wide"><div class="ix">Basis</div>' +
+      '<p class="foot" style="border:0;padding:0;margin:0">' + fmt(D.panel.robots_parsed) + ' domains with a readable robots.txt, from a ' +
+      fmt(D.panel.domains) + '-domain Tranco frame &middot; ' + D.panel.crawlers + ' named crawlers &middot; edition ' + esc(D.edition) +
+      ' &middot; declared robots.txt policy, not observed access &middot; ' + (D.editions || []).length + ' per-domain edition(s) retained. ' +
+      'Deeper cuts: ' + link("crawlers","Crawlers") + ' &middot; ' + link("segments","Segments") + ' &middot; ' +
+      link("wire","Wire evidence") + ' &middot; ' + link("account","Downloads") + '.</p></section>';
+
+    EL("content").innerHTML = h;
+    if (D.trend && D.trend.length >= 2) drawTrend();
+    wireDrill(); wireLinks();
+    var cb = EL("copy-lead");
+    if (cb) cb.addEventListener("click", function () {
+      var txt = EL("content").querySelector(".leadline").textContent;
+      navigator.clipboard.writeText(txt).then(function () { cb.textContent = "Copied"; setTimeout(function () { cb.textContent = "Copy this sentence"; }, 1600); });
+    });
+    // notable named examples, highest-ranked movers first
+    if (D.changes.available) loadDomains(function (pd) {
+      var top = (pd.changes || []).slice(0, 5);
+      if (!top.length) return;
+      EL("notable").innerHTML = '<div class="dd-h" style="margin-top:14px">Highest-ranked domains that changed</div>' +
+        '<div class="mwrap"><table class="dt"><tbody>' + top.map(function (c) {
+          return '<tr><td class="mono">#' + fmt(c[0]) + '</td><td><b>' + esc(c[1]) + '</b></td><td>' + esc(pd.crawlers[c[2]]) +
+            '</td><td>' + stPill(c[3]) + ' &rarr; ' + stPill(c[4]) + '</td></tr>';
+        }).join("") + '</tbody></table></div>';
+    });
+  }
+
+  /* ---------- OVERVIEW (full detail, one click deeper) ---------- */
   function overview() {
     var c = D.crawlers, top = c[0], low = c[c.length - 1];
     var h = "";
@@ -220,12 +334,19 @@
 
 
   /* ---------- shared UI state & helpers ---------- */
-  var UI = { crawlerSort: "blocked_desc", crawlerQ: "", chgSort: "rank", chgQ: "", chgDir: "",
-             tldSort: "rate_desc", tldQ: "", basis: "prev" };
+  var UI = { crawlerSort: "blocked_desc", crawlerQ: "", chgSort: "rank", chgQ: "", chgDir: "", chgBand: "",
+             tldSort: "rate_desc", tldQ: "", basis: "prev", domCrawler: "", domStatus: "", domBand: "", domQ: "" };
   var HEADER_OFFSET = 118;                       // sticky masthead + tab bar
   function scrollToEl(el) {
     var y = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
     window.scrollTo({ top: y < 0 ? 0 : y, behavior: "smooth" });
+  }
+  function openDomains(opts) {              // "show me the domains behind this number"
+    UI.domCrawler = opts.crawler != null ? opts.crawler : "";
+    UI.domStatus = opts.status || "";
+    UI.domBand = opts.band || "";
+    UI.domQ = "";
+    goTab("domains");
   }
   function goTab(tab) {                          // cross-page links
     var a = document.querySelector('nav.tabs a[data-tab="' + tab + '"]');
@@ -239,6 +360,12 @@
   function wireLinks() {
     document.querySelectorAll("[data-goto]").forEach(function (a) {
       a.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); goTab(a.dataset.goto); });
+    });
+    document.querySelectorAll("[data-open-dom]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        try { openDomains(JSON.parse(b.dataset.openDom)); } catch (err) {}
+      });
     });
   }
   function controls(html) { return '<div class="ctrls">' + html + '</div>'; }
@@ -347,6 +474,7 @@
         if (UI.chgDir === "more" && c[4] !== "b") return false;
         if (UI.chgDir === "less" && c[3] !== "b") return false;
         if (UI.chgDir === "other" && (c[3] === "b" || c[4] === "b")) return false;
+        if (UI.chgBand) { var pb = UI.chgBand.split("-"); if (c[0] < +pb[0] || c[0] > +pb[1]) return false; }
         return true;
       });
       var by = {
@@ -369,7 +497,8 @@
       EL("chg-table").innerHTML = legend +
         controls('<input id="chg-q" class="inp" placeholder="Filter by domain or crawler…" value="' + esc(UI.chgQ) + '">' +
           sortSel("chg-sort", [["rank","Rank: top first"],["rank_desc","Rank: tail first"],["domain","Domain: A to Z"],["crawler","Crawler: A to Z"]], UI.chgSort) +
-          sortSel("chg-dir", [["","All directions"],["more","Became more restrictive"],["less","Became less restrictive"],["other","Reclassified"]], UI.chgDir)) +
+          sortSel("chg-dir", [["","All directions"],["more","Became more restrictive"],["less","Became less restrictive"],["other","Reclassified"]], UI.chgDir) +
+          sortSel("chg-band", [["","Any rank"],["1-100","Rank 1-100"],["1-1000","Top 1,000"],["1-10000","Top 10,000"],["10001-50000","10,001-50,000"]], UI.chgBand)) +
         '<div class="dd-h" style="margin-top:12px">Change feed &middot; showing ' +
         Math.min(400, filtered.length) + ' of ' + fmt(filtered.length) +
         (filtered.length !== items.length ? ' filtered (' + fmt(items.length) + ' total)' : '') + '</div>' +
@@ -379,6 +508,8 @@
       if (rq) rq.addEventListener("input", function () { UI.chgQ = this.value; changes(); });
       if (rs) rs.addEventListener("change", function () { UI.chgSort = this.value; changes(); });
       if (rd) rd.addEventListener("change", function () { UI.chgDir = this.value; changes(); });
+      var rb = EL("chg-band");
+      if (rb) rb.addEventListener("change", function () { UI.chgBand = this.value; changes(); });
       wireLinks();
     });
   }
@@ -389,8 +520,10 @@
       '<p class="sub">Search any domain for its declared policy across all ' + D.panel.crawlers + ' crawlers, or filter the index by status. ' +
       'Per-domain data is licensed to your account.</p>' +
       '<div class="ctrls">' +
-        '<input id="q" class="inp" placeholder="Search a domain, e.g. wikipedia.org" autocomplete="off">' +
+        '<input id="q" class="inp" placeholder="Search a domain, e.g. wikipedia.org" autocomplete="off" value="' + esc(UI.domQ || "") + '">' +
         '<select id="f-crawler" class="inp"><option value="">Any crawler…</option></select>' +
+        '<select id="f-band" class="inp">' + ['', '1-100','101-500','501-1000','1001-5000','5001-10000','10001-25000','25001-50000']
+          .map(function (b) { return '<option value="' + b + '"' + (b === UI.domBand ? ' selected' : '') + '>' + (b ? "Rank " + b : "Any rank") + '</option>'; }).join("") + '</select>' +
         '<select id="f-status" class="inp">' +
           '<option value="">Any status</option><option value="b">Explicitly blocked</option><option value="p">Partial</option>' +
           '<option value="a">Explicitly allowed</option><option value="u">No explicit instruction</option><option value="n">No robots.txt</option>' +
@@ -403,23 +536,33 @@
     loadDomains(function (pd) {
       EL("pd-status").innerHTML = "";
       var sel = EL("f-crawler");
-      pd.crawlers.forEach(function (c, i) { var o = document.createElement("option"); o.value = String(i); o.textContent = c; sel.appendChild(o); });
+      pd.crawlers.forEach(function (c, i) {
+        var o = document.createElement("option"); o.value = String(i); o.textContent = c;
+        if (UI.domCrawler && (UI.domCrawler === c || UI.domCrawler === String(i))) o.selected = true;
+        sel.appendChild(o);
+      });
+      if (UI.domStatus) EL("f-status").value = UI.domStatus;
       var render = function () {
         var q = EL("q").value.trim().toLowerCase();
-        var ci = EL("f-crawler").value, st = EL("f-status").value;
-        var out = [];
-        for (var i = 0; i < pd.rows.length && out.length < 300; i++) {
+        var ci = EL("f-crawler").value, st = EL("f-status").value, band = EL("f-band").value;
+        var lo = 0, hi = 1e9;
+        if (band) { var pb = band.split("-"); lo = +pb[0]; hi = +pb[1]; }
+        var out = [], matched = 0;
+        for (var i = 0; i < pd.rows.length; i++) {
           var r = pd.rows[i];
+          if (r[0] < lo || r[0] > hi) continue;
           if (q && r[1].toLowerCase().indexOf(q) < 0) continue;
           if (st) {
             if (ci !== "") { if (r[2][+ci] !== st) continue; }
             else if (r[2].indexOf(st) < 0) continue;
           } else if (ci !== "" && !q) { /* crawler alone: no filter */ }
-          out.push(r);
+          matched++;
+          if (out.length < 300) out.push(r);
         }
         var head = '<tr><th>Rank</th><th>Domain</th>' + pd.crawlers.map(function (c) {
           return '<th class="rot"><span>' + esc(c) + '</span></th>'; }).join("") + '</tr>';
-        EL("dom-out").innerHTML = '<div class="dd-h" style="margin-top:14px">' + (out.length >= 300 ? "First 300 matches" : fmt(out.length) + " match" + (out.length === 1 ? "" : "es")) + '</div>' +
+        EL("dom-out").innerHTML = '<div class="dd-h" style="margin-top:14px">' + fmt(matched) + ' match' + (matched === 1 ? '' : 'es') +
+          (matched > 300 ? ' &middot; showing first 300' : '') + ' &middot; export returns all shown' + '</div>' +
           (out.length ? '<div class="mwrap"><table class="dt"><thead>' + head + '</thead><tbody>' +
             out.map(function (r) {
               return '<tr><td class="mono">' + fmt(r[0]) + '</td><td><b>' + esc(r[1]) + '</b></td>' +
@@ -433,6 +576,7 @@
       EL("q").addEventListener("input", render);
       EL("f-crawler").addEventListener("change", render);
       EL("f-status").addEventListener("change", render);
+      EL("f-band").addEventListener("change", render);
       EL("btn-csv").addEventListener("click", function () {
         var rows = window.__CPI_LAST__ || [];
         if (!rows.length) return;
@@ -701,6 +845,8 @@
         '</div>' +
       '</div>' +
       '<div class="ctrls" style="margin-top:14px">' +
+        '<button class="btnx" data-open-dom=\'{"crawler":"' + esc(a) + '","status":"b"}\'>Domains blocking ' + esc(a) + '</button>' +
+        '<button class="btnx" style="background:#1C5D4A" data-open-dom=\'{"crawler":"' + esc(b) + '","status":"b"}\'>Domains blocking ' + esc(b) + '</button>' +
         '<button class="btnx" data-crawler-open="' + esc(a) + '">Full profile: ' + esc(a) + '</button>' +
         '<button class="btnx" data-crawler-open="' + esc(b) + '" style="background:#1D4E6F;border-color:#1D4E6F">Full profile: ' + esc(b) + '</button>' +
       '</div>';
@@ -789,6 +935,11 @@
       '<p class="foot">Share of domains with an explicit policy for both that give them the same status.</p></div>';
     h += '</div>';
 
+    h += '<div class="ctrls" style="margin-top:14px">' +
+      '<button class="btnx" data-open-dom=\'{"crawler":"' + esc(name) + '","status":"b"}\'>Show the ' + fmt(x.blocked) + ' domains blocking ' + esc(name) + '</button>' +
+      '<button class="btnx" style="background:#1C5D4A" data-open-dom=\'{"crawler":"' + esc(name) + '","status":"a"}\'>Show the ' + fmt(x.allowed) + ' explicitly allowing</button>' +
+      '</div>';
+
     if (exclOut.length || exclIn.length) {
       h += '<div class="dd-card" style="margin-top:14px"><div class="dd-h">Selective exclusion</div>' +
         (exclOut.length ? '<p class="sub" style="margin:6px 0">' + esc(name) + ' is blocked while another is explicitly allowed &mdash; most often against <b>' +
@@ -825,7 +976,8 @@
 
   /* ---------- router ---------- */
   var TABS = {
-    overview: { title: "Overview", render: overview },
+    overview: { title: "This edition", render: brief },
+    detail:   { title: "Full detail", render: overview },
     crawlers: { title: "Crawlers", render: crawlers },
     changes:  { title: "Changes",  render: changes },
     domains:  { title: "Domains",  render: domains },

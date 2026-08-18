@@ -116,6 +116,10 @@ table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rot
 .stn{font-size:11.5px;color:var(--dim);text-align:right;white-space:nowrap}
 .ctrls .inp{max-width:260px}
 @media(max-width:800px){.strow{grid-template-columns:104px 1fr}.stn{display:none}}
+.panel.lead{border-left:3px solid var(--signal)}
+.leadline{font-family:var(--serif);font-size:19px;line-height:1.5;margin:0 0 4px;color:var(--fg)}
+.leadline b{color:var(--signal)}
+.copybtn{font-size:12px;padding:7px 12px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 <script src="/config.js"></script>
@@ -131,7 +135,8 @@ table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rot
   </div>
 </div></div>
 <nav class="tabs"><div class="wrap">
-  <a href="#overview" class="on" data-tab="overview">Overview</a>
+  <a href="#overview" class="on" data-tab="overview">This edition</a>
+  <a href="#detail" data-tab="detail">Full detail</a>
   <a href="#crawlers" data-tab="crawlers">Crawlers</a>
   <a href="#changes" data-tab="changes">Changes</a>
   <a href="#domains" data-tab="domains">Domains</a>
