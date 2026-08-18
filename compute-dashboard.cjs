@@ -185,22 +185,37 @@ if (prev) {
   let entered = 0; for (const r of cur.rows) if (!prevMap.has(r.domain)) entered++;
   let left = 0; for (const r of prev.rows) if (!curDomains.has(r.domain)) left++;
   const items = []; const trans = {}; let total = 0;
+  // A domain whose robots.txt was unreachable in one edition flips ALL 18 cells
+  // to/from no_robots. That is fetch availability, not a policy decision, so it
+  // is counted and reported SEPARATELY and never called a policy change.
+  let availability_cells = 0; const availability_domains = new Set();
+  const changed_domains = new Set();
   for (const r of cur.rows) {
     const p = prevMap.get(r.domain);
     if (!p) continue; // frame churn is NOT a policy change
     for (let ci = 0; ci < nC; ci++) {
       const a = p.st[ci], b = r.st[ci];
-      if (a !== b) {
-        total++;
-        const key = `${a}->${b}`;
-        trans[key] = (trans[key] || 0) + 1;
-        if (items.length < CHANGE_FEED_CAP)
-          items.push({ domain: r.domain, rank: r.rank, crawler: C[ci], prev: a, cur: b });
+      if (a === b) continue;
+      if (a === "no_robots" || b === "no_robots") {
+        availability_cells++; availability_domains.add(r.domain);
+        continue;                                   // excluded from the policy feed
       }
+      total++;
+      changed_domains.add(r.domain);
+      const key = `${a}->${b}`;
+      trans[key] = (trans[key] || 0) + 1;
+      if (items.length < CHANGE_FEED_CAP)
+        items.push({ domain: r.domain, rank: r.rank, crawler: C[ci], prev: a, cur: b });
     }
   }
   items.sort((x, y) => x.rank - y.rank);
-  changes = { available: true, interval: `${prevDate} -> ${curDate}`, items, transitions: trans, total_changes: total, capped_at: CHANGE_FEED_CAP, frame_churn: { entered, left } };
+  changes = {
+    available: true, interval: `${prevDate} -> ${curDate}`, items, transitions: trans,
+    total_changes: total, changed_domains: changed_domains.size,
+    capped_at: CHANGE_FEED_CAP, frame_churn: { entered, left },
+    availability: { cells: availability_cells, domains: availability_domains.size,
+      note: "Cells that moved to or from 'no robots.txt' — the file became reachable or unreachable between scans. Counted separately because it reflects fetch availability, not a publisher decision." },
+  };
 }
 
 // ---- wire evidence (exhibits, from summary) ------------------------------

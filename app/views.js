@@ -104,7 +104,7 @@
     var t = D.trend, focus = ["GPTBot","ClaudeBot","CCBot","Google-Extended"].filter(function (f) { return t[0].rates[f] != null; });
     var W = 620, H = 300, pl = 46, pr = 12, pt = 16, pb = 34;
     var vals = []; t.forEach(function (p) { focus.forEach(function (f) { if (p.rates[f] != null) vals.push(p.rates[f]); }); });
-    var mx = Math.ceil(Math.max.apply(null, vals) / 5) * 5 || 10, mn = Math.max(0, Math.floor(Math.min.apply(null, vals) / 5) * 5 - 5);
+    var mx = Math.ceil(Math.max.apply(null, vals) / 5) * 5 || 10, mn = 0;   // always baseline at zero so lines and bars are comparable
     var x = function (i) { return pl + i * (W - pl - pr) / Math.max(1, t.length - 1); };
     var y = function (v) { return H - pb - (v - mn) / (mx - mn) * (H - pt - pb); };
     var g = "";
@@ -191,6 +191,150 @@
     return h + '</tbody></table></div>';
   }
 
+
+
+  /* ---------- gated per-domain loader ---------- */
+  var PD = null, PD_STATE = "idle";
+  function loadDomains(cb) {
+    if (PD) return cb(PD);
+    if (PD_STATE === "loading") return;
+    PD_STATE = "loading";
+    var go = function (token) {
+      fetch("/api/domains", { headers: token ? { Authorization: "Bearer " + token } : {} })
+        .then(function (r) {
+          if (r.status === 401) throw new Error("Your session expired — reload the page to sign in again.");
+          if (!r.ok) throw new Error("Dataset unavailable (" + r.status + ").");
+          return r.json();
+        })
+        .then(function (j) { PD = j; PD_STATE = "ready"; cb(j); })
+        .catch(function (e) { PD_STATE = "error"; var el = EL("pd-status"); if (el) el.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+    };
+    if (window.Clerk && window.Clerk.session) window.Clerk.session.getToken().then(go).catch(function () { go(null); });
+    else go(null);
+  }
+  var STCODE = { b:"blocked", p:"partial", a:"allowed", u:"unlisted", n:"no_robots" };
+  function stPill(code) {
+    var lab = STATE_LABELS[STCODE[code]] || code;
+    return '<span class="pill" style="background:' + (STATE_COLORS[STCODE[code]] || "#ccc") + '" title="' + lab + '">' + code + '</span>';
+  }
+
+  /* ---------- CHANGES ---------- */
+  function changes() {
+    var h = '<section class="panel wide"><div class="ix">Policy changes &middot; edition over edition</div>';
+    if (!D.changes.available) {
+      h += '<p class="sub">' + esc(D.changes.note) + ' Each weekly edition is archived per domain, so the first diff appears once two editions exist.</p>' +
+        '<div class="empty">No comparison available yet. Editions retained: ' + ((D.editions || []).length || 1) + '.</div></section>';
+      EL("content").innerHTML = h; return;
+    }
+    h += '<p class="sub">Every domain&times;crawler status change between <b>' + esc(D.changes.interval) + '</b>. ' +
+      'Domains entering or leaving the index frame are excluded (' + fmt(D.changes.frame_churn.entered) + ' in, ' +
+      fmt(D.changes.frame_churn.left) + ' out) so frame churn is never counted as a policy change.</p>' +
+      '<div class="dd-kpis">' + kpi(fmt(D.changes.total_changes), "policy changes (domain\u00d7crawler)") +
+      kpi(fmt(D.changes.changed_domains != null ? D.changes.changed_domains : "—"), "distinct domains changed") +
+      kpi(String(Object.keys(D.changes.transitions).length), "transition types") +
+      kpi(esc(D.changes.interval.split(" -> ")[1]), "current edition") + '</div>' +
+      (D.changes.availability ? '<p class="foot" style="margin-top:14px">Excluded as measurement noise: ' +
+        fmt(D.changes.availability.cells) + ' cells across ' + fmt(D.changes.availability.domains) +
+        ' domains moved to or from &ldquo;no robots.txt&rdquo;. ' + esc(D.changes.availability.note) + '</p>' : '');
+    // transition matrix
+    var tr = D.changes.transitions, keys = Object.keys(tr).sort(function (a, b) { return tr[b] - tr[a]; });
+    var tmax = keys.length ? tr[keys[0]] : 1;
+    h += '<div class="dd-card" style="margin-top:16px"><div class="dd-h">Transitions, most common first</div>' +
+      keys.map(function (k) {
+        var parts = k.split("->");
+        return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' +
+          (STATE_LABELS[parts[0]] || parts[0]) + ' &rarr; ' + (STATE_LABELS[parts[1]] || parts[1]) + '</span>' +
+          '<span class="hb"><span style="width:' + (tr[k] / tmax * 100).toFixed(1) + '%;background:' +
+          (parts[1] === "blocked" ? "#A33A2A" : parts[1] === "allowed" ? "#1C5D4A" : "#8A6A1F") + '"></span></span>' +
+          '<span class="hv">' + fmt(tr[k]) + '</span></div>';
+      }).join("") + '</div>';
+    h += '<div id="pd-status" style="margin-top:16px"><div class="empty">Loading the full change list…</div></div>' +
+      '<div id="chg-table"></div></section>';
+    EL("content").innerHTML = h;
+    loadDomains(function (pd) {
+      var items = pd.changes || [];
+      EL("pd-status").innerHTML = "";
+      if (!items.length) { EL("chg-table").innerHTML = '<div class="empty">No per-domain changes in this interval.</div>'; return; }
+      var rows = items.slice(0, 400).map(function (c) {
+        return '<tr><td class="mono">' + fmt(c[0]) + '</td><td><b>' + esc(c[1]) + '</b></td><td>' + esc(pd.crawlers[c[2]]) + '</td>' +
+          '<td>' + stPill(c[3]) + ' &rarr; ' + stPill(c[4]) + '</td><td>' +
+          (c[4] === "b" ? '<span style="color:#A33A2A">more restrictive</span>' :
+           c[3] === "b" ? '<span style="color:#1C5D4A">less restrictive</span>' : '<span style="color:var(--dim)">reclassified</span>') +
+          '</td></tr>';
+      }).join("");
+      var legend = '<div class="legend" style="margin:10px 0 4px">' + Object.keys(STCODE).map(function (k) {
+        return '<span><b style="background:' + STATE_COLORS[STCODE[k]] + '"></b>' + k + ' = ' + STATE_LABELS[STCODE[k]] + '</span>';
+      }).join("") + '</div>';
+      EL("chg-table").innerHTML = legend + '<div class="dd-h" style="margin-top:16px">Change feed &middot; showing ' +
+        Math.min(400, items.length) + ' of ' + fmt(items.length) + ', lowest rank first</div>' +
+        '<div class="mwrap"><table class="dt"><thead><tr><th>Rank</th><th>Domain</th><th>Crawler</th><th>Change</th><th>Direction</th></tr></thead><tbody>' +
+        rows + '</tbody></table></div>';
+    });
+  }
+
+  /* ---------- DOMAINS ---------- */
+  function domains() {
+    var h = '<section class="panel wide"><div class="ix">Domain explorer</div>' +
+      '<p class="sub">Search any domain for its declared policy across all ' + D.panel.crawlers + ' crawlers, or filter the index by status. ' +
+      'Per-domain data is licensed to your account.</p>' +
+      '<div class="ctrls">' +
+        '<input id="q" class="inp" placeholder="Search a domain, e.g. wikipedia.org" autocomplete="off">' +
+        '<select id="f-crawler" class="inp"><option value="">Any crawler…</option></select>' +
+        '<select id="f-status" class="inp">' +
+          '<option value="">Any status</option><option value="b">Explicitly blocked</option><option value="p">Partial</option>' +
+          '<option value="a">Explicitly allowed</option><option value="u">No explicit instruction</option><option value="n">No robots.txt</option>' +
+        '</select>' +
+        '<button id="btn-csv" class="btnx">Export CSV</button>' +
+      '</div>' +
+      '<div id="pd-status"><div class="empty">Loading the per-domain index…</div></div>' +
+      '<div id="dom-out"></div></section>';
+    EL("content").innerHTML = h;
+    loadDomains(function (pd) {
+      EL("pd-status").innerHTML = "";
+      var sel = EL("f-crawler");
+      pd.crawlers.forEach(function (c, i) { var o = document.createElement("option"); o.value = String(i); o.textContent = c; sel.appendChild(o); });
+      var render = function () {
+        var q = EL("q").value.trim().toLowerCase();
+        var ci = EL("f-crawler").value, st = EL("f-status").value;
+        var out = [];
+        for (var i = 0; i < pd.rows.length && out.length < 300; i++) {
+          var r = pd.rows[i];
+          if (q && r[1].toLowerCase().indexOf(q) < 0) continue;
+          if (st) {
+            if (ci !== "") { if (r[2][+ci] !== st) continue; }
+            else if (r[2].indexOf(st) < 0) continue;
+          } else if (ci !== "" && !q) { /* crawler alone: no filter */ }
+          out.push(r);
+        }
+        var head = '<tr><th>Rank</th><th>Domain</th>' + pd.crawlers.map(function (c) {
+          return '<th class="rot"><span>' + esc(c) + '</span></th>'; }).join("") + '</tr>';
+        EL("dom-out").innerHTML = '<div class="dd-h" style="margin-top:14px">' + (out.length >= 300 ? "First 300 matches" : fmt(out.length) + " match" + (out.length === 1 ? "" : "es")) + '</div>' +
+          (out.length ? '<div class="mwrap"><table class="dt"><thead>' + head + '</thead><tbody>' +
+            out.map(function (r) {
+              return '<tr><td class="mono">' + fmt(r[0]) + '</td><td><b>' + esc(r[1]) + '</b></td>' +
+                r[2].split("").map(function (c) { return '<td class="pc">' + stPill(c) + '</td>'; }).join("") + '</tr>';
+            }).join("") + '</tbody></table></div>' +
+            '<div class="legend">' + Object.keys(STCODE).map(function (k) {
+              return '<span><b style="background:' + STATE_COLORS[STCODE[k]] + '"></b>' + k + " = " + STATE_LABELS[STCODE[k]] + '</span>'; }).join("") + '</div>'
+          : '<div class="empty">No domains match those filters.</div>');
+        window.__CPI_LAST__ = out;
+      };
+      EL("q").addEventListener("input", render);
+      EL("f-crawler").addEventListener("change", render);
+      EL("f-status").addEventListener("change", render);
+      EL("btn-csv").addEventListener("click", function () {
+        var rows = window.__CPI_LAST__ || [];
+        if (!rows.length) return;
+        var csv = "rank,domain," + pd.crawlers.join(",") + "\n" + rows.map(function (r) {
+          return r[0] + "," + r[1] + "," + r[2].split("").map(function (c) { return STCODE[c]; }).join(",");
+        }).join("\n");
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+        a.download = "cpi-domains-" + pd.edition + ".csv"; a.click();
+      });
+      render();
+    });
+  }
 
   /* ---------- DRILL-DOWN: crawler detail ---------- */
   function crawlerDetail(name) {
@@ -298,7 +442,9 @@
   /* ---------- router ---------- */
   var TABS = {
     overview: { title: "Overview", render: overview },
-    crawlers: { title: "Crawlers", render: crawlers }
+    crawlers: { title: "Crawlers", render: crawlers },
+    changes:  { title: "Changes",  render: changes },
+    domains:  { title: "Domains",  render: domains }
   };
   function route(tab) {
     var t = TABS[tab];

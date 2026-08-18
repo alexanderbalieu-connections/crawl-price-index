@@ -57,6 +57,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 20px;lette
 .hist{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
 .hlabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:8px}
 .hrow{display:grid;grid-template-columns:44px 1fr 62px;gap:8px;align-items:center;font-size:12px;padding:2px 0}
+.hrow .hk{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hrow .hb{height:11px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
 .hrow .hb>span{display:block;height:100%;background:var(--blue)}
 .hrow .hv{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -83,11 +84,27 @@ table.mx td.diag{background:var(--sand)}
 .dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .dd-card{border:1px solid var(--line);border-radius:3px;padding:14px;background:var(--sand);min-width:0}
 .dd-h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:10px}
-.dd-card .hrow{grid-template-columns:auto 1fr 92px}
+.dd-card .hrow{grid-template-columns:230px 1fr 92px}
+.dd-card .hrow .hk{width:auto!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
 .lbrow.clickable{cursor:pointer;border-radius:2px}
 .lbrow.clickable:hover{background:var(--sand)}
 .lbrow.clickable:hover .nm{color:var(--signal);font-weight:600}
-@media(max-width:800px){.dd-kpis{grid-template-columns:1fr 1fr}.dd-grid{grid-template-columns:1fr}}
+@media(max-width:800px){.dd-kpis{grid-template-columns:1fr 1fr}.dd-grid{grid-template-columns:1fr}.dd-card .hrow{grid-template-columns:130px 1fr 76px}}
+
+.ctrls{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+.inp{font-family:var(--sans);font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--fg);min-width:0}
+#q{flex:1;min-width:210px}
+.btnx{font-family:var(--sans);font-size:13px;padding:9px 14px;border:1px solid var(--signal);background:var(--signal);color:#fff;border-radius:3px;cursor:pointer}
+.btnx:hover{opacity:.9}
+table.dt{border-collapse:collapse;font-size:12.5px;width:100%}
+table.dt th{text-align:left;font-weight:600;color:var(--dim);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--sand);position:sticky;top:0}
+table.dt td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.dt td.mono{font-variant-numeric:tabular-nums;color:var(--dim)}
+table.dt td.pc{text-align:center;padding:5px 3px}
+table.dt tr:hover td{background:var(--sand)}
+table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rotate(200grad);white-space:nowrap;max-height:88px;font-weight:600}
+.pill{display:inline-block;width:17px;height:17px;line-height:17px;text-align:center;border-radius:3px;color:#fff;font-size:10.5px;font-weight:600}
+.mwrap{max-height:640px;overflow:auto}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 <script src="/config.js"></script>
