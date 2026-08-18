@@ -31,10 +31,52 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 20px;lette
 .panel.wide{grid-column:1/-1}
 .panel .ix{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);font-weight:600;border-bottom:2px solid var(--signal);padding-bottom:8px;margin-bottom:14px}
 .placeholder{color:var(--dim);font-size:13.5px;padding:34px 0;text-align:center;background:var(--sand);border:1px dashed var(--line);border-radius:3px}
+
+.sub{color:var(--dim);font-size:13.5px;line-height:1.55;margin:0 0 14px}
+.foot{color:var(--dim);font-size:11.5px;line-height:1.5;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line)}
+.empty{color:var(--dim);font-size:13.5px;padding:30px 0;text-align:center;background:var(--sand);border:1px dashed var(--line);border-radius:3px}
+.big{font-family:var(--serif);font-size:44px;line-height:1;color:var(--signal);margin:2px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.kpi{min-width:0}.kpi .kv{font-family:var(--serif);font-size:30px;line-height:1;color:var(--fg)}
+.kpi .kl{font-size:11.5px;color:var(--dim);margin-top:5px;line-height:1.35}
+.lb{margin-top:4px}
+.lbrow{display:grid;grid-template-columns:150px 1fr 62px 92px;gap:10px;align-items:center;font-size:13px;padding:3px 0}
+.lbrow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbrow .bar{height:14px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.lbrow .bar>span{display:block;height:100%;background:var(--signal)}
+.lbrow .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.lbrow .d{text-align:right}
+.stack{margin-top:4px}
+.strow{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;padding:3px 0;font-size:13px}
+.strow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stbar{display:flex;height:16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.stbar>span{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--dim)}
+.legend b{display:inline-block;width:18px;height:9px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.tt{position:absolute;display:none;pointer-events:none;background:var(--fg);color:#fff;font-size:11.5px;padding:6px 9px;border-radius:3px;white-space:nowrap;z-index:20}
+.hist{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.hlabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:8px}
+.hrow{display:grid;grid-template-columns:44px 1fr 62px;gap:8px;align-items:center;font-size:12px;padding:2px 0}
+.hrow .hb{height:11px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.hrow .hb>span{display:block;height:100%;background:var(--blue)}
+.hrow .hv{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+.exh{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px}
+.ex{border:1px solid var(--line);border-radius:3px;padding:12px;background:var(--sand)}
+.ex .exv{font-family:var(--serif);font-size:26px;color:var(--signal);line-height:1}
+.ex .exl{font-size:11.5px;color:var(--dim);margin-top:3px}
+.mwrap{overflow-x:auto;margin-top:6px}
+table.mx{border-collapse:collapse;font-size:10.5px;font-variant-numeric:tabular-nums}
+table.mx th{font-weight:600;color:var(--dim);padding:4px;font-size:10px}
+table.mx thead th span{display:inline-block;writing-mode:vertical-rl;transform:rotate(200grad);white-space:nowrap;max-height:96px}
+table.mx th.rh{text-align:right;white-space:nowrap;padding-right:8px;color:var(--fg)}
+table.mx td{padding:4px 6px;text-align:center;border:1px solid #fff;color:var(--fg);min-width:46px}
+table.mx td.diag{background:var(--sand)}
+@media(max-width:800px){.kpis{grid-template-columns:1fr 1fr}.lbrow{grid-template-columns:104px 1fr 54px 74px}.strow{grid-template-columns:104px 1fr}}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 <script src="/config.js"></script>
 <script src="/clerk-loader.js"></script>
+<script src="/views.js"></script>
 </head>
 <body>
 <div class="masthead"><div class="wrap">
@@ -61,25 +103,13 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 20px;lette
   </div>
 </main>
 <script>
-// Shell only: auth gate + tab router. Views arrive in the next build days.
 window.CPI_ON_CLERK_READY = function (clerk) {
   if (!clerk.user) { window.location.href = "/"; return; }
   clerk.mountUserButton(document.getElementById("user-btn"), {
     appearance: { variables: { colorPrimary: "#1C5D4A" } }, afterSignOutUrl: "/"
   });
-  document.getElementById("content").innerHTML =
-    '<div class="panel wide"><div class="ix">Welcome</div><div class="placeholder">Signed in as ' +
-    (clerk.user.primaryEmailAddress ? clerk.user.primaryEmailAddress.emailAddress : clerk.user.id) +
-    '. Dashboard views land here over the coming days.</div></div>';
+  window.CPI_BOOT();
 };
-// tab router (content swapped per tab in later build days)
-document.querySelectorAll("nav.tabs a").forEach(function (a) {
-  a.addEventListener("click", function () {
-    document.querySelectorAll("nav.tabs a").forEach(function (x) { x.classList.remove("on"); });
-    a.classList.add("on");
-    document.getElementById("page-title").textContent = a.textContent;
-  });
-});
 </script>
 </body>
 </html>

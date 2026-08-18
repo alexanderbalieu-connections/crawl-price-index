@@ -216,6 +216,21 @@ if (fs.existsSync("scan-summary.json")) {
   }
 }
 
+
+// ---- trend series from aggregate history (history/<date>.json) -----------
+function buildTrend() {
+  if (!fs.existsSync("history")) return [];
+  return fs.readdirSync("history").filter(f => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().map(f => {
+    try {
+      const h = JSON.parse(fs.readFileSync(path.join("history", f), "utf8"));
+      const br = h.block_rates || {};
+      const rates = {};
+      Object.keys(br).forEach(k => { rates[k] = typeof br[k] === "object" ? br[k].rate_pct : br[k]; });
+      return { date: f.slice(0, 10), rates };
+    } catch (e) { return null; }
+  }).filter(Boolean);
+}
+
 // ---- assemble ------------------------------------------------------------
 const out = {
   generated_utc: new Date().toISOString(),
@@ -233,6 +248,7 @@ const out = {
   tld: { min_n: MIN_TLD_N, note: "ccTLD is a domain-suffix classification, not operator location, ownership, audience, or hosting.", rows: tld },
   changes,
   wire,
+  trend: buildTrend(),
   history_aggregate: fs.existsSync("history-index.json") ? JSON.parse(fs.readFileSync("history-index.json", "utf8")) : null,
 };
 fs.mkdirSync("app/data", { recursive: true });
