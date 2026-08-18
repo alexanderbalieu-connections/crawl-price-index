@@ -152,8 +152,8 @@ table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rot
 .clearbtn:hover{border-color:var(--signal)!important;color:var(--signal)!important}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
-<script src="/config.js"></script>
-<script src="/clerk-loader.js"></script>
+
+
 <script src="/views.js"></script>
 </head>
 <body>
@@ -184,7 +184,7 @@ table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rot
   </div>
 </main>
 <script>
-window.CPI_ON_CLERK_READY = function (clerk) {
+window.__previewUnused = function (clerk) {
   if (!clerk.user) { window.location.href = "/"; return; }
   clerk.mountUserButton(document.getElementById("user-btn"), {
     appearance: { variables: { colorPrimary: "#1C5D4A" } }, afterSignOutUrl: "/"
@@ -192,5 +192,6 @@ window.CPI_ON_CLERK_READY = function (clerk) {
   window.CPI_BOOT();
 };
 </script>
+<script>window.addEventListener("load",function(){window.CPI_BOOT();});</script>
 </body>
 </html>

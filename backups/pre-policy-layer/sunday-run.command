@@ -63,62 +63,11 @@ fi
 # ---- 3. publish pipeline (full weekly, newsletter included) ------------------
 BEFORE=$(node -pe 'try{JSON.parse(require("fs").readFileSync("history-index.json","utf8")).latest_snapshot}catch(e){"none"}' 2>/dev/null)
 node rebuild.cjs || { echo "REBUILD GATE ABORTED — live site unchanged, backup intact."; read -r; exit 1; }
-
-# The dashboard's prose makes qualitative claims about the data ("a third of all
-# blocking", "overwhelmingly in one direction"). The numbers inside those
-# sentences interpolate from the data; the characterisations around them do not.
-# This asserts every such claim against the new edition. It does not block the
-# publish — the data is still correct, only the wording would be stale.
-node check-copy.cjs || {
-  echo ""
-  echo "  !! COPY GUARD FAILED — wording above no longer matches this edition."
-  echo "     The edition is fine to publish; the sentence is not. Fix it in app/views.js"
-  echo "     at the location named, then redeploy the app."
-  echo ""
-  printf "  Publish anyway? [y/N] "
-  read -r cpans
-  case "$cpans" in [yY]*) ;; *) echo "  Stopped. Nothing published."; read -r; exit 1 ;; esac
-}
 node build-status.cjs || echo "WARN: status build failed"
 node build-suggest.cjs || echo "WARN: suggest build failed"
 cp index.json public/ 2>/dev/null
 cp trends-public.json public/ 2>/dev/null
 npx wrangler deploy || echo "WARN: site deploy failed"
-
-# ---- 3b. the customer app (app.crawlpriceindex.com) --------------------------
-# compute-domains.cjs writes private/domains.json at the repo root; the Pages
-# deploy only ships what is INSIDE app/, so it has to be copied in first.
-# Without this the portal serves last week's data and the Changes/Domains tabs
-# report "dataset unavailable".
-if [ -f private/domains.json ]; then
-  mkdir -p app/private && cp private/domains.json app/private/domains.json && \
-    echo "app/private/domains.json refreshed ($(du -h app/private/domains.json | cut -f1))"
-else
-  echo "WARN: private/domains.json missing — app will serve stale per-domain data"
-fi
-APP_OUT=$(npx wrangler pages deploy app --project-name=cpi-app --commit-dirty=true 2>&1) || echo "WARN: app deploy failed"
-echo "$APP_OUT" | tail -6
-# The gate lives in app/_worker.js. Pages only compiles it if it is inside the
-# deployed directory, and when it silently is not, the paid dataset goes public.
-if echo "$APP_OUT" | grep -q "Uploading Worker bundle"; then
-  echo "Gate: Worker bundle uploaded."
-else
-  echo "!! GATE WARNING: no 'Uploading Worker bundle' in the deploy output."
-fi
-sleep 6
-G1=$(curl -s --max-time 20 https://app.crawlpriceindex.com/private/domains.json | head -c 60)
-G2=$(curl -s --max-time 20 https://app.crawlpriceindex.com/api/domains | head -c 60)
-if echo "$G1" | grep -q "not accessible" && echo "$G2" | grep -q "authentication required"; then
-  echo "Gate verified: /private/* refused, /api/domains requires auth."
-else
-  echo ""
-  echo "  !!!! GATE NOT ENFORCED — THE PAID DATASET MAY BE PUBLIC RIGHT NOW !!!!"
-  echo "       /private/domains.json -> $G1"
-  echo "       /api/domains          -> $G2"
-  echo "       Check app/_worker.js is inside the deployed directory, then redeploy."
-  echo ""
-fi
-
 node push-dataset.cjs || echo "WARN: dataset push failed"
 node push-sample.cjs || echo "WARN: sample push failed"
 node build-lookup.cjs || echo "WARN: lookup push failed"
