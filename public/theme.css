@@ -1,3 +1,4 @@
+*,*::before,*::after{box-sizing:border-box}
 /* The Crawl Price Index — shared theme (v2).
    Loaded after each page's own <style>, so it overrides at equal specificity.
    Restyles only: no markup moves, so no page script is affected. */
@@ -31,6 +32,7 @@ body{
    The wrap stays 1140px; the content blocks inside are capped. */
 body.prose .wrap > *{max-width:860px}
 body.prose .masthead .wrap > *{max-width:none}
+body.prose .wrap > .panels,body.prose .wrap > .panels > *{max-width:none}
 body.prose footer .wrap > *{max-width:none}
 :focus-visible{outline:2px solid var(--signal);outline-offset:3px}
 
@@ -57,7 +59,7 @@ h2{font-size:clamp(23px,2.7vw,31px);line-height:1.22;margin:52px 0 14px;padding-
   border-top:2px solid var(--signal);display:inline-block}
 h3{font-size:19px;margin:26px 0 8px}
 p{margin:0 0 16px}
-.lede{font-size:clamp(17px,2vw,20px);color:var(--dim);max-width:860px}
+.lede{font-size:clamp(17px,2vw,20px);color:var(--dim);max-width:none}
 .mono{font-family:var(--sans);font-variant-numeric:tabular-nums;letter-spacing:0}
 code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;
   background:var(--sand);border:1px solid var(--line);color:var(--fg)}
@@ -174,7 +176,7 @@ img,svg{max-width:100%;height:auto}
   input[type=text],input[type=email],select{width:100%}
 }
 @media (max-width:420px){
-  .masthead nav a.lnk{display:none}
+  /* keep nav links visible and wrapping, never hidden — phone users must navigate */
   h1{font-size:25px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -290,4 +292,172 @@ img,svg{max-width:100%;height:auto}
   .section{padding:44px 0}
   .obs-meta{grid-template-columns:1fr}
   .board{display:block;overflow-x:auto}
+}
+
+/* ============================================================================
+   CONTENT LAYOUT SYSTEM v1 — the shared component vocabulary.
+   Every page assembles from these. No page carries its own <style> block.
+   See CONTENT-SYSTEM.md. Added 2026-08-18.
+   ========================================================================== */
+
+/* ---- the dateline rule: every page opens identically --------------------- */
+.page-open{padding:48px 0 28px;border-bottom:1px solid var(--line);margin-bottom:0}
+.page-open .eyebrow{margin-bottom:0}
+.page-open h1{margin:.28em 0 .3em;font-size:clamp(30px,4.6vw,48px);line-height:1.07;max-width:none}
+.page-open .lede{margin:0}
+
+/* ---- section rhythm: identical spacing between blocks -------------------- */
+.section{padding:42px 0;border-bottom:1px solid var(--line)}
+.section:last-of-type{border-bottom:0}
+.section > h2:first-child,.section > .lead-in:first-child{margin-top:0}
+.section h2{margin:0 0 16px;font-size:clamp(23px,3vw,32px);line-height:1.15;max-width:none}
+.section h3{font-size:19px;margin:22px 0 8px}
+.section p{max-width:none}
+.section p + p{margin-top:15px}
+
+/* a small green label that opens a section (the section-level eyebrow) */
+.lead-in{font-family:var(--sans);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--signal);font-weight:600;display:block;margin-bottom:13px}
+
+/* ---- callout: bordered emphasis, green by default, amber for caveats ----- */
+.callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--signal);
+  border-radius:3px;box-shadow:var(--lift);padding:20px 24px;margin:22px 0;max-width:none}
+.callout.warn{border-left-color:var(--amber)}
+.callout > .lead-in{margin-bottom:8px}
+.callout p{margin:0;max-width:none}
+
+/* ---- q-list: question / answer rows -------------------------------------- */
+.q-list{list-style:none;padding:0;margin:14px 0 0;border-top:1px solid var(--line)}
+.q-list li{border-bottom:1px solid var(--line);padding:18px 0;display:block}
+.q-list .q{font-family:var(--serif);font-size:19px;color:var(--fg);display:block;margin-bottom:5px}
+.q-list .a{font-size:14.5px;color:var(--dim);max-width:none;display:block}
+.q-list .a a{color:var(--signal)}
+
+/* ---- entry: a dated record (changelog) ----------------------------------- */
+.entry{padding:22px 0;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:0}
+.entry .d{font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--signal);font-weight:600;margin-bottom:6px}
+.entry .t{font-family:var(--serif);font-size:22px;color:var(--fg);margin:0 0 10px;display:block}
+.entry .body{margin:0;color:var(--dim);max-width:none}
+
+/* ---- source: a muted citation / attribution line ------------------------- */
+.source{font-size:13.5px;color:var(--dim);max-width:none}
+.source a{color:var(--signal)}
+
+/* ---- pull: a large serif statement, used sparingly ----------------------- */
+.pull{font-family:var(--serif);font-weight:300;font-size:clamp(24px,3.4vw,38px);line-height:1.2;
+  letter-spacing:-.01em;color:var(--fg);max-width:none;margin:0}
+.pull em{font-style:italic;color:var(--signal)}
+
+/* ---- cta-row: buttons in a row, wrapping on mobile ----------------------- */
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;align-items:center}
+
+@media (max-width:820px){
+  .page-open{padding:34px 0 22px}
+  .section{padding:32px 0}
+  .callout{padding:16px 18px}
+  .cta-row .btn,.cta-row .ghost{width:100%}
+}
+
+
+/* ============================================================================
+   PANEL SECTION SYSTEM v2 — numbered, bordered, uniform-width blocks.
+   Replaces bare .section on reading pages. Each major point is a discrete
+   framed unit with a numeric index (the sequential thread) and a single
+   internal measure (kills the heading-wider-than-body inconsistency).
+   ========================================================================== */
+.panels{counter-reset:panel;max-width:100%;margin:0;padding:34px 0 20px}
+.panel{counter-increment:panel;position:relative;
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--lift);padding:28px 30px;margin:20px 0}
+/* the numbered index + eyebrow, always the same line, always present */
+.panel > .ix{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--signal)}
+.panel > .ix::before{content:counter(panel,decimal-leading-zero);
+  font-family:var(--serif);font-size:15px;color:var(--signal);font-weight:400;
+  font-variant-numeric:tabular-nums;line-height:1}
+.panel > .ix .lead-in{margin:0;font-size:11px;letter-spacing:.18em}
+/* everything inside a panel shares ONE measure — no more halfway-then-wide */
+.panel h2{border:0;padding:0;margin:0 0 14px;font-size:clamp(22px,2.6vw,29px);line-height:1.14;max-width:none}
+.panel h2:only-child{margin-bottom:0}
+.panel p{max-width:none;margin:0}
+.panel p + p{margin-top:14px}
+/* a panel whose lead statement IS the point (the old .pull, now framed) */
+.panel .pull{max-width:none;font-size:clamp(23px,3vw,32px)}
+.panel .pull + p{margin-top:20px}
+/* q-list inside a panel sits flush, no double border at the top */
+.panel .q-list{margin-top:16px;border-top:1px solid var(--line)}
+.panel .source{margin-top:18px}
+/* a closing panel that's just a call to action reads lighter */
+.panel.close{background:var(--sand);border-style:solid;text-align:left}
+.panel.close .pull{max-width:none}
+
+@media (max-width:820px){
+  .panel{padding:22px 20px;margin:14px 0}
+  .panels{max-width:100%}
+}
+
+
+/* ============================================================================
+   MOBILE — iPhone-first pass for the panel system (~390px).
+   Appended last so it governs. Everything must read logically top to bottom.
+   ========================================================================== */
+@media (max-width:640px){
+  /* tighter frame: reclaim horizontal space on a narrow screen */
+  .wrap{padding:0 16px}
+
+  /* masthead stacks: brand on top, nav wraps beneath, nothing hidden */
+  .masthead .wrap{flex-wrap:wrap;gap:10px 16px;padding-top:14px;padding-bottom:14px;min-height:0}
+  .masthead .mark{font-size:19px;width:100%}
+  .masthead nav{margin-left:0;width:100%;gap:14px 16px;row-gap:10px}
+  .masthead nav a.lnk{font-size:14px}
+  .masthead nav a.ghost,.masthead nav a.btn{font-size:13.5px;padding:9px 14px}
+
+  /* hero: smaller, no wasted vertical space, text fills width */
+  .page-open{padding:26px 4px 20px}
+  .page-open h1{font-size:clamp(26px,8vw,34px);line-height:1.12}
+  .page-open .lede{font-size:16px;line-height:1.55}
+
+  /* panels: near-flush to the screen edge, comfortable inner pad, clear gaps */
+  .panels{padding:20px 0 8px}
+  .panel{padding:22px 18px;margin:14px 0;border-radius:4px}
+  .panel > .ix{margin-bottom:12px}
+  .panel h2{font-size:22px;line-height:1.18;margin-bottom:12px}
+  .panel p{font-size:16px;line-height:1.6}
+  .panel .pull{font-size:23px;line-height:1.25}
+
+  /* question list: question and answer stack with clear separation */
+  .q-list li{padding:15px 0}
+  .q-list .q{font-size:17px;line-height:1.3;margin-bottom:6px}
+  .q-list .a{font-size:14.5px;line-height:1.5}
+
+  /* closing CTA: buttons full-width, stacked, thumb-friendly */
+  .panel.close{padding:22px 18px}
+  .cta-row{flex-direction:column;align-items:stretch;gap:10px}
+  .cta-row .btn,.cta-row .ghost{width:100%;text-align:center;padding:14px 18px;font-size:15px}
+
+  /* source lines wrap cleanly */
+  .source{font-size:13px;line-height:1.5}
+}
+
+/* very small phones */
+@media (max-width:380px){
+  .page-open h1{font-size:26px}
+  .panel{padding:18px 15px}
+  .panel h2{font-size:20px}
+}
+
+
+/* ============================================================================
+   PANEL GRID (option B) — short panels sit two-up, long ones span full width.
+   Density above the fold + readable line length + no empty gutter.
+   Collapses to a single column on phones.
+   ========================================================================== */
+@media (min-width:900px){
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+  .panels > .panel{margin:0;height:100%}  /* grid gap handles spacing; equal height */
+  .panels > .panel.wide,
+  .panels > .panel.close{grid-column:1 / -1}   /* full-width panels */
+  /* a panel that holds a long Q&A list is automatically full width */
+  .panels > .panel:has(.q-list){grid-column:1 / -1}
 }

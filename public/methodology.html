@@ -42,23 +42,27 @@
     <a class="btn" href="/#access">Subscribe</a>
   </nav>
 </div></div>
-<header><div class="wrap">
+<div class="page-open"><div class="wrap">
   <p class="eyebrow">How we measure</p>
   <h1>Methodology</h1>
   <p style="max-width:640px;margin:0">What we measure, how we measure it, what counts as an observation versus an inference, what we deliberately do not measure, and how to check our work.</p>
   <div class="meta">Methodology version <b class="mono">2026-08-10.1</b> · machine-readable at <a href="https://api.crawlpriceindex.com/v1/methodology">/v1/methodology</a></div>
-</div></header>
+</div></div>
 
-<div class="wrap">
-
-<h2>The short version</h2>
+<div class="wrap"><div class="panels">
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">The short version</span></div>
+  <h2>The short version</h2>
 <p>Once a week we read the <code>robots.txt</code> and homepage response headers of the Tranco top 50,000 domains using our own identified, cryptographically signed crawler. We record what each site tells AI crawlers: who is blocked, who is allowed, whether a price or payment wall is quoted, and what changed since last week. We publish the aggregates free and the per-domain detail to subscribers.</p>
 
 <div class="box">
 <b>The distinction that matters most.</b> “GPTBot is disallowed in this site’s robots.txt” is an <b>observation</b>. “15.3% of the scanned web blocks GPTBot” is a <b>derivation</b> from those observations. “A site of this size could charge $0.05 per crawl” is an <b>inference</b> — our judgement, not a measurement. We label all three differently everywhere they appear, and we never present the third as the first.
 </div>
 
-<h2>What we measure</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">What we measure</span></div>
+  <h2>What we measure</h2>
 <table>
   <tr><th>Signal</th><th>How</th><th>Type</th></tr>
   <tr><td><b>Robots stance</b><br><span style="color:var(--dim);font-size:14px">per crawler, per domain</span></td><td>GET <code>/robots.txt</code> with our identified user agent; parse User-agent / Disallow / Allow groups. Values: blocked, allowed, partial, unlisted, no_robots.</td><td><span class="tag obs">observed</span></td></tr>
@@ -71,7 +75,10 @@
   <tr><td><b>Suggested price band</b><br><span style="color:var(--dim);font-size:14px">checker only</span></td><td>Our judgement, anchored to observed quotes and the domain’s rank. Labelled as judgement wherever it appears.</td><td><span class="tag inf">inferred</span></td></tr>
 </table>
 
-<h2>What we do not measure</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">What we do not measure</span></div>
+  <h2>What we do not measure</h2>
 <div class="box warn">
 <ul style="margin:0">
   <li>Revenue actually earned by any site.</li>
@@ -82,7 +89,10 @@
 </ul>
 </div>
 
-<h2>How we identify ourselves</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">How we identify ourselves</span></div>
+  <h2>How we identify ourselves</h2>
 <p>Our crawler sends a truthful user agent and signs every request cryptographically, so any site can verify that traffic claiming to be ours really is:</p>
 <pre>User-Agent: CrawlPriceIndexBot/1.0 (crawl-economy measurement;
             robots.txt study; contact: hello@crawlpriceindex.com)
@@ -100,12 +110,18 @@ Signature-Input: sig=("@authority" "signature-agent");created=…;keyid="…";ta
 </ul>
 
 <!-- MethodV2Census -->
-<h2>Two probes, and how the panel is chosen</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Two probes, and how the panel is chosen</span></div>
+  <h2>Two probes, and how the panel is chosen</h2>
 <p>We measure crawler policy two ways, on purpose. The <b>wide honest probe</b> visits thousands of domains — the top by rank, plus every domain observed blocking any AI crawler — using only our own signed, identified user agent. It never pretends to be another crawler. It records what an honest, verifiable bot is shown: the HTTP status, payment or licensing headers, Cloudflare fronting, <code>X-Robots-Tag</code> directives, and whether a machine-readable <code>llms.txt</code> is served. Because it never impersonates, it can run at scale without misrepresenting anyone.</p>
 <p>The <b>identity matrix</b> is small and deliberately capped. For a limited panel it issues the same request under several identities — a browser, and the published user-agent strings of major AI crawlers — and compares the answers. This is the only way to observe <em>identity-conditional</em> behaviour: a site that serves one crawler and charges another. Because it sends another crawler's user-agent string, it is treated as a disclosed measurement study, kept to roughly ninety domains a week, and never scaled.</p>
 <p>The panel is assembled, not hand-picked. It has three parts: a fixed <b>spine</b> carried unchanged for continuity; a <b>signal</b> tier, where any domain the wide probe flags as showing payment or blocking behaviour is promoted automatically the following week and dropped after eight silent weeks; and a rotating <b>audit</b>, a small random sample from the full scan each week, so that a wall which fires only at AI crawlers — and shows our honest bot a clean page — is still sampled and its prevalence measured over time. The panel's full composition is published at <a href="/panel.json">/panel.json</a>.</p>
 
-<h2>Coverage and freshness</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Coverage and freshness</span></div>
+  <h2>Coverage and freshness</h2>
 <ul>
   <li><b>Frame:</b> the Tranco top 50,000 (a research ranking that aggregates several sources and resists manipulation), plus an identity-matrix panel of ~90 domains (a fixed spine, plus domains promoted from the wide probe, plus a rotating audit — see above).</li>
   <li><b>Reached vs parsed:</b> the Tranco list ranks registrable domains, not working websites. A large share never answer — no DNS record, refused connections, dead TLS, or a timeout on both the bare domain and its <code>www</code> host. Of roughly 39,000 domains that return a live response, about 28,000 publish a readable <code>robots.txt</code> — <b>~72% of the reachable web</b>. We report coverage against what is reachable, not against the raw 50,000, and every unreachable domain is itemised by reason (no DNS, refused, timeout, broken TLS, HTTP error) in a separate census. One finding falls straight out of it: a meaningful share of the busiest sites return an HTTP error to a crawler simply asking for their public <code>robots.txt</code>.</li>
@@ -113,7 +129,10 @@ Signature-Input: sig=("@authority" "signature-agent");created=…;keyid="…";ta
   <li><b>History:</b> begins the week we first observed a signal. It cannot be backfilled — by us or by anyone.</li>
 </ul>
 
-<h2>Known limitations</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Known limitations</span></div>
+  <h2>Known limitations</h2>
 <ul>
   <li><b>Declaration is not enforcement.</b> Our headline block rates measure what sites <em>say</em>. Our enforcement metric measures a small panel of what sites <em>do</em>, and the two differ substantially.</li>
   <li><b>robots.txt is not the whole story.</b> Sites also gate crawlers at the edge, by ASN, by fingerprint or by CAPTCHA. We do not see those from a single identified request.</li>
@@ -124,10 +143,16 @@ Signature-Input: sig=("@authority" "signature-agent");created=…;keyid="…";ta
   <li><b>The honest probe has a blind spot.</b> Our wide probe uses one honest identity, so a wall that fires <em>only</em> at a named AI crawler — showing our identified bot an ordinary page — is invisible to it, and enters the record only through the rotating audit. Today's data suggests this is uncommon (most walls show the honest bot something: a 403, a redirect, a header), but it is a real limit, and the audit exists to size it rather than hide it.</li>
 </ul>
 
-<h2>Corrections</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Corrections</span></div>
+  <h2>Corrections</h2>
 <p>If we get something wrong, we fix it in the next weekly edition and record it in the machine-readable <code>corrections</code> array with the date, what changed and why. We do not silently amend past editions. Report an error to <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> and it will be acknowledged in the next edition.</p>
 
-<h2>Reproduce our work</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Reproduce our work</span></div>
+  <h2>Reproduce our work</h2>
 <p>Every figure we publish is regenerated weekly from a full sweep. To check any headline number yourself:</p>
 <pre># the aggregates behind the homepage
 curl -s https://crawlpriceindex.com/index.json
@@ -142,9 +167,14 @@ curl -s "https://api.crawlpriceindex.com/v1/check?domain=example.com"
 curl -s https://example.com/robots.txt</pre>
 <p>If our stance for a domain disagrees with that site’s live <code>robots.txt</code>, that is a bug and we want to hear about it. Subscribers get the full per-domain dataset as JSON or CSV, with a per-customer watermark.</p>
 
-<h2>Independence</h2>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Independence</span></div>
+  <h2>Independence</h2>
 <p>The Crawl Price Index is funded by subscriptions. We take no payment from AI companies, publishers, CDNs or licensing platforms in exchange for coverage, ranking or inclusion. We link to Cloudflare, TollBit and RSL as setup routes for site owners with no commercial relationship to any of them. Our own site publishes machine-readable licensing terms and charges AI training crawlers, at a price derived from the index itself — disclosed in <a href="/rsl.xml">rsl.xml</a>.</p>
 
+</section>
+</div></div>
 <footer>
 THE CRAWL PRICE INDEX · an independent observatory of the machine-readable web · <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> · <a href="/terms.html">terms</a> · <a href="/">index</a>
 </footer>
