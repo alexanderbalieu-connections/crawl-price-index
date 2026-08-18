@@ -164,17 +164,24 @@ for (const r of cur.rows) {
   const t = tldOf(r.domain);
   (tldMap[t] = tldMap[t] || []).push(r);
 }
+// Rates use the PARSED denominator (domains in the group with a readable
+// robots.txt) so they match the published site figures exactly. n_total is
+// kept so the group's full size stays visible.
 const tld = Object.entries(tldMap)
   .filter(([, rows]) => rows.length >= MIN_TLD_N)
   .map(([t, rows]) => {
+    const parsedRows = rows.filter(r => r.st.some(s => s !== "no_robots"));
+    const den = parsedRows.length || 1;
     const per = {};
     C.forEach((c, ci) => {
-      let b = 0; for (const r of rows) if (r.st[ci] === "blocked") b++;
-      per[c] = +(b / rows.length * 100).toFixed(2);
+      let b = 0; for (const r of parsedRows) if (r.st[ci] === "blocked") b++;
+      per[c] = +(b / den * 100).toFixed(2);
     });
-    let anyB = 0; for (const r of rows) if (r.st.some(s => s === "blocked")) anyB++;
-    return { tld: t, n: rows.length, any_blocked_pct: +(anyB / rows.length * 100).toFixed(2), blocked_pct: per };
+    let anyB = 0; for (const r of parsedRows) if (r.st.some(s => s === "blocked")) anyB++;
+    return { tld: t, n: den, n_total: rows.length,
+             any_blocked_pct: +(anyB / den * 100).toFixed(2), blocked_pct: per };
   })
+  .filter(r => r.n >= MIN_TLD_N)
   .sort((a, b) => b.any_blocked_pct - a.any_blocked_pct);
 
 // ---- change feed + transitions (needs prev) ------------------------------
@@ -260,7 +267,7 @@ const out = {
   exclusion_matrix,
   cotreat_matrix,
   rank_bands,
-  tld: { min_n: MIN_TLD_N, note: "ccTLD is a domain-suffix classification, not operator location, ownership, audience, or hosting.", rows: tld },
+  tld: { min_n: MIN_TLD_N, note: "ccTLD is a domain-suffix classification, not operator location, ownership, audience, or hosting. Rates use the same parsed-robots.txt denominator as the published world editions, so the two agree.", rows: tld },
   changes,
   wire,
   trend: buildTrend(),

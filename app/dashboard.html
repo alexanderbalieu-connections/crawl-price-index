@@ -110,6 +110,12 @@ table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rot
 .panel.pclick:after{content:"click for detail";display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:12px;opacity:.65}
 .strow.clickable{cursor:pointer}
 .strow.clickable:hover .nm{color:var(--signal);font-weight:600}
+.xlink{color:var(--signal);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.xlink:hover{opacity:.75}
+.strow{grid-template-columns:150px 1fr 190px}
+.stn{font-size:11.5px;color:var(--dim);text-align:right;white-space:nowrap}
+.ctrls .inp{max-width:260px}
+@media(max-width:800px){.strow{grid-template-columns:104px 1fr}.stn{display:none}}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 <script src="/config.js"></script>

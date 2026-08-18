@@ -24,16 +24,22 @@
     var h = "";
     h += kpiRow();
     // hero leaderboard
+    var sorted = applyCrawlerSort(c);
     h += '<section class="panel wide"><div class="ix">Crawler leaderboard &middot; declared robots policy</div>' +
       '<p class="sub">Share of the ' + fmt(D.panel.robots_parsed) + ' domains with a readable robots.txt that <b>explicitly block</b> each crawler. ' +
-      'Change is versus the previous edition.</p>' +
-      '<div class="lb">' + c.map(function (x, i) {
-        var w = top.blocked_pct ? (x.blocked_pct / top.blocked_pct * 100) : 0;
+      'Full detail per crawler on ' + link("crawlers", "the Crawlers page") + '; segment cuts on ' + link("segments", "Segments") + '.</p>' +
+      controls('<input id="cw-q" class="inp" placeholder="Filter crawlers…" value="' + esc(UI.crawlerQ) + '">' +
+        sortSel("cw-sort", CRAWLER_SORTS, UI.crawlerSort) +
+        sortSel("cw-basis", basisOptions(), UI.basis)) +
+      '<div class="lb">' + sorted.map(function (x, i) {
+        var vmax = Math.max.apply(null, sorted.map(function (z) { return z.blocked_pct; })) || 1;
+        var w = x.blocked_pct / vmax * 100;
         return '<div class="lbrow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span>' +
           '<span class="bar"><span style="width:' + w.toFixed(1) + '%"></span></span>' +
           '<span class="v">' + x.blocked_pct.toFixed(2) + '%</span>' +
           '<span class="d">' + delta(x.delta_pp) + '</span></div>';
       }).join("") + '</div>' +
+      '<p class="foot" id="basis-note"></p>' +
       '<p class="foot">Blocked in robots.txt is a declared policy, not proof a crawler was denied. Denominator: ' +
       fmt(D.panel.robots_parsed) + ' parsed domains of the ' + fmt(D.panel.domains) + '-domain index frame &mdash; not "the web".</p></section>';
 
@@ -75,7 +81,17 @@
 
     EL("content").innerHTML = h;
     if (D.trend && D.trend.length >= 2) drawTrend();
-    wireDrill();
+    wireDrill(); wireLinks(); wireCrawlerControls(overview);
+    var bs = EL("cw-basis");
+    if (bs) bs.addEventListener("change", function () { UI.basis = this.value; overview(); });
+    var bn = EL("basis-note");
+    if (bn) {
+      var n = (D.editions || []).length;
+      bn.innerHTML = UI.basis === "prev"
+        ? 'Change column compares the current edition with the one before it (' + esc(D.changes.interval || "—") + ').'
+        : 'Longer comparison windows need more history. ' + n + ' per-domain edition' + (n === 1 ? '' : 's') +
+          ' recorded so far; one is archived every week, so monthly and quarterly baselines unlock as the series grows. Showing the previous-edition change until then.';
+    }
   }
 
   function kpiRow() {
@@ -138,15 +154,22 @@
   /* ---------- CRAWLERS ---------- */
   function crawlers() {
     var h = "";
+    var cs = applyCrawlerSort(D.crawlers);
     h += '<section class="panel wide"><div class="ix">Policy distribution &middot; all five declared states</div>' +
-      '<p class="sub">Every state shown separately. <b>No explicit instruction</b> and <b>no robots.txt</b> are <em>not</em> permission &mdash; they mean the crawler was never named.</p>' +
-      '<div class="stack">' + D.crawlers.map(function (x) {
+      '<p class="sub">Every state shown separately. <b>No explicit instruction</b> and <b>no robots.txt</b> are <em>not</em> permission &mdash; they mean the crawler was never named. ' +
+      'The grey band is identical width on every row because whether a domain has a robots.txt at all is a property of the <em>domain</em>, not of the crawler: ' +
+      fmt(D.panel.domains - D.panel.robots_parsed) + ' of ' + fmt(D.panel.domains) + ' domains served no readable file to anyone.</p>' +
+      controls('<input id="cw-q" class="inp" placeholder="Filter crawlers…" value="' + esc(UI.crawlerQ) + '">' +
+        sortSel("cw-sort", CRAWLER_SORTS, UI.crawlerSort)) +
+      '<div class="stack">' + cs.map(function (x) {
         var tot = x.blocked + x.partial + x.allowed + x.unlisted + x.no_robots;
         var seg = ["blocked","partial","allowed","unlisted","no_robots"].map(function (s) {
           var w = tot ? x[s] / tot * 100 : 0;
           return w > 0 ? '<span title="' + STATE_LABELS[s] + ': ' + fmt(x[s]) + '" style="width:' + w.toFixed(2) + '%;background:' + STATE_COLORS[s] + '"></span>' : "";
         }).join("");
-        return '<div class="strow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span><span class="stbar">' + seg + '</span></div>';
+        return '<div class="strow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span><span class="stbar">' + seg + '</span>' +
+          '<span class="stn"><b style="color:#A33A2A">' + x.blocked_pct.toFixed(1) + '%</b> blocked &middot; <b style="color:#1C5D4A">' +
+          x.allowed_pct.toFixed(1) + '%</b> allowed</span></div>';
       }).join("") + '</div>' +
       '<div class="legend">' + Object.keys(STATE_LABELS).map(function (s) {
         return '<span><b style="background:' + STATE_COLORS[s] + '"></b>' + STATE_LABELS[s] + '</span>';
@@ -154,7 +177,7 @@
 
     h += '<section class="panel wide"><div class="ix">Explicit-policy rate</div>' +
       '<p class="sub">Share of parsed domains that made <em>any</em> crawler-specific decision (blocked, partial, or explicitly allowed) &mdash; the emergence of an AI-policy layer.</p>' +
-      '<div class="lb">' + D.crawlers.slice().sort(function (a, b) { return b.explicit_policy_pct - a.explicit_policy_pct; }).map(function (x) {
+      '<div class="lb">' + applyCrawlerSort(D.crawlers).map(function (x) {
         var mxv = Math.max.apply(null, D.crawlers.map(function (z) { return z.explicit_policy_pct; })) || 1;
         return '<div class="lbrow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span><span class="bar"><span style="width:' +
           (x.explicit_policy_pct / mxv * 100).toFixed(1) + '%;background:#1D4E6F"></span></span><span class="v">' +
@@ -169,10 +192,12 @@
     h += '<section class="panel wide"><div class="ix">Co-treatment similarity</div>' +
       '<p class="sub">Among domains with an explicit policy for <em>both</em>, the share where the two crawlers receive the <b>same</b> status. High values mean the web treats them as interchangeable.</p>' +
       matrixTable(D.cotreat_matrix, D.matrix_crawlers, function (v) { return v == null ? "—" : v.toFixed(0) + "%"; }, "#1C5D4A") +
-      '<p class="foot">Unlisted and no-robots cells are excluded from this calculation, so it reflects deliberate decisions only. Click any crawler name or cell for detail.</p></section>';
+      '<p class="foot">Unlisted and no-robots cells are excluded from this calculation, so it reflects deliberate decisions only. ' +
+      'Click any cell for the head-to-head breakdown, or a crawler name for its full profile. Segment cuts on ' + link("segments","Segments") +
+      '; recent movement on ' + link("changes","Changes") + '.</p></section>';
 
     EL("content").innerHTML = h;
-    wireDrill();
+    wireDrill(); wireLinks(); wireCrawlerControls(crawlers);
   }
 
   function matrixTable(m, names, fmtv, hue) {
@@ -192,6 +217,66 @@
   }
 
 
+
+
+  /* ---------- shared UI state & helpers ---------- */
+  var UI = { crawlerSort: "blocked_desc", crawlerQ: "", chgSort: "rank", chgQ: "", chgDir: "",
+             tldSort: "rate_desc", tldQ: "", basis: "prev" };
+  var HEADER_OFFSET = 118;                       // sticky masthead + tab bar
+  function scrollToEl(el) {
+    var y = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+    window.scrollTo({ top: y < 0 ? 0 : y, behavior: "smooth" });
+  }
+  function goTab(tab) {                          // cross-page links
+    var a = document.querySelector('nav.tabs a[data-tab="' + tab + '"]');
+    if (!a) return;
+    document.querySelectorAll("nav.tabs a").forEach(function (x) { x.classList.remove("on"); });
+    a.classList.add("on"); route(tab); window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function link(tab, label) {
+    return '<a href="#' + tab + '" class="xlink" data-goto="' + tab + '">' + esc(label) + '</a>';
+  }
+  function wireLinks() {
+    document.querySelectorAll("[data-goto]").forEach(function (a) {
+      a.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); goTab(a.dataset.goto); });
+    });
+  }
+  function controls(html) { return '<div class="ctrls">' + html + '</div>'; }
+  function sortSel(id, opts, cur) {
+    return '<select id="' + id + '" class="inp">' + opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join("") + '</select>';
+  }
+  function applyCrawlerSort(list) {
+    var q = UI.crawlerQ.toLowerCase();
+    var out = list.filter(function (c) { return !q || c.name.toLowerCase().indexOf(q) >= 0; });
+    var by = {
+      blocked_desc: function (a, b) { return b.blocked_pct - a.blocked_pct; },
+      blocked_asc:  function (a, b) { return a.blocked_pct - b.blocked_pct; },
+      name_asc:     function (a, b) { return a.name.localeCompare(b.name); },
+      explicit_desc:function (a, b) { return b.explicit_policy_pct - a.explicit_policy_pct; },
+      delta_desc:   function (a, b) { return (b.delta_pp == null ? -1e9 : b.delta_pp) - (a.delta_pp == null ? -1e9 : a.delta_pp); },
+      allowed_desc: function (a, b) { return b.allowed_pct - a.allowed_pct; }
+    };
+    return out.sort(by[UI.crawlerSort] || by.blocked_desc);
+  }
+  var CRAWLER_SORTS = [["blocked_desc","Block rate: high to low"],["blocked_asc","Block rate: low to high"],
+    ["name_asc","Name: A to Z"],["explicit_desc","Explicit-policy rate"],["delta_desc","Biggest increase"],
+    ["allowed_desc","Explicitly allowed rate"]];
+  function wireCrawlerControls(rerender) {
+    var q = EL("cw-q"), so = EL("cw-sort");
+    if (q) q.addEventListener("input", function () { UI.crawlerQ = this.value; rerender(); });
+    if (so) so.addEventListener("change", function () { UI.crawlerSort = this.value; rerender(); });
+  }
+  /* comparison basis — honest about what history exists */
+  function basisOptions() {
+    var n = (D.editions || []).length;
+    var o = [["prev", "vs previous edition"]];
+    o.push(["m1", "vs 1 month ago" + (n >= 5 ? "" : " (building)")]);
+    o.push(["m2", "vs 2 months ago" + (n >= 9 ? "" : " (building)")]);
+    o.push(["first", "vs first edition" + (n >= 2 ? "" : " (building)")]);
+    return o;
+  }
 
   /* ---------- gated per-domain loader ---------- */
   var PD = null, PD_STATE = "idle";
@@ -228,7 +313,8 @@
     }
     h += '<p class="sub">Every domain&times;crawler status change between <b>' + esc(D.changes.interval) + '</b>. ' +
       'Domains entering or leaving the index frame are excluded (' + fmt(D.changes.frame_churn.entered) + ' in, ' +
-      fmt(D.changes.frame_churn.left) + ' out) so frame churn is never counted as a policy change.</p>' +
+      fmt(D.changes.frame_churn.left) + ' out) so frame churn is never counted as a policy change. ' +
+      'Look up any domain on ' + link("domains","the Domains tab") + '.</p>' +
       '<div class="dd-kpis">' + kpi(fmt(D.changes.total_changes), "policy changes (domain\u00d7crawler)") +
       kpi(fmt(D.changes.changed_domains != null ? D.changes.changed_domains : "—"), "distinct domains changed") +
       kpi(String(Object.keys(D.changes.transitions).length), "transition types") +
@@ -255,7 +341,22 @@
       var items = pd.changes || [];
       EL("pd-status").innerHTML = "";
       if (!items.length) { EL("chg-table").innerHTML = '<div class="empty">No per-domain changes in this interval.</div>'; return; }
-      var rows = items.slice(0, 400).map(function (c) {
+      var q = UI.chgQ.toLowerCase();
+      var filtered = items.filter(function (c) {
+        if (q && c[1].toLowerCase().indexOf(q) < 0 && pd.crawlers[c[2]].toLowerCase().indexOf(q) < 0) return false;
+        if (UI.chgDir === "more" && c[4] !== "b") return false;
+        if (UI.chgDir === "less" && c[3] !== "b") return false;
+        if (UI.chgDir === "other" && (c[3] === "b" || c[4] === "b")) return false;
+        return true;
+      });
+      var by = {
+        rank:      function (a, b) { return a[0] - b[0]; },
+        rank_desc: function (a, b) { return b[0] - a[0]; },
+        domain:    function (a, b) { return a[1].localeCompare(b[1]); },
+        crawler:   function (a, b) { return pd.crawlers[a[2]].localeCompare(pd.crawlers[b[2]]) || a[0] - b[0]; }
+      };
+      filtered.sort(by[UI.chgSort] || by.rank);
+      var rows = filtered.slice(0, 400).map(function (c) {
         return '<tr><td class="mono">' + fmt(c[0]) + '</td><td><b>' + esc(c[1]) + '</b></td><td>' + esc(pd.crawlers[c[2]]) + '</td>' +
           '<td>' + stPill(c[3]) + ' &rarr; ' + stPill(c[4]) + '</td><td>' +
           (c[4] === "b" ? '<span style="color:#A33A2A">more restrictive</span>' :
@@ -265,10 +366,20 @@
       var legend = '<div class="legend" style="margin:10px 0 4px">' + Object.keys(STCODE).map(function (k) {
         return '<span><b style="background:' + STATE_COLORS[STCODE[k]] + '"></b>' + k + ' = ' + STATE_LABELS[STCODE[k]] + '</span>';
       }).join("") + '</div>';
-      EL("chg-table").innerHTML = legend + '<div class="dd-h" style="margin-top:16px">Change feed &middot; showing ' +
-        Math.min(400, items.length) + ' of ' + fmt(items.length) + ', lowest rank first</div>' +
+      EL("chg-table").innerHTML = legend +
+        controls('<input id="chg-q" class="inp" placeholder="Filter by domain or crawler…" value="' + esc(UI.chgQ) + '">' +
+          sortSel("chg-sort", [["rank","Rank: top first"],["rank_desc","Rank: tail first"],["domain","Domain: A to Z"],["crawler","Crawler: A to Z"]], UI.chgSort) +
+          sortSel("chg-dir", [["","All directions"],["more","Became more restrictive"],["less","Became less restrictive"],["other","Reclassified"]], UI.chgDir)) +
+        '<div class="dd-h" style="margin-top:12px">Change feed &middot; showing ' +
+        Math.min(400, filtered.length) + ' of ' + fmt(filtered.length) +
+        (filtered.length !== items.length ? ' filtered (' + fmt(items.length) + ' total)' : '') + '</div>' +
         '<div class="mwrap"><table class="dt"><thead><tr><th>Rank</th><th>Domain</th><th>Crawler</th><th>Change</th><th>Direction</th></tr></thead><tbody>' +
         rows + '</tbody></table></div>';
+      var rq = EL("chg-q"), rs = EL("chg-sort"), rd = EL("chg-dir");
+      if (rq) rq.addEventListener("input", function () { UI.chgQ = this.value; changes(); });
+      if (rs) rs.addEventListener("change", function () { UI.chgSort = this.value; changes(); });
+      if (rd) rd.addEventListener("change", function () { UI.chgDir = this.value; changes(); });
+      wireLinks();
     });
   }
 
@@ -358,11 +469,17 @@
       '<p class="foot">Rank band is position in the index frame &mdash; a sampling attribute, not traffic, audience size, or commercial importance.</p></section>';
 
     // ccTLD
+    var tq = UI.tldQ.toLowerCase();
     var rows = (D.tld.rows || []).map(function (t) { return { tld: t.tld, n: t.n, v: t.blocked_pct[sel], any: t.any_blocked_pct }; })
-      .filter(function (t) { return t.v != null; }).sort(function (a, b) { return b.v - a.v; });
+      .filter(function (t) { return t.v != null && (!tq || t.tld.toLowerCase().indexOf(tq) >= 0); });
+    var tby = { rate_desc: function (a, b) { return b.v - a.v; }, rate_asc: function (a, b) { return a.v - b.v; },
+                name_asc: function (a, b) { return a.tld.localeCompare(b.tld); }, n_desc: function (a, b) { return b.n - a.n; } };
+    rows.sort(tby[UI.tldSort] || tby.rate_desc);
     var tmax = rows.length ? rows[0].v : 1;
     h += '<section class="panel wide"><div class="ix">By top-level domain &middot; ' + esc(sel) + '</div>' +
       '<p class="sub">Minimum ' + D.tld.min_n + ' domains per group. Counts shown so small groups cannot masquerade as strong signals.</p>' +
+      controls('<input id="tld-q" class="inp" placeholder="Filter suffix, e.g. .de…" value="' + esc(UI.tldQ) + '">' +
+        sortSel("tld-sort", [["rate_desc","Block rate: high to low"],["rate_asc","Block rate: low to high"],["name_asc","Suffix: A to Z"],["n_desc","Group size"]], UI.tldSort)) +
       '<div class="dd-card" style="max-height:520px;overflow:auto">' + rows.map(function (t) {
         return '<div class="hrow"><span class="hk">' + esc(t.tld) + '</span><span class="hb"><span style="width:' +
           (t.v / tmax * 100).toFixed(1) + '%"></span></span><span class="hv">' + t.v.toFixed(1) + '% <span style="opacity:.6">n=' + fmt(t.n) + '</span></span></div>';
@@ -370,7 +487,11 @@
       '<p class="foot">' + esc(D.tld.note) + ' A .de domain is not necessarily a German company, and generic suffixes (.com, .org, .io) carry no geographic meaning at all.</p></section>';
 
     EL("content").innerHTML = h;
+    wireLinks();
     EL("seg-crawler").addEventListener("change", function () { window.__CPI_SEG_CRAWLER__ = this.value; segments(); });
+    var tq2 = EL("tld-q"), ts = EL("tld-sort");
+    if (tq2) tq2.addEventListener("input", function () { UI.tldQ = this.value; segments(); var f = EL("tld-q"); if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); } });
+    if (ts) ts.addEventListener("change", function () { UI.tldSort = this.value; segments(); });
   }
 
   /* ---------- WIRE EVIDENCE ---------- */
@@ -457,7 +578,7 @@
   function drillOpen(html) {
     var box = EL("drill"); box.innerHTML = html; box.style.display = "block";
     var c = EL("dd-close"); if (c) c.addEventListener("click", function () { box.style.display = "none"; });
-    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    scrollToEl(box);
   }
   function ddHead(eyebrow, title) {
     return '<div class="dd-head"><div><div class="dd-eyebrow">' + esc(eyebrow) + '</div><div class="dd-title">' + esc(title) +
@@ -535,6 +656,58 @@
         }).join("") +
       '<p class="foot">Curated probe sample &mdash; evidence that a behaviour exists and where, never a share of the web. Full list on the Wire evidence tab.</p></div>';
     drillOpen(h);
+  }
+
+
+  function pairDetail(a, b) {
+    var i = D.matrix_crawlers.indexOf(a), jx = D.matrix_crawlers.indexOf(b);
+    if (i < 0 || jx < 0) return;
+    var A = null, B = null;
+    D.crawlers.forEach(function (c) { if (c.name === a) A = c; if (c.name === b) B = c; });
+    var aBlockedBAllowed = D.exclusion_matrix[i][jx];
+    var bBlockedAAllowed = D.exclusion_matrix[jx][i];
+    var same = D.cotreat_matrix[i][jx];
+    var h = ddHead("Head to head", a + "  vs  " + b) +
+      '<div class="dd-kpis">' +
+        kpi(same == null ? "—" : same.toFixed(0) + "%", "treated the same, where both have an explicit policy") +
+        kpi(aBlockedBAllowed.toFixed(2) + "%", esc(a) + " blocked while " + esc(b) + " allowed") +
+        kpi(bBlockedAAllowed.toFixed(2) + "%", esc(b) + " blocked while " + esc(a) + " allowed") +
+        kpi(((A.blocked_pct - B.blocked_pct) >= 0 ? "+" : "") + (A.blocked_pct - B.blocked_pct).toFixed(2) + "pp",
+            "block-rate gap (" + esc(a) + " minus " + esc(b) + ")") +
+      '</div>' +
+      '<div class="dd-grid">' +
+        '<div class="dd-card"><div class="dd-h">Side by side</div>' +
+          [["Explicitly blocked","blocked_pct","#A33A2A"],["Explicitly allowed","allowed_pct","#1C5D4A"],
+           ["Any explicit policy","explicit_policy_pct","#1D4E6F"]].map(function (m) {
+            var av = A[m[1]], bv = B[m[1]], mx = Math.max(av, bv) || 1;
+            return '<div style="margin-bottom:12px"><div class="dd-h" style="color:var(--dim);margin-bottom:6px">' + m[0] + '</div>' +
+              '<div class="hrow"><span class="hk">' + esc(a) + '</span><span class="hb"><span style="width:' +
+                (av / mx * 100).toFixed(1) + '%;background:' + m[2] + '"></span></span><span class="hv">' + av.toFixed(2) + '%</span></div>' +
+              '<div class="hrow"><span class="hk">' + esc(b) + '</span><span class="hb"><span style="width:' +
+                (bv / mx * 100).toFixed(1) + '%;background:' + m[2] + ';opacity:.6"></span></span><span class="hv">' + bv.toFixed(2) + '%</span></div></div>';
+          }).join("") + '</div>' +
+        '<div class="dd-card"><div class="dd-h">What this means</div>' +
+          '<p class="sub">Among domains that named <b>both</b> crawlers explicitly, ' +
+            (same == null ? "there is not enough overlap to compare" : '<b>' + same.toFixed(0) + '%</b> gave them the <b>same</b> status') + '. ' +
+            (same != null && same > 90 ? 'They are treated as near-interchangeable.' :
+             same != null && same > 70 ? 'Mostly aligned, with a meaningful minority differentiating.' :
+             same != null ? 'Publishers frequently distinguish between them.' : '') + '</p>' +
+          '<p class="sub">On <b>' + aBlockedBAllowed.toFixed(2) + '%</b> of indexed domains ' + esc(a) +
+            ' is shut out while ' + esc(b) + ' is welcomed; the reverse happens on <b>' + bBlockedAAllowed.toFixed(2) + '%</b>. ' +
+            (aBlockedBAllowed > bBlockedAAllowed * 1.5 ? esc(a) + ' is the more frequently excluded of the two.' :
+             bBlockedAAllowed > aBlockedBAllowed * 1.5 ? esc(b) + ' is the more frequently excluded of the two.' :
+             'Neither is systematically singled out over the other.') + '</p>' +
+          '<p class="foot">Both figures describe declared robots.txt policy, not enforced access. Find the individual domains on ' + link("domains","the Domains tab") + '.</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ctrls" style="margin-top:14px">' +
+        '<button class="btnx" data-crawler-open="' + esc(a) + '">Full profile: ' + esc(a) + '</button>' +
+        '<button class="btnx" data-crawler-open="' + esc(b) + '" style="background:#1D4E6F;border-color:#1D4E6F">Full profile: ' + esc(b) + '</button>' +
+      '</div>';
+    drillOpen(h);
+    document.querySelectorAll("[data-crawler-open]").forEach(function (btn) {
+      btn.addEventListener("click", function () { crawlerDetail(btn.dataset.crawlerOpen); });
+    });
   }
 
   /* ---------- DRILL-DOWN: crawler detail ---------- */
@@ -628,7 +801,7 @@
     var box = EL("drill");
     box.innerHTML = h; box.style.display = "block";
     EL("dd-close").addEventListener("click", function () { box.style.display = "none"; });
-    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    wireLinks(); scrollToEl(box);
   }
 
   function wireDrill() {
@@ -646,7 +819,7 @@
       r.addEventListener("click", function () { crawlerDetail(r.dataset.crawler); });
     });
     document.querySelectorAll("table.mx td[data-a]").forEach(function (td) {
-      td.addEventListener("click", function () { crawlerDetail(td.dataset.a); });
+      td.addEventListener("click", function () { pairDetail(td.dataset.a, td.dataset.b); });
     });
   }
 
