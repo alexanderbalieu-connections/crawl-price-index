@@ -57,12 +57,13 @@ try {
 } catch (e) { console.log("  (git unavailable — the code-commit check is skipped)"); }
 
 const files = walk(".");
-const unclassified = [], measurement = [], uncommittedCode = [], secrets = [];
+const unclassified = [], measurement = [], uncommittedCode = [], secrets = [], dormant = [];
 for (const f of files) {
   const r = classify(f);
   if (!r) { unclassified.push(f); continue; }
   if (r.category === "measurement") measurement.push(f);
   if (r.category === "secret") secrets.push(f);
+  if (r.category === "dormant") dormant.push(f);
   if (r.category === "code" && tracked.size && !tracked.has(f)) uncommittedCode.push(f);
 }
 
@@ -74,13 +75,46 @@ console.log("  measurement files      " + String(measurement.length).padStart(5)
 console.log("  code not in git        " + String(uncommittedCode.length).padStart(5) + "   " + mb(size(uncommittedCode)) + "   a dead laptop loses these");
 console.log("  unclassified           " + String(unclassified.length).padStart(5));
 
+if (dormant.length) {
+  const live = dormant.filter((f) => tracked.has(f));
+  console.log("");
+  console.log("  DORMANT — inert only while UNcommitted. Committing one changes behaviour:");
+  for (const f of dormant) {
+    const r = classify(f);
+    console.log("     " + f + (live.includes(f) ? "   !! COMMITTED — IT IS LIVE" : "   (uncommitted, inert)"));
+    console.log("        " + r.why);
+  }
+  if (live.length) {
+    console.log("");
+    console.log("  FAIL  a dormant file is committed and therefore active.");
+    process.exit(1);
+  }
+}
+
 if (uncommittedCode.length) {
   console.log("");
   console.log("  UNCOMMITTED CODE — git has an offsite copy of everything else, not these:");
   uncommittedCode.slice(0, 30).forEach((f) => console.log("     " + f));
   if (uncommittedCode.length > 30) console.log("     …and " + (uncommittedCode.length - 30) + " more");
-  console.log("     Fix:  git add -A && git commit -m 'pipeline scripts and guards' && git push");
+  console.log("     Commit these deliberately, file by file. Do NOT use 'git add -A':");
+  console.log("     some files in this tree are dormant on purpose and committing them");
+  console.log("     changes behaviour — see the 'dormant' category in measurements.json.");
 }
+
+/* Executable bits do not survive every filesystem this repo touches. A
+   .command file without +x does not run when double-clicked, which is how the
+   weekly sweep is started — and the failure is silent: nothing happens. */
+const RUNNABLE = files.filter((f) => /.(command|sh)$/.test(f));
+const notExec = RUNNABLE.filter((f) => { try { fs.accessSync(f, fs.constants.X_OK); return false; } catch { return true; } });
+if (notExec.length) {
+  console.log("");
+  console.log("  FAIL  runnable script(s) without the executable bit:");
+  notExec.forEach((f) => console.log("        " + f + "   ->  chmod +x " + f));
+  console.log("        A .command without +x does not launch when double-clicked.");
+  console.log("        Nothing happens, and nothing says why.");
+  process.exit(1);
+}
+console.log("  runnable scripts       " + String(RUNNABLE.length).padStart(5) + "   all executable");
 
 console.log("-".repeat(74));
 if (unclassified.length) {

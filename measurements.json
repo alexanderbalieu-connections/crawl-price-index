@@ -218,6 +218,16 @@
    "why": "prior frame versions — provenance for older editions"
   },
   {
+   "glob": "paid-dataset.json",
+   "category": "derived",
+   "why": "the per-domain dataset pushed to KV; rebuilt each edition from the measurement files"
+  },
+  {
+   "glob": "sample-dataset.json",
+   "category": "derived",
+   "why": "the free sample pushed to KV; rebuilt each edition"
+  },
+  {
    "glob": "app/data/**",
    "category": "derived",
    "why": "computed from the edition by rebuild.cjs"
@@ -319,8 +329,8 @@
   },
   {
    "glob": ".github/**",
-   "category": "code",
-   "why": "GitHub Actions — a SECOND runner of this pipeline; see note below"
+   "category": "dormant",
+   "why": "A scheduled GitHub Action that scans 2,000 domains every Monday 06:00 UTC and COMMITS scan-robots.csv + index.json back to main, triggering a deploy. Committing this file activates it, and it would overwrite the 50,000-domain Sunday edition with a thin one. Left uncommitted on purpose."
   },
   {
    "glob": "*.plist",
