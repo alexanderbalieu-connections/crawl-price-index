@@ -26,10 +26,12 @@ nav.tabs a.on{color:var(--signal);border-bottom-color:var(--signal);font-weight:
 main{max-width:1240px;margin:0 auto;padding:28px 24px 60px}
 .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--signal);font-weight:600;margin:0 0 6px}
 h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:0 0 20px;letter-spacing:-.01em}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
 .panel{border:1px solid var(--line);border-radius:4px;background:#fff;padding:20px;min-width:0}
 .panel.wide{grid-column:1/-1}
 .panel .ix{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);font-weight:600;border-bottom:2px solid var(--signal);padding-bottom:8px;margin-bottom:14px}
+.reading{margin-top:14px;padding:12px 14px;background:var(--sand);border:1px solid var(--line);border-radius:4px;font-size:12.5px;line-height:1.55;color:var(--dim)}
+.reading .rh2{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:5px}
 .placeholder{color:var(--dim);font-size:13.5px;padding:34px 0;text-align:center;background:var(--sand);border:1px dashed var(--line);border-radius:3px}
 
 .sub{color:var(--dim);font-size:13.5px;line-height:1.55;margin:0 0 14px}
@@ -96,6 +98,9 @@ table.mx td.diag{background:var(--sand)}
 #q{flex:1;min-width:210px}
 .btnx{font-family:var(--sans);font-size:13px;padding:9px 14px;border:1px solid var(--signal);background:var(--signal);color:#fff;border-radius:3px;cursor:pointer}
 .btnx:hover{opacity:.9}
+/* locked, not broken: a paywalled control should look deliberate */
+.btnx:disabled,.btnx.dl-locked{background:transparent;color:var(--dim);border-color:var(--line);cursor:not-allowed;opacity:1}
+.btnx:disabled:hover,.btnx.dl-locked:hover{opacity:1;border-color:var(--line)}
 table.dt{border-collapse:collapse;font-size:12.5px;width:100%}
 table.dt th{text-align:left;font-weight:600;color:var(--dim);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--sand);position:sticky;top:0}
 table.dt td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
@@ -104,31 +109,6 @@ table.dt td.pc{text-align:center;padding:5px 3px}
 table.dt tr:hover td{background:var(--sand)}
 table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rotate(200grad);white-space:nowrap;max-height:88px;font-weight:600}
 .pill{display:inline-block;width:17px;height:17px;line-height:17px;text-align:center;border-radius:3px;color:#fff;font-size:10.5px;font-weight:600}
-.lrow{padding:9px 0;border-bottom:1px solid var(--line)}
-.lrow:last-child{border-bottom:0}
-.lrow .lk{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12.5px;margin-bottom:5px}
-.lrow .lk .lkv{font-variant-numeric:tabular-nums;color:var(--dim);white-space:nowrap}
-.lrow .lb2{height:12px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
-.lrow .lb2>span{display:block;height:100%}
-.lrow .ld{font-size:11px;color:var(--dim);margin-top:5px;line-height:1.45}
-.sig{display:inline-flex;gap:1px;vertical-align:middle}
-.sig i{display:block;width:13px;height:21px;border-radius:1px;border:1px solid rgba(0,0,0,.06)}
-.sighead{display:inline-flex;gap:1px;align-items:flex-end}
-.sighead span{display:block;width:13px;height:92px;writing-mode:vertical-rl;transform:rotate(200grad);white-space:nowrap;font-size:9.5px;font-weight:600;color:var(--dim);letter-spacing:0;text-transform:none}
-.sigkey{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.sigkey ul{margin:4px 0 0;padding-left:0;list-style:none}
-.sigkey li{font-size:12px;padding:3px 0;display:flex;align-items:center;gap:7px}
-.sigkey li i{display:inline-block;width:11px;height:11px;border-radius:2px;flex:none;border:1px solid rgba(0,0,0,.08)}
-.sigkey h4{margin:0;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
-.reading{margin-top:14px;padding:11px 13px;border-left:3px solid var(--signal);background:var(--sand);font-size:12.5px;line-height:1.6;color:var(--fg)}
-.reading b.rh2{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);margin-bottom:5px;font-weight:600}
-.nw{white-space:nowrap}
-.bar2{display:block;height:9px;background:var(--sand);border-radius:2px;overflow:hidden}
-.bar2>span{display:block;height:100%}
-.rtag{display:inline-block;font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:2px;background:var(--sand);color:var(--dim);white-space:nowrap}
-.rtag.rtraining{background:#F2E3DF;color:#A33A2A}
-.rtag.rsearch{background:#DFE7EE;color:#1D4E6F}
-.rtag.ruserinitiated{background:#E2EDE8;color:#1C5D4A}
 .mwrap{max-height:640px;overflow:auto}
 .panel.pclick{cursor:pointer;transition:border-color .15s}
 .panel.pclick:hover{border-color:var(--signal)}
@@ -151,6 +131,63 @@ table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rot
 .clearbtn{background:transparent!important;color:var(--dim)!important;border-color:var(--line)!important}
 .clearbtn:hover{border-color:var(--signal)!important;color:var(--signal)!important}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
+
+/* ---- classes referenced by views.js that were never styled (audit 2026-08-20) ---- */
+.hist{margin-top:10px}
+.lrow{display:grid;grid-template-columns:300px 1fr;gap:4px 16px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:0}
+.lrow .lk{display:flex;flex-direction:column;gap:2px;min-width:0}
+.lrow .lk>span:first-child{font-weight:600;color:var(--fg);font-size:13.5px}
+.lrow .lkv{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.lrow .lb2{height:13px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.lrow .lb2>span{display:block;height:100%}
+.lrow .ld{grid-column:1/-1;font-size:12px;color:var(--dim);margin-top:-2px;padding-bottom:2px}
+@media(max-width:800px){.lrow{grid-template-columns:1fr}}
+.bar2{display:inline-block;width:120px;height:11px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden;vertical-align:middle}
+.bar2>span{display:block;height:100%}
+.nw{white-space:nowrap}
+.pl-row:hover td{background:var(--sand)}
+.rtag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;background:var(--sand);border:1px solid var(--line);color:var(--dim)}
+.rtag.rtraining{background:#f3e3df;border-color:#d9b3aa;color:#A33A2A}
+.rtag.rsearch{background:#e2eaf0;border-color:#aac2d4;color:#1D4E6F}
+.rtag.ruser{background:#e5eee9;border-color:#a9c8ba;color:#1C5D4A}
+.sig{display:inline-flex;gap:2px}
+.sig i{display:inline-block;width:11px;height:14px;border-radius:2px;border:1px solid rgba(0,0,0,.12)}
+.sighead{display:inline-flex;gap:2px}
+.sighead span{display:inline-block;width:11px;overflow:visible;font-size:9.5px;color:var(--dim);writing-mode:vertical-rl;transform:rotate(180deg);height:74px;text-overflow:ellipsis;white-space:nowrap}
+.sigkey{display:flex;flex-wrap:wrap;gap:18px;margin-top:10px}
+.sigkey h4{margin:0 0 5px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.sigkey ul{list-style:none;margin:0;padding:0;font-size:12.5px}
+.sigkey li{display:flex;align-items:center;gap:6px;padding:1.5px 0}
+.sigkey li i{display:inline-block;width:10px;height:10px;border-radius:2px;border:1px solid rgba(0,0,0,.12)}
+.tp{cursor:pointer}
+
+/* ---- the free/paid line: real rows, blurred ---- */
+.lockwrap{position:relative}
+.lockblur{filter:blur(5px);opacity:.5;pointer-events:none;user-select:none;max-height:170px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(#000 25%,transparent);mask-image:linear-gradient(#000 25%,transparent)}
+.lockbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-top:-52px;position:relative;z-index:2;background:#fff;border:1px dashed var(--line);border-radius:3px;
+  padding:11px 14px;font-size:12.5px;color:var(--fg)}
+.lockbar b{font-family:ui-monospace,Menlo,monospace}
+.locklink{color:var(--signal);font-weight:600;text-decoration:none;white-space:nowrap}
+.locklink:hover{text-decoration:underline}
+select option:disabled{color:var(--dim)}
+
+/* one line saying what each tab is for, so two views of one edition do not
+   read as the same page twice */
+.tabjob{grid-column:1/-1;margin:-2px 0 6px;font-size:13px;color:var(--dim);line-height:1.55;
+  padding-left:11px;border-left:2px solid var(--signal)}
+.tabjob b{color:var(--fg)}
+
+/* direction of travel in "What changed" — three figures, no matrix: the
+   matrix itself lives on Policy changes and must not be duplicated here */
+.mvpair{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0 4px;
+  border:1px solid var(--line);border-radius:3px;background:var(--paper);padding:14px 16px}
+.mvfig{font-size:26px;line-height:1.1;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+.mvnet{color:var(--signal)}
+.mvlab{font-size:11px;color:var(--dim);margin-top:4px;line-height:1.35}
+@media(max-width:800px){.mvfig{font-size:21px}}
 </style>
 <script src="/config.js"></script>
 <script src="/clerk-loader.js"></script>
@@ -168,11 +205,11 @@ table.dt th.rot span{display:inline-block;writing-mode:vertical-rl;transform:rot
   <a href="#overview" class="on" data-tab="overview">This edition</a>
   <a href="#detail" data-tab="detail">Full detail</a>
   <a href="#crawlers" data-tab="crawlers">Crawlers</a>
-  <a href="#policy" data-tab="policy">Policy layer</a>
-  <a href="#changes" data-tab="changes">Changes</a>
+  <a href="#changes" data-tab="changes">Policy changes</a>
   <a href="#domains" data-tab="domains">Domains</a>
   <a href="#segments" data-tab="segments">Segments</a>
   <a href="#wire" data-tab="wire">Wire evidence</a>
+  <a href="#bazaar" data-tab="bazaar">Machine payments</a>
   <a href="#account" data-tab="account">Account &amp; data</a>
 </div></nav>
 <main id="main">

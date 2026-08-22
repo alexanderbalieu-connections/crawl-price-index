@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — The Crawl Price Index</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23FBFAF8%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%231C5D4A%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBFAF8;--fg:#14181D;--dim:#5F5B54;--line:#D8D2C8;--sand:#F4F1EB;--signal:#1C5D4A;--amber:#8A6A1F;--serif:'Newsreader',serif;--sans:'Archivo',sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column}
+.masthead{border-bottom:1px solid var(--line);background:var(--bg)}
+.masthead .wrap{max-width:1080px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.mark{font-family:var(--serif);font-size:20px;color:var(--fg);text-decoration:none}
+.mark b{color:var(--signal)}
+.mark .app{font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-left:10px;vertical-align:2px}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.card{width:100%;max-width:440px}
+.card h1{font-family:var(--serif);font-weight:400;font-size:32px;margin:0 0 6px;letter-spacing:-.01em}
+.card .sub{color:var(--dim);font-size:14.5px;margin:0 0 26px;line-height:1.5}
+#auth-slot{min-height:300px}
+footer{border-top:1px solid var(--line);padding:16px 24px;font-size:11.5px;letter-spacing:.06em;color:var(--dim);text-align:center}
+footer a{color:var(--dim)}
+/* soften Clerk card into the CPI frame */
+.cl-card,.cl-cardBox{box-shadow:none!important;border:1px solid var(--line)!important;border-radius:4px!important}
+</style>
+<script src="/config.js"></script>
+<script src="/clerk-loader.js"></script>
+</head>
+<body>
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="https://crawlpriceindex.com">The Crawl Price Index<b>.</b><span class="app">Terminal</span></a>
+</div></div>
+<main>
+  <div class="card">
+    <h1>Sign in.</h1>
+    <p class="sub">Access your dashboard, data downloads, and subscription. New here? Creating an account takes a minute.</p>
+    <div id="auth-slot"></div>
+  </div>
+</main>
+<footer>THE CRAWL PRICE INDEX · independent observatory of the machine-readable web · <a href="https://crawlpriceindex.com/methodology">methodology</a></footer>
+<script>
+window.CPI_ON_CLERK_READY = function (clerk) {
+  if (clerk.user) { window.location.href = "/dashboard"; return; }
+  clerk.mountSignIn(document.getElementById("auth-slot"), {
+    appearance: { variables: { colorPrimary: "#1C5D4A", fontFamily: "'Archivo', sans-serif", borderRadius: "4px" } },
+    afterSignInUrl: "/dashboard", afterSignUpUrl: "/dashboard", signUpUrl: "/sign-up"
+  });
+};
+</script>
+</body>
+</html>

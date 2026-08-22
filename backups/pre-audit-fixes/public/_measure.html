@@ -1,0 +1,31 @@
+<!doctype html><html><head><link rel="stylesheet" href="/theme.css"></head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" id="sub" href="/#access">Subscribe</a>
+  </nav>
+</div></div>
+<div class="wrap"><div class="panels">
+  <section class="panel"><div class="ix"><span class="lead-in">A</span></div><p>x</p></section>
+  <section class="panel" id="p2"><div class="ix"><span class="lead-in">B</span></div><p>x</p></section>
+</div></div>
+<pre id="out" style="position:fixed;top:0;left:0;background:yellow;font-size:16px;padding:10px;z-index:999"></pre>
+<script>
+window.addEventListener('load',()=>{
+  const sub=document.getElementById('sub').getBoundingClientRect();
+  const p2=document.getElementById('p2').getBoundingClientRect();
+  const wrap=document.querySelector('.panels').getBoundingClientRect();
+  document.getElementById('out').textContent=
+    'Subscribe right edge: '+Math.round(sub.right)+'px\n'+
+    'Panel-02 right edge:  '+Math.round(p2.right)+'px\n'+
+    'Panels container right:'+Math.round(wrap.right)+'px\n'+
+    'DIFFERENCE (sub - p2): '+Math.round(sub.right-p2.right)+'px';
+});
+</script>
+</body></html>

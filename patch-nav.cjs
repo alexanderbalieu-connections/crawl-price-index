@@ -31,8 +31,9 @@ function bar(cur) {
     item("/why", "Why it matters"),
     item("/world", "World editions"),
     item("/methodology", "Methodology"),
-    '    <a class="ghost" href="/sample">Weekly email</a>',
-    '    <a class="btn" href="/#access">Subscribe</a>',
+    '    <a class="lnk signin" href="https://app.crawlpriceindex.com">Sign in</a>',
+    '    <a class="ghost" href="https://app.crawlpriceindex.com">Free dashboard</a>',
+    '    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Get the Terminal</a>',
     '  </nav>',
     '</div></div>'
   ].join("\n");

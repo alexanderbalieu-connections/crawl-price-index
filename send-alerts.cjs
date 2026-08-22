@@ -76,21 +76,22 @@ const token = fs.readFileSync(".admin-token", "utf8").trim();
       : "Access changes on " + items.length + " domains you watch";
     const text = "CRAWL PRICE INDEX - ACCESS ALERT\n\n" + items.map(it =>
       it.domain + "\n" + it.changes.map(c => "  " + c.bot + ": " + verb(c)).join("\n")).join("\n\n")
-      + "\n\nChecked against this week's scan of the Tranco top 50,000. Full per-domain data: https://crawlpriceindex.com/#access";
-    const html = '<div style="background:#eef2f0;padding:24px 8px"><table role="presentation" width="100%"><tr><td align="center">'
-      + '<table role="presentation" width="600" style="max-width:600px;width:100%;background:#fff;border:1px solid #dde4e1">'
-      + '<tr><td style="background:#0b0d0e;padding:18px 28px"><div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.22em;color:#3cf08a">ACCESS ALERT</div>'
-      + '<div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#6b787d;margin-top:4px">what changed on the domains you watch</div></td></tr>'
-      + items.map(it => '<tr><td style="padding:22px 28px 6px;font-family:ui-monospace,Menlo,monospace">'
-          + '<div style="font-size:15px;color:#0b0d0e;font-weight:600">' + it.domain + '</div>'
+      + "\n\nChecked against this week's scan of the Tranco top 50,000. Full per-domain data: https://app.crawlpriceindex.com";
+    const html = '<!doctype html><html><body style="margin:0;background:#ffffff;padding:28px 12px">'
+      + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#f5f1e8;border:1px solid #e4dcc7;border-radius:4px;overflow:hidden">'
+      + '<tr><td style="background:#0d2b23;padding:22px 32px;border-bottom:3px solid #c9a24b"><div style="font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#f5f1e8">Access Alert</div>'
+      + '<div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#c9a24b;margin-top:5px">what changed on the domains you watch</div></td></tr>'
+      + items.map(it => '<tr><td style="padding:24px 32px 6px">'
+          + '<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:19px;color:#0d2b23">' + it.domain + '</div>'
           + '<table role="presentation" width="100%" style="margin-top:8px;font-family:ui-monospace,Menlo,monospace;font-size:13px">'
-          + it.changes.map(c => '<tr style="border-bottom:1px solid #eef2f0"><td style="padding:8px 8px 8px 0">' + c.bot + '</td>'
-              + '<td align="right" style="padding:8px 0;color:' + (c.to === "blocked" ? "#c0503c" : "#2e9e5b") + '">' + verb(c) + '</td></tr>').join("")
+          + it.changes.map(c => '<tr style="border-bottom:1px solid #e4dcc7"><td style="padding:8px 8px 8px 0;color:#0d2b23">' + c.bot + '</td>'
+              + '<td align="right" style="padding:8px 0;color:' + (c.to === "blocked" ? "#A33A2A" : "#1c5d4a") + '">' + verb(c) + '</td></tr>').join("")
           + '</table></td></tr>').join("")
-      + '<tr><td style="padding:18px 28px 26px;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#6b787d">'
-      + 'Observed in this week&#39;s scan of the Tranco top 50,000 by our signed crawler. Declarations are what the site publishes in robots.txt &mdash; see <a href="https://crawlpriceindex.com/methodology.html" style="color:#2e9e5b">methodology</a> for what we do and do not measure.'
-      + '<br><br><a href="https://crawlpriceindex.com/#access" style="color:#2e9e5b">Full per-domain dataset &rarr;</a></td></tr>'
-      + '</table></td></tr></table></div>';
+      + '<tr><td style="padding:16px 32px 4px;font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:12.5px;line-height:1.6;color:#28352f">'
+      + 'Observed in this week&rsquo;s scan of the Tranco top 50,000 by our signed crawler. Declarations are what the site publishes in robots.txt &mdash; see <a href="https://crawlpriceindex.com/methodology.html" style="color:#1c5d4a">methodology</a> for what we do and do not measure.</td></tr>'
+      + '<tr><td style="padding:14px 32px 26px"><a href="https://app.crawlpriceindex.com" style="display:inline-block;background:#1c5d4a;color:#f5f1e8;font-family:ui-monospace,Menlo,monospace;font-size:13px;padding:12px 22px;text-decoration:none;border-radius:3px">Full per-domain dataset &rarr;</a></td></tr>'
+      + '<tr><td style="padding:0 32px 22px;background:#eee7d6;border-top:1px solid #ded4bd"><p style="margin:14px 0 0;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#6b6152">The Crawl Price Index &middot; <a href="https://crawlpriceindex.com" style="color:#1c5d4a">crawlpriceindex.com</a></p></td></tr>'
+      + '</table></body></html>';
     console.log("\n--- " + email + " ---\n" + text);
     if (SEND) {
       const r = await fetch(API + "/v1/alert", {

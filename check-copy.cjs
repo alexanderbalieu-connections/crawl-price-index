@@ -50,6 +50,13 @@ claim("policy_layer.crawlers", "every crawler's blocked count does not exceed it
   const bad = P.crawlers.filter(c => c.blocked > c.named);
   return { ok: !bad.length, detail: bad.map(c => c.name).join(", ") };
 });
+claim("rank_bands vs any_ai.by_band", "both rank-band views use the same (parsed) denominator", () => {
+  const a = D.rank_bands, b = D.any_ai.by_band;
+  const bad = a.filter((x, i) => !b[i] || x.band !== b[i].band || x.n !== b[i].n);
+  return { ok: !bad.length,
+           detail: bad.length ? bad.map(x => `${x.band}: rank_bands n=${x.n}`).join(", ")
+                              : `${a.length} bands agree, e.g. ${a[0].band} n=${a[0].n} of ${a[0].n_total}` };
+});
 claim("archetypes", "the dominant template's blocked cells are a real share of all blocked cells", () => {
   const v = dm.n * dm.crawlers_blocked.length;
   return { ok: v === dm.blocked_cells && dm.blocked_cells <= A.total_blocked_cells,

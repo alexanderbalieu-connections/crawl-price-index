@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsl xmlns="https://rslstandard.org/rsl">
+  <content url="/">
+    <!-- Search and user-triggered agents: free with attribution.
+         These crawlers cite us; citation is the point of the free tier. -->
+    <license>
+      <permits type="usage">search</permits>
+      <permits type="usage">ai-summarize</permits>
+      <payment type="attribution"/>
+    </license>
+    <!-- AI training: index-linked price, always 2x the highest observed
+         pay-per-crawl quote in our own dataset. Current: 2 x USD 0.50. -->
+    <license>
+      <permits type="usage">train-ai</permits>
+      <payment type="per-crawl">
+        <amount currency="USD">1.00</amount>
+        <custom>https://crawlpriceindex.com/#access</custom>
+      </payment>
+    </license>
+  </content>
+  <!-- The Crawl Price Index prices its own crawls with its own benchmark:
+       the first index-linked crawl price. Humans read free. Machines that
+       cite us read free. Machines that train on us pay the index rate, or
+       license the full dataset via the Terminal API (EUR 79/mo). -->
+</rsl>

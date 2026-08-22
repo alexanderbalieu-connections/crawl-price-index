@@ -1,0 +1,22 @@
+# The Crawl Price Index — we measure crawl policy, so ours is explicit.
+# Human-facing pages: open to all.
+# Content Signals Policy (Cloudflare vocabulary, declared by hand).
+# search: building a search index, returning links and short excerpts.
+# ai-input: real-time use as model input for generative answers (RAG, grounding).
+# ai-train: training or fine-tuning AI models.
+# We allow citation and search freely because citation is our distribution.
+# Training use is not granted free: see our pay-per-crawl price above.
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+Disallow: /index.json
+
+# Our machine-readable feed is available to AI agents via pay-per-crawl.
+# Contact for licensing / bulk access: hello@crawlpriceindex.com
+Sitemap: https://crawlpriceindex.com/sitemap.xml
+
+License: https://crawlpriceindex.com/rsl.xml
+
+# Openly documented: https://crawlpriceindex.com/methodology.html
+# Live coverage and caveats: https://crawlpriceindex.com/status.html
+# API spec: https://crawlpriceindex.com/openapi.json

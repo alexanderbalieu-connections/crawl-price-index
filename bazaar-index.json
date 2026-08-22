@@ -1,0 +1,39 @@
+[
+  {
+    "date": "2026-08-20",
+    "total": 15013,
+    "priced": 15013,
+    "real_priced": 14771,
+    "by_type": {
+      "api": 8456,
+      "content": 5259,
+      "mcp": 1056
+    },
+    "rail_share_pct": 97.6,
+    "asset_usdc_share_pct": 99.9,
+    "usd_median": 0.01,
+    "usd_bands": {
+      "<=0.001": 1823,
+      "0.001-0.01": 6259,
+      "0.01-0.1": 4487,
+      "0.1-1": 1794,
+      ">1": 257
+    },
+    "sellers": 1150,
+    "reach": {
+      "distinct_domains": 773,
+      "in_frame_real": 23,
+      "hosting": 15,
+      "beyond_frame": 735
+    },
+    "in_frame": {
+      "total": 23,
+      "content": 10,
+      "blockers_that_sell": 1,
+      "frame_size": 49043
+    },
+    "vs_prior": null,
+    "new_endpoints": 0,
+    "capped": false
+  }
+]

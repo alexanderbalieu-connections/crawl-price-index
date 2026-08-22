@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkout cancelled — The Crawl Price Index</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}
+  p{color:var(--fg);font-size:18px;line-height:1.6;max-width:42ch;margin:0 auto 18px}
+</style>
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="ghost" href="https://app.crawlpriceindex.com">Free dashboard</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Get the Terminal</a>
+  </nav>
+</div></div>
+  <div class="wrap">
+    <div class="mark">Checkout · cancelled</div>
+    <h1>No charge made.</h1>
+    <p>Your checkout was cancelled and nothing was billed. The free headline numbers are always open — and Terminal is here whenever you want the full dataset and feed.</p>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">← Back to pricing</a>
+    <a class="btn ghost" href="/">Return to index</a>
+  </div>
+</body>
+</html>

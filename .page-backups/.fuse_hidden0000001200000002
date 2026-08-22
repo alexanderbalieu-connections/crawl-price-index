@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog — The Crawl Price Index</title>
+<meta name="description" content="Dated record of what changed in the Crawl Price Index product and method.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology" aria-current="page">Methodology</a>
+    <a class="ghost" href="https://app.crawlpriceindex.com">Free dashboard</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Get the Terminal</a>
+  </nav>
+</div></div><header><div class="wrap">
+  <p class="eyebrow">Product &amp; method</p>
+  <h1>Changelog</h1>
+  <p style="margin:0;max-width:620px">What changed, when, and why. Method changes carry the methodology version they introduced.</p>
+</div></header>
+<div class="wrap">
+  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">2026-08-18 &middot; methodology 2026-08-18.1</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">Wide honest probe + three-tier panel</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">Added a wide, honest-identity probe covering the top-ranked domains plus every domain observed blocking a crawler — one signed request each, never impersonating — recording payment headers, 402 walls, Cloudflare fronting, X-Robots-Tag and llms.txt. The identity-matrix panel (which does probe under other crawlers' names, and is deliberately capped) is now assembled from three tiers: a fixed continuity spine, domains auto-promoted from the honest probe when they show payment or blocking behaviour, and a rotating random audit that samples the full scan so AI-only walls invisible to honest probing are still measured. Panel composition is published at /panel.json.</p>
+  </article>
+  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">2026-08-16 &middot; methodology 2026-08-16.1</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">www fallback + reachability census (coverage restated)</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">The scanner now retries on www.<domain> when a bare domain fails at the network level, recovering roughly a thousand sites that only answer on their www host. Because this changes what counts as 'reached', coverage steps up between the 15 Aug and 16 Aug editions for methodological reasons, not because the web changed. Every unreachable domain is now itemised by reason (no DNS, refused, timeout, broken TLS, HTTP error) in a separate census, so coverage is reported against the reachable web rather than the raw 50,000. A late-sweep retry pass, capped in time, recovers transient failures.</p>
+  </article>
+  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">2026-08-16 &middot; methodology 2026-08-16.2</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">Observed-price series corrected</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">Fixed a parsing error that stored a null price for the first two editions; the observed top price is now recorded as a continuous series from the 8 Aug baseline, with the early points backfilled from the value observed at the time and marked as such. The price shown has been a flat $0.50 (stackoverflow.com, via Cloudflare pay-per-crawl) at every observation to date.</p>
+  </article>
+  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">2026-08-11 &middot; methodology 2026-08-10.1</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">Provenance model, public methodology, change alerts</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">Every published signal now carries an explicit evidence type — observed, derived or inferred — plus a pinned methodology version, an explicit list of what we do not measure, and a corrections policy. Added a machine-readable methodology endpoint at /v1/methodology and a full human methodology page. Added per-domain change alerts: any site owner can be told when a tracked AI crawler's access to their domain changes.</p>
+  </article>
+  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">2026-08-10</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">Free per-domain checker, CSV feed, machine payment tier</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">Launched /check — a free tool showing any domain's AI-crawler policy fingerprint, its percentile against every parsed domain, and ready-to-paste robots.txt and RSL files. Added a CSV flavour of the paid dataset. Added a machine tier: one weekly edition for USD 20 in USDC on Base, verified on-chain, with history withheld from machine buyers.</p>
+  </article>
+  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">2026-08-09</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">First full 50,000-domain sweep published</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">27,067 domains parsed across the Tranco top 50,000, 53 country editions, and the first enforcement measurement comparing declared blocks against what an identified crawler actually receives. Weekly history begins accumulating from this edition.</p>
+  </article>
+  <article style="padding:22px 0;border-bottom:1px solid var(--line)">
+    <div style="font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:6px">2026-08-09</div>
+    <h3 style="font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;color:var(--fg)">Crawler identity signed under Web Bot Auth</h3>
+    <p style="margin:0;color:var(--dim);max-width:70ch">Our crawler now signs every request using HTTP Message Signatures (RFC 9421) under the Web Bot Auth profile, and publishes its public key directory, so any site can verify that traffic claiming to be ours really is. Submitted to Cloudflare's verified bots programme.</p>
+  </article><footer>THE CRAWL PRICE INDEX · <a href="/methodology.html">methodology</a> · <a href="/privacy.html">privacy</a> · <a href="/security.html">security</a> · <a href="/terms.html">terms</a> · <a href="/">index</a></footer>
+</div></body></html>

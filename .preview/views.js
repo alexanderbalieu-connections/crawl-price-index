@@ -737,7 +737,7 @@
   var UI = { crawlerSort: "blocked_desc", crawlerQ: "", chgSort: "rank", chgQ: "", chgDir: "", chgBand: "",
              tldSort: "rate_desc", tldQ: "", basis: "prev", domCrawler: "", domStatus: "", domBand: "", domQ: "",
              plQ: "", plRole: "", plSort: "named_desc", sigSort: "n_desc", sigHideSilent: false,
-             venQ: "", venSort: "any_desc" };
+             venQ: "", venSort: "any_desc", segCrawler: "__ANY__", segGroup: "" };
   var HEADER_OFFSET = 118;                       // sticky masthead + tab bar
   function scrollToEl(el) {
     var y = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
@@ -1017,15 +1017,16 @@
 
   /* ---------- SEGMENTS ---------- */
   function segments() {
-    var sel = window.__CPI_SEG_CRAWLER__ || "__ANY__";
+    var sel = UI.segCrawler || "__ANY__";
     var isAny = sel === "__ANY__";
+    var segDirty = !!(UI.tldQ || UI.tldSort !== "rate_desc" || (UI.segCrawler && UI.segCrawler !== "__ANY__") || UI.segGroup);
     var h = '<section class="panel wide"><div class="ix">Segments</div>' +
       '<p class="sub">How declared blocking varies by position in the index frame and by top-level domain. ' +
       '&ldquo;Any AI crawler&rdquo; counts a domain once if it blocks at least one of the ' + D.panel.crawlers + '.</p>' +
-      '<div class="ctrls"><select id="seg-crawler" class="inp">' +
-      '<option value="__ANY__"' + (isAny ? ' selected' : '') + '>Any AI crawler (all 18)</option>' +
-      D.crawlers.map(function (c) { return '<option' + (c.name === sel ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join("") +
-      '</select></div></section>';
+      controls('<select id="seg-crawler" class="inp">' +
+        '<option value="__ANY__"' + (isAny ? ' selected' : '') + '>Any AI crawler (all 18)</option>' +
+        D.crawlers.map(function (c) { return '<option' + (c.name === sel ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join("") +
+        '</select>', segDirty ? "seg-clear" : null) + '</section>';
 
     // rank bands
     var bands = isAny
@@ -1062,39 +1063,63 @@
 
     // Which crawlers does a group treat unusually? Compare each crawler's rate inside
     // the group with its rate across the whole index — the gap is the "targeting" signal.
-    var focusTld = window.__CPI_SEG_TLD__ || (rows.length ? rows[0].tld : null);
-    if (focusTld) {
-      var grp = null; (D.tld.rows || []).forEach(function (t) { if (t.tld === focusTld) grp = t; });
-      if (grp) {
-        var gaps = D.crawlers.map(function (c) {
-          var inGrp = grp.blocked_pct[c.name];
-          return inGrp == null ? null : { name: c.name, inGrp: inGrp, all: c.blocked_pct, gap: +(inGrp - c.blocked_pct).toFixed(2) };
-        }).filter(Boolean).sort(function (a, b) { return b.gap - a.gap; });
-        var gmax = Math.max.apply(null, gaps.map(function (g) { return Math.abs(g.gap); })) || 1;
-        h += '<section class="panel wide"><div class="ix">Does one group single out particular crawlers?</div>' +
-          '<p class="sub">For <b>' + esc(focusTld) + '</b> (n=' + fmt(grp.n) + '), each crawler&rsquo;s block rate inside the group versus its rate across the whole index. ' +
-          'A positive bar means that crawler is blocked <em>more</em> here than elsewhere.</p>' +
-          '<div class="ctrls"><select id="seg-tld" class="inp">' + rows.map(function (t) {
-            return '<option' + (t.tld === focusTld ? ' selected' : '') + '>' + esc(t.tld) + '</option>'; }).join("") + '</select></div>' +
-          '<div class="dd-card">' + gaps.map(function (g) {
-            return '<div class="hrow"><span class="hk">' + esc(g.name) + '</span><span class="hb"><span style="width:' +
-              (Math.abs(g.gap) / gmax * 100).toFixed(1) + '%;background:' + (g.gap >= 0 ? "#A33A2A" : "#1C5D4A") + '"></span></span>' +
-              '<span class="hv">' + (g.gap >= 0 ? "+" : "") + g.gap.toFixed(2) + 'pp <span style="opacity:.6">(' + g.inGrp.toFixed(1) + '% vs ' + g.all.toFixed(1) + '%)</span></span></div>';
-          }).join("") + '</div>' +
-          '<p class="foot">Differences of a point or two on small groups are not meaningful. This compares declared policy only, and a shared suffix does not imply shared ownership, country, or coordination.</p></section>';
-      }
+    // The group can be a ccTLD suffix OR a rank band — "does the top 100 single out
+    // particular crawlers?" is at least as interesting as the same question for .de,
+    // and rank bands have no ownership confound to apologise for.
+    var groupOpts = [];
+    (D.rank_bands || []).forEach(function (b) { if (b.n) groupOpts.push({ key: "band:" + b.band, label: "Rank " + b.band, kind: "band", n: b.n, rates: b.blocked_pct }); });
+    rows.forEach(function (t) {
+      var full = null; (D.tld.rows || []).forEach(function (x) { if (x.tld === t.tld) full = x; });
+      if (full) groupOpts.push({ key: "tld:" + full.tld, label: full.tld, kind: "tld", n: full.n, rates: full.blocked_pct });
+    });
+    var focusKey = UI.segGroup;
+    var grp = null;
+    groupOpts.forEach(function (g) { if (g.key === focusKey) grp = g; });
+    if (!grp) grp = groupOpts[0] || null;
+
+    if (grp) {
+      var gaps = D.crawlers.map(function (c) {
+        var inGrp = grp.rates[c.name];
+        return inGrp == null ? null : { name: c.name, inGrp: inGrp, all: c.blocked_pct, gap: +(inGrp - c.blocked_pct).toFixed(2) };
+      }).filter(Boolean).sort(function (a, b) { return b.gap - a.gap; });
+      var gmax = Math.max.apply(null, gaps.map(function (g) { return Math.abs(g.gap); })) || 1;
+      var isBand = grp.kind === "band";
+      h += '<section class="panel wide"><div class="ix">Does one group single out particular crawlers?</div>' +
+        '<p class="sub">For <b>' + esc(grp.label) + '</b> (n=' + fmt(grp.n) + '), each crawler&rsquo;s block rate inside the group versus its rate across the whole index. ' +
+        'A positive bar means that crawler is blocked <em>more</em> here than elsewhere.</p>' +
+        '<div class="ctrls"><select id="seg-group" class="inp">' +
+          '<optgroup label="Rank bands">' + groupOpts.filter(function (g) { return g.kind === "band"; }).map(function (g) {
+            return '<option value="' + esc(g.key) + '"' + (g.key === grp.key ? ' selected' : '') + '>' + esc(g.label) + ' (n=' + fmt(g.n) + ')</option>'; }).join("") + '</optgroup>' +
+          '<optgroup label="Top-level domains">' + groupOpts.filter(function (g) { return g.kind === "tld"; }).map(function (g) {
+            return '<option value="' + esc(g.key) + '"' + (g.key === grp.key ? ' selected' : '') + '>' + esc(g.label) + ' (n=' + fmt(g.n) + ')</option>'; }).join("") + '</optgroup>' +
+        '</select></div>' +
+        '<div class="dd-card">' + gaps.map(function (g) {
+          return '<div class="hrow"><span class="hk">' + esc(g.name) + '</span><span class="hb"><span style="width:' +
+            (Math.abs(g.gap) / gmax * 100).toFixed(1) + '%;background:' + (g.gap >= 0 ? "#A33A2A" : "#1C5D4A") + '"></span></span>' +
+            '<span class="hv">' + (g.gap >= 0 ? "+" : "") + g.gap.toFixed(2) + 'pp <span style="opacity:.6">(' + g.inGrp.toFixed(1) + '% vs ' + g.all.toFixed(1) + '%)</span></span></div>';
+        }).join("") + '</div>' +
+        reading("How to read this",
+          'This is the answer to &ldquo;does this group target particular crawlers, or is it just restrictive in general?&rdquo;<br>' +
+          '<b>Bars all leaning the same way and roughly equal</b> means the group is simply more or less restrictive than the index across the board &mdash; ' +
+          'no targeting, just a level difference. <b>An uneven profile</b> &mdash; some crawlers far out, others near zero &mdash; is the group actually ' +
+          'discriminating between crawlers.<br>' +
+          (isBand
+            ? 'Rank bands are the cleaner comparison of the two: every domain sits in exactly one, and there is no question of shared ownership or nationality to explain away.'
+            : 'Suffix groups carry a confound rank bands do not: a suffix may simply contain lower-ranked domains. Compare a suffix against a rank band before concluding the suffix is doing the work.')) +
+        '<p class="foot">Differences of a point or two on small groups are not meaningful. This compares declared policy only' +
+        (isBand ? ', and rank band is sampling position in the Tranco frame, not traffic.' : ', and a shared suffix does not imply shared ownership, country, or coordination.') +
+        '</p></section>';
     }
 
     EL("content").innerHTML = h;
     wireLinks();
-    EL("seg-crawler").addEventListener("change", function () { window.__CPI_SEG_CRAWLER__ = this.value; segments(); });
-    var st2 = EL("seg-tld");
-    if (st2) st2.addEventListener("change", function () { window.__CPI_SEG_TLD__ = this.value; segments(); });
+    bind("seg-crawler", "change", function () { UI.segCrawler = this.value; segments(); });
+    bind("seg-group", "change", function () { UI.segGroup = this.value; segments(); });
     var tq2 = EL("tld-q"), ts = EL("tld-sort");
     if (tq2) tq2.addEventListener("input", function () { UI.tldQ = this.value; segments(); var f = EL("tld-q"); if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); } });
     if (ts) ts.addEventListener("change", function () { UI.tldSort = this.value; segments(); });
-    var tc = EL("tld-clear");
-    if (tc) tc.addEventListener("click", function () { UI.tldQ = ""; UI.tldSort = "rate_desc"; segments(); });
+    bind("tld-clear", "click", function () { UI.tldQ = ""; UI.tldSort = "rate_desc"; segments(); });
+    bind("seg-clear", "click", function () { UI.tldQ = ""; UI.tldSort = "rate_desc"; UI.segCrawler = "__ANY__"; UI.segGroup = ""; segments(); });
   }
 
   /* ---------- WIRE EVIDENCE ---------- */

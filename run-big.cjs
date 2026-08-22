@@ -75,6 +75,81 @@ async function probeTDM(domain) {
   return false;
 }
 const OUT = "scan-robots.csv";
+
+/* ---- raw-body archive -----------------------------------------------------
+   Content-addressed: each unique body stored once, domains mapped to its
+   hash. Purely additive — nothing downstream reads this. An archive failure
+   must never abort a sweep, so every call is wrapped. */
+const ARCHIVE_BODIES = process.env.CPI_NO_ARCHIVE !== "1";
+
+/* ---- declared-USE fields, alongside declared-ACCESS ------------------------
+   Separate file, separate schema, same domain key. Nothing that reads
+   scan-robots.csv is affected. No rate is published from this until the full
+   frame has run and repeatability is measured. */
+const TERMS_OUT = "scan-terms.csv";
+const termsRows = [];
+// Cloudflare's documented managed-robots.txt default. Recorded as a TEMPLATE
+// MATCH, never as "the publisher did not choose this" — a non-template line
+// can come from a CMS, a plugin, a consultant or a copied config.
+function csProvenance(kv) {
+  if (!kv) return "none";
+  const known = kv.search === "yes" && kv["ai-train"] === "no" && kv["ai-input"] === undefined;
+  return known ? "known_template" : "non_template";
+}
+function parseTerms(body, hdr) {
+  const t = { cs_raw: "", cs_provenance: "none", rsl: "", tdm: "", tdmPolicy: "" };
+  if (body) {
+    const m = body.match(/^[ \t]*content-signal[ \t]*:[ \t]*(.+)$/im);
+    if (m) {
+      t.cs_raw = m[1].trim();
+      const kv = {};
+      for (const part of t.cs_raw.split(",")) {
+        const p = part.split("=");
+        if (p.length === 2) kv[p[0].trim().toLowerCase()] = p[1].trim().toLowerCase();
+      }
+      t.cs_provenance = csProvenance(kv);
+    }
+    const l = body.match(/^[ \t]*license[ \t]*:[ \t]*(https?:\/\/\S+)/im);
+    if (l) t.rsl = l[1];
+  }
+  if (hdr) { if (hdr.tdm != null) t.tdm = String(hdr.tdm); if (hdr.tdmPolicy) t.tdmPolicy = hdr.tdmPolicy; }
+  return t;
+}
+const csvq = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+const ARCHIVE_DIR = "robots-archive";
+const _crypto = require("crypto");
+const _zlib = require("zlib");
+let _arcStream = null, _arcSeen = null, _arcStats = { bodies: 0, mapped: 0, bytes: 0, dupes: 0 };
+function archiveOpen(edition) {
+  if (!ARCHIVE_BODIES) return;
+  try {
+    fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+    const gz = _zlib.createGzip({ level: 6 });
+    gz.pipe(fs.createWriteStream(ARCHIVE_DIR + "/" + edition + ".ndjson.gz", { flags: "a" }));
+    _arcStream = gz; _arcSeen = new Set();
+  } catch (e) {
+    console.log("  WARN: raw-body archive disabled (" + e.message + ") — the sweep continues");
+    _arcStream = null;
+  }
+}
+function archiveBody(domain, rank, status, body) {
+  if (!_arcStream || !body) return;
+  try {
+    const h = _crypto.createHash("sha1").update(body).digest("hex");
+    if (!_arcSeen.has(h)) {
+      _arcSeen.add(h);
+      _arcStream.write(JSON.stringify({ t: "body", h, b: body }) + "\n");
+      _arcStats.bodies++; _arcStats.bytes += body.length;
+    } else _arcStats.dupes++;
+    _arcStream.write(JSON.stringify({ t: "map", d: domain, r: rank, h, s: status }) + "\n");
+    _arcStats.mapped++;
+  } catch (e) { /* never let the archive break a sweep */ }
+}
+function archiveClose() {
+  if (!_arcStream) return null;
+  try { _arcStream.end(); } catch (e) {}
+  return _arcStats;
+}
 const fresh = process.argv.includes("--fresh");
 
 const ROBOTS_BOTS = ["GPTBot","OAI-SearchBot","ChatGPT-User","ClaudeBot","Claude-Web","anthropic-ai","PerplexityBot","Perplexity-User","Google-Extended","CCBot","Bytespider","Amazonbot","Applebot-Extended","meta-externalagent","cohere-ai","AI2Bot","Timpibot","Diffbot"];
@@ -83,9 +158,23 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // ---- domain list (Tranco) --------------------------------------------------
 function loadDomains() {
+  // The frame is CPI-50K v1 — a custom Tranco list (Umbrella + Majestic) that
+  // deliberately EXCLUDES Cloudflare Radar (CC BY-NC) and CrUX (CC BY-SA), so the
+  // dataset we sell carries no non-commercial or share-alike input. Auto-downloading
+  // the DEFAULT list here would silently reintroduce both. Refuse instead.
   if (!fs.existsSync("tranco-top-1m.csv")) {
-    console.log("Downloading Tranco top-1M…");
-    execSync("curl -sL -o tranco.zip https://tranco-list.eu/top-1m.csv.zip && unzip -o -q tranco.zip && mv top-1m.csv tranco-top-1m.csv && rm -f tranco.zip", { stdio: "inherit" });
+    console.error("\n  !! FRAME MISSING: tranco-top-1m.csv is not present.");
+    console.error("     Do NOT download the default Tranco list — it includes Cloudflare Radar");
+    console.error("     (CC BY-NC) and CrUX (CC BY-SA), which we exclude by licence.");
+    console.error("     Rebuild the frame:  node adopt-frame.cjs      (needs tranco-Y8V2G.csv)");
+    console.error("     Provenance:         frame-cpi50k-v1.json\n");
+    process.exit(1);
+  }
+  if (fs.existsSync("frame-cpi50k-v1.json")) {
+    try {
+      const p = JSON.parse(fs.readFileSync("frame-cpi50k-v1.json", "utf8"));
+      console.log(`Frame: ${p.frame} (Tranco ${p.source.list_id}, ${p.source.inputs.join(" + ")})`);
+    } catch (e) {}
   }
   const out = [], data = fs.readFileSync("tranco-top-1m.csv", "utf8");
   let start = 0;
@@ -163,6 +252,7 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
   // fresh run: write header; resume: append
   if (prog.nextIndex === 0) {
     fs.writeFileSync(OUT, ["rank", "domain", ...ROBOTS_BOTS].join(",") + "\n");
+    archiveOpen(new Date().toISOString().slice(0, 10));
     console.log(`FRESH big scan: ${domains.length} domains, chunk ${CHUNK}`);
   } else {
     console.log(`RESUMING at ${prog.nextIndex}/${domains.length} (${prog.fetched} parsed so far)`);
@@ -209,6 +299,13 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
         if (rank <= TDM_PROBE_N) { tdm.probed++; if (await probeTDM(d)) tdm.well_known++; }
         if (r.status === 200 && r.body && !/^\s*</.test(r.body)) {
           fetched++; ok++;
+          archiveBody(d, rank, r.status, r.body);   // additive; never throws
+          try {
+            const tm = parseTerms(r.body, r);
+            if (tm.cs_raw || tm.rsl || tm.tdm || tm.tdmPolicy)
+              termsRows.push([rank, csvq(d), csvq(tm.cs_raw), tm.cs_provenance,
+                              csvq(tm.rsl), csvq(tm.tdm), csvq(tm.tdmPolicy)].join(","));
+          } catch (e) { /* terms capture must never break a sweep */ }
           const v = parseRobots(r.body);
           for (const b of ROBOTS_BOTS) if (v[b] === "blocked") blockCounts[b]++;
           rows.push([rank, d, ...ROBOTS_BOTS.map(b => v[b] || "unlisted")].join(","));
@@ -286,6 +383,26 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
   }
 
   // failure census — separate file, nothing downstream changes shape
+  try {
+    fs.writeFileSync(TERMS_OUT,
+      "rank,domain,cs_raw,cs_provenance,rsl_license,tdm_reservation,tdm_policy\n" +
+      termsRows.join("\n") + (termsRows.length ? "\n" : ""));
+    const known = termsRows.filter((r) => r.includes(",known_template,")).length;
+    const nont  = termsRows.filter((r) => r.includes(",non_template,")).length;
+    console.log("Declared-use fields: " + termsRows.length + " domains carry at least one (" +
+      known + " known template, " + nont + " non-template) -> " + TERMS_OUT);
+    console.log("  Not a census. No rate from this is published until the full frame has run");
+    console.log("  and repeatability is measured. Cloudflare Radar publishes the population view.");
+  } catch (e) { console.log("  WARN: terms file not written (" + e.message + ")"); }
+
+  const _arc = archiveClose();
+  if (_arc) {
+    const mb = (_arc.bytes / 1048576).toFixed(1);
+    console.log("Raw-body archive: " + _arc.mapped + " domains -> " + _arc.bodies +
+      " unique bodies (" + _arc.dupes + " duplicates, " + mb + " MB before gzip)");
+    console.log("  " + ARCHIVE_DIR + "/  — nothing reads this yet. It exists so that a field we");
+    console.log("  do not parse today can still be parsed from this week's data next year.");
+  }
   fs.writeFileSync("scan-failures.csv", "rank,domain,reason\n" + failures.join("\n") + "\n");
   const reasons = {};
   for (const f of failures) { const w = f.split(",")[2]; reasons[w] = (reasons[w] || 0) + 1; }
@@ -298,6 +415,20 @@ function saveProgress(p) { fs.writeFileSync(PROGRESS, JSON.stringify(p)); }
   // scan-robots.csv (panel only) and would otherwise clobber the 50k rows.
   fs.copyFileSync(OUT, "scan-robots-full.csv");
   console.log("Full per-domain rows preserved: scan-robots-full.csv");
+
+  // ---- wide honest payment probe: top-2000 + every blocker, one honest UA.
+  // Runs on the freshly-preserved full harvest and writes wide-probe.json, which
+  // build-panel.cjs (next) reads to promote payment-showing domains into the
+  // panel's "signal" tier. Non-fatal: if it fails, build-panel just sees an empty
+  // signal tier and the edition proceeds. Re-wired 2026-08 after being dormant —
+  // this widens payment/price coverage from ~64 panel domains to thousands, so
+  // the payment-signal leg steps up at this edition (the policy census is
+  // unaffected and stays comparable).
+  try {
+    execSync("node probe-wide.cjs", { stdio: "inherit" });
+  } catch (e) {
+    console.log("(wide probe failed — signal tier will be empty this edition, census unaffected)");
+  }
 
   // ---- signal panel: reuse scan.cjs's fixed ~50-domain panel via its own run,
   // but WITHOUT re-harvesting 50k. We run scan.cjs restricted to the panel by

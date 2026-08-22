@@ -1,0 +1,29 @@
+# The Crawl Price Index
+
+> A living observatory measuring what the web charges AI systems to read it: observed pay-per-crawl prices, AI-bot block rates across the Tranco top-N, and the taxonomy of paywall signals. Updated weekly.
+
+## What we measure
+- Observed pay-per-crawl prices returned in crawler-facing HTTP 402 responses (e.g. Cloudflare pay-per-crawl `crawler-price` quotes, x402 settlement format).
+- AI-crawler block rates in robots.txt across the Tranco top-N, per bot (GPTBot, ClaudeBot, CCBot, Google-Extended, PerplexityBot, OAI-SearchBot and more).
+- Marketplace and paywall fingerprints: TollBit token walls, licensing-contact 402s, declared-free headers.
+- Per-country and per-language editions (subscriber tier).
+
+## Key data
+- Machine-readable feed: /index.json
+- Methodology: /methodology.html
+
+## Access
+- Headline figures are free to cite with attribution.
+- Full per-domain dataset, weekly history, publisher panel and country editions: subscription (Terminal tier).
+- This site's data is also available to AI agents via pay-per-crawl.
+
+## Citation
+Cite as: "The Crawl Price Index (crawlpriceindex), [scan date]."
+
+## Verify us
+- Methodology and evidence model: https://crawlpriceindex.com/methodology.html
+- Machine-readable provenance: https://api.crawlpriceindex.com/v1/methodology
+- Live coverage, freshness and known caveats: https://crawlpriceindex.com/status.html
+- OpenAPI specification: https://crawlpriceindex.com/openapi.json
+- Changelog: https://crawlpriceindex.com/changelog.html
+- Our crawler's public key directory: https://crawlpriceindex.com/.well-known/http-message-signatures-directory

@@ -9,9 +9,9 @@
  *   scan-robots.csv    scan-signals.csv    scan-summary.json
  *
  * Rewrites in place:
- *   index.json                     (the machine feed: block rates + signals + country editions)
+ *   index.json                     (the machine feed: block rates + signals + ccTLD editions)
  *   index.html  (the inline data payload: headline band, ticker, block table, posture)
- *   world.html  (the per-country payload)
+ *   world.html  (the per-ccTLD payload)
  *
  * SAFETY: refuses to publish if a scan looks broken (too few domains parsed,
  * or the price panel returned nothing), so a bad run never overwrites good
@@ -37,7 +37,7 @@ const EVIDENCE_MODEL = {
       method: "GET /robots.txt with our identified user agent, parsed for User-agent/Disallow/Allow groups",
       evidence_type: "observed",
       values: { blocked: "an explicit Disallow rule applies to this crawler", allowed: "an explicit Allow rule applies", partial: "some paths disallowed, not the whole site", unlisted: "robots.txt exists but names no rule for this crawler", no_robots: "no robots.txt was served" },
-      caveat: "A declaration is not enforcement. See enforcement.",
+      caveat: "A declaration is a request to crawlers, not an access control, and not evidence of what any crawler did. See probe_panel_observations.",
     },
     observed_price: {
       what: "A price a site quotes to an AI crawler",
@@ -56,17 +56,17 @@ const EVIDENCE_MODEL = {
       evidence_type: "derived",
       caveat: "Derived arithmetic over observations. Denominator is robots_parsed, not tranco_top_n.",
     },
-    country_editions: {
-      what: "Block rates segmented by country-code top-level domain",
-      method: "ccTLD of the domain, aggregated where at least 8 domains are present",
+    cctld_editions: {
+      what: "Block rates segmented by country-code top-level domain suffix",
+      method: "ccTLD suffix of the domain, aggregated where at least 8 domains are present",
       evidence_type: "derived",
-      caveat: "ccTLD is a proxy for country, not a measure of publisher nationality or audience.",
+      caveat: "A ccTLD is a domain-suffix classification, not a country. It is not operator location, ownership, audience or hosting, and generic suffixes (.com, .org, .io) carry no geography at all. We group by suffix and label by suffix.",
     },
-    enforcement: {
-      what: "Whether a declared block is actually enforced when the crawler arrives",
-      method: "Compare robots.txt declaration against the HTTP status returned to a crawler-identified request, on the documented publisher panel only",
-      evidence_type: "observed (panel-limited)",
-      caveat: "Small n. Directional for the panel, not projectable to the whole web.",
+    probe_panel_observations: {
+      what: "What our own identified crawler received from panel domains, counted against what their robots.txt declared",
+      method: "Compare the robots.txt directive we had already read against the HTTP status returned to our crawler-identified request, on the documented probe panel only",
+      evidence_type: "observed (panel-limited, counts only)",
+      caveat: "Published as counts and never as a rate. robots.txt is advisory, not a server access control, so 'declared block, page served' is protocol-normal and not a compliance failure. One vantage point, one crawler, a few dozen non-random domains. Says nothing about whether any other crawler honours any directive: we have no crawler-side logs.",
     },
     trends: {
       what: "Week-over-week movement of the above",
@@ -87,6 +87,7 @@ const EVIDENCE_MODEL = {
     "Prices for domains that do not publish one",
     "Private licensing deal values",
     "Whether an AI company honoured a payment request",
+    "Whether any named crawler obeys any site's robots.txt directives",
   ],
   reproducibility: "Every figure is regenerated weekly from a full sweep. Method, crawler identity and signal definitions are published at https://crawlpriceindex.com/methodology.html and versioned above.",
   changelog_url: "https://crawlpriceindex.com/changelog.html — dated record of every methodology change; consult it to explain shifts between editions.",
@@ -213,8 +214,14 @@ for (const d of panelDomains) {
     } else if (blocked) { enforcement.undeclared_blocked++; b.silent++; }
   }
 }
-enforcement.enforced_pct = enforcement.declared ? +(100 * enforcement.declared_enforced / enforcement.declared).toFixed(1) : null;
-enforcement.note = "Panel-only. Declared = robots.txt directive; enforced = crawler-identified request returned 4xx/5xx. Silent = blocked without declaring.";
+// NO RATE IS COMPUTED HERE, DELIBERATELY. robots.txt is an advisory instruction to
+// crawlers, not a server-side access control: a site that disallows a crawler and still
+// serves it a page has not "failed to enforce" anything. Dividing these counts would
+// produce an enforcement percentage for a thing that cannot be enforced, on a panel of
+// a few dozen non-random domains, from one vantage point, observed through our own
+// crawler only. It was published for a while; it should not have been. Counts only.
+enforcement.enforced_pct = null;
+enforcement.note = "Probe-panel counts, never a rate. Declared = robots.txt directive we had already read. Refused = our identified crawler received 4xx/5xx. robots.txt is advisory, so 'declared block, page served' is protocol-normal behaviour and not a failure to comply. Says nothing about how any other crawler behaves — we have no crawler-side logs.";
 
 // ---- 2) extract observed prices & signal domains --------------------------
 const prices = summary.panel?.prices || [];
@@ -242,58 +249,187 @@ if (posture.bot_blocked) classesPresent.add("botblock");
 classesPresent.add("robots"); // always measured
 const signalClasses = Math.max(classesPresent.size, 6);
 
-// ---- 3) country segmentation (ccTLD) --------------------------------------
+// ---- 3) ccTLD segmentation (suffix groups, never countries) --------------------------------------
 const CCTLD = { de:"Germany",fr:"France",jp:"Japan",in:"India",br:"Brazil",uk:"United Kingdom","co.uk":"United Kingdom",ru:"Russia",cn:"China",it:"Italy",es:"Spain",nl:"Netherlands",au:"Australia",ca:"Canada",kr:"South Korea",pl:"Poland",tr:"Turkey",mx:"Mexico",ir:"Iran",id:"Indonesia",sa:"Saudi Arabia",ae:"UAE",se:"Sweden",ch:"Switzerland",be:"Belgium",at:"Austria",no:"Norway",dk:"Denmark",fi:"Finland",cz:"Czechia",gr:"Greece",pt:"Portugal",vn:"Vietnam",th:"Thailand",za:"South Africa",ua:"Ukraine",ro:"Romania",hu:"Hungary",il:"Israel",sg:"Singapore",hk:"Hong Kong",tw:"Taiwan",eg:"Egypt",ar:"Argentina",cl:"Chile",co:"Colombia",ph:"Philippines",my:"Malaysia",nz:"New Zealand",ie:"Ireland",sk:"Slovakia",bg:"Bulgaria",hr:"Croatia",rs:"Serbia" };
 const BOTS = Object.keys(br);
 const parsed = robots.filter(r => r.GPTBot && r.GPTBot !== "no_robots");
-function countryOf(domain) {
+// Returns the ccTLD SUFFIX (".de", ".co.uk"), never a country name. Grouping by the
+// suffix is the only thing the data supports; mapping it to a nation was an inference
+// the dataset cannot make and the dashboard already refuses to make.
+function cctldOf(domain) {
   const p = domain.toLowerCase().split(".");
-  if (p.length >= 3 && CCTLD[p.slice(-2).join(".")]) return CCTLD[p.slice(-2).join(".")];
-  return CCTLD[p[p.length - 1]] || null;
+  const two = p.slice(-2).join(".");
+  if (p.length >= 3 && CCTLD[two]) return "." + two;
+  const one = p[p.length - 1];
+  return CCTLD[one] ? "." + one : null;
 }
-const byCountry = {};
-for (const r of parsed) { const c = countryOf(r.domain); if (c) (byCountry[c] ||= []).push(r); }
+const byCctld = {};
+for (const r of parsed) { const c = cctldOf(r.domain); if (c) (byCctld[c] ||= []).push(r); }
 const rate = (sub, bot) => sub.length ? +(100 * sub.filter(r => r[bot] === "blocked").length / sub.length).toFixed(1) : null;
-const countryData = {};
-for (const [c, sub] of Object.entries(byCountry)) {
+const cctldData = {};
+for (const [c, sub] of Object.entries(byCctld)) {
   if (sub.length < 8) continue;
   const anyai = +(100 * sub.filter(r => BOTS.some(b => r[b] === "blocked")).length / sub.length).toFixed(1);
-  countryData[c] = { n: sub.length, any_ai: anyai, GPTBot: rate(sub, "GPTBot"), ClaudeBot: rate(sub, "ClaudeBot"), "Google-Extended": rate(sub, "Google-Extended") };
+  cctldData[c] = { n: sub.length, any_ai: anyai, GPTBot: rate(sub, "GPTBot"), ClaudeBot: rate(sub, "ClaudeBot"), "Google-Extended": rate(sub, "Google-Extended") };
 }
-const gtld = parsed.filter(r => !countryOf(r.domain));
+const gtld = parsed.filter(r => !cctldOf(r.domain));
 const gtldBaseline = gtld.length ? +(100 * gtld.filter(r => BOTS.some(b => r[b] === "blocked")).length / gtld.length).toFixed(1) : 0;
 
 // ---- 4) write TWO tiers: public (headline only) + paid (full) --------------
 // PUBLIC index.json — deliberately ONLY the free headline figures that are
 // already visible on the homepage. Safe to expose. Contains NO per-domain
-// rows, NO full country tables, NO time-series. This is cite-bait, not product.
+// rows, NO full ccTLD tables, NO time-series. This is cite-bait, not product.
+/* ---- free-tier headline extras -----------------------------------------
+   Read from artefacts the pipeline already writes. Every one is aggregate;
+   none exposes a per-domain row. Each is null-safe: a missing artefact simply
+   omits the key rather than failing the build. */
+function _readJSON(p) { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch (e) { return null; } }
+
+const _dash = _readJSON("app/data/dashboard.json");
+
+const asymmetryHeadline = (() => {
+  const a = _dash && _dash.roles && _dash.roles.asymmetry && _dash.roles.asymmetry.vs_search;
+  if (!a) return null;
+  return {
+    basis: "domains with a readable robots.txt in the current frame",
+    denominator: _dash.panel ? _dash.panel.robots_parsed : null,
+    blocks_training_role_only: a.a,
+    blocks_search_role_only: a.b,
+    ratio: a.ratio,
+    note: "Role tags describe the crawler's stated function. Declared robots.txt policy only; not evidence of intent or of access actually denied.",
+  };
+})();
+
+const changesHeadline = (() => {
+  const c = _dash && _dash.changes;
+  if (!c || !c.available || !c.transitions) return null;
+  const RANK = { allowed: 0, unlisted: 1, partial: 2, blocked: 3 };
+  let more = 0, less = 0, rev = 0;
+  for (const [k, n] of Object.entries(c.transitions)) {
+    const [f, t] = String(k).split("->");
+    if (RANK[f] == null || RANK[t] == null) continue;
+    if (RANK[t] > RANK[f]) more += n; else if (RANK[t] < RANK[f]) less += n;
+    if (f === "blocked") rev += n;
+  }
+  return {
+    interval: c.interval, total: c.total_changes, domains_changed: c.changed_domains,
+    more_restrictive: more, less_restrictive: less, moved_off_a_block: rev,
+    note: "One edition-over-edition comparison, not a trend. Domains entering or leaving the frame are excluded so frame churn is never counted as a policy change.",
+  };
+})();
+
+const reachabilityHeadline = (() => {
+  const r = _dash && _dash.reachability;
+  if (!r || !r.states) return null;
+  return {
+    frame: r.domains, alive: r.states.alive, dead_dns: r.states.dead_dns,
+    timeout: r.states.timeout, bot_walled: r.states.bot_walled,
+    disallowed_our_crawler: r.states.disallowed,
+    note: "Reachability of the ranked frame itself. bot_walled = serves robots.txt but refuses an identified crawler at the homepage (403/429): a declared-versus-enforced divergence, not a robots.txt policy.",
+  };
+})();
+
+const siteEvidenceHeadline = (() => {
+  const f = fs.readdirSync(".").filter(x => /^reachability-.*-summary\.json$/.test(x)).sort().pop();
+  const j = f ? _readJSON(f) : null;
+  if (!j || !j.evidence) return null;
+  const e = j.evidence, n = j.domains || 0;
+  return {
+    frame: n, has_ads_txt: e.has_ads_txt, platform_fingerprint: e.platform,
+    has_feed: e.has_feed, schema_org_types: e.schema_any, self_declared_news: e.news_schema || undefined,
+    note: "Counts of self-declared, publicly served signals observed on each domain's own homepage. Observations, not classifications.",
+  };
+})();
+
+const bazaarHeadline = (() => {
+  if (!fs.existsSync("bazaar")) return null;
+  const f = fs.readdirSync("bazaar").filter(x => /-summary\.json$/.test(x)).sort().pop();
+  const b = f ? _readJSON("bazaar/" + f) : null;
+  if (!b) return null;
+  const i = b.intersection || {}, u = b.usd || {}, sel = b.sellers || {};
+  return {
+    date: b.date, endpoints_real_priced: b.real_priced, distinct_pay_to_addresses: sel.distinct,
+    median_advertised_usd: u.median, by_type: b.by_type,
+    rail_share_pct: b.rail_share_pct, asset_usdc_share_pct: b.asset_usdc_share_pct,
+    in_frame_domains: i.in_frame_total, in_frame_content: i.in_frame_content,
+    blocks_crawlers_yet_sells: i.blockers_that_sell,
+    note: "Advertised, opt-in acceptance in a public machine-payment registry (x402). Never transactions, volume or revenue. Distinct from Cloudflare pay-per-crawl, which is a different rail that also returns HTTP 402.",
+  };
+})();
+
+const frameProvenance = (() => {
+  const p = _readJSON("frame-cpi50k-v1.json");
+  if (!p) return null;
+  return {
+    name: p.frame, source: p.source.provider, list_id: p.source.list_id,
+    permalink: p.source.permalink, inputs: p.source.inputs,
+    excluded_inputs: (p.source.excluded_inputs || []).map(x => x.name + " (" + x.licence + ")"),
+    excluded_rows: p.excluded_total,
+    attribution: p.attribution,
+  };
+})();
+
 const publicFeed = {
   name: "The Crawl Price Index",
   description: "Living observatory of the crawl economy. Free headline tier — full dataset requires subscription.",
   generated_utc: summary.generated_utc,
   cadence: "weekly",
   coverage: { tranco_top_n: summary.tranco_top_n, robots_parsed: summary.robots_parsed },
-  block_rates_top2000: Object.fromEntries(Object.entries(br).map(([k, v]) => [k, v.rate_pct])),
+  // The key used to be called block_rates_top2000 while holding whole-index rates,
+  // which put "top 2,000" next to an index-wide number on the homepage. Named for
+  // what it is now, with the denominator carried alongside so it cannot be relabelled
+  // by accident again.
+  block_rates: {
+    basis: "domains with a readable robots.txt across the whole Tranco frame",
+    denominator: summary.robots_parsed,
+    frame: summary.tranco_top_n,
+    pct: Object.fromEntries(Object.entries(br).map(([k, v]) => [k, v.rate_pct])),
+  },
   observed_prices_headline: prices.slice(0, 1).map(p => ({ raw: p })), // just the one flagship quote
+  // --- headline findings (aggregate only; added 2026-08-21) ---------------
+  asymmetry_headline: asymmetryHeadline,
+  changes_headline: changesHeadline,
+  reachability_headline: reachabilityHeadline,
+  site_evidence_headline: siteEvidenceHeadline,
+  bazaar_headline: bazaarHeadline,
+  frame_provenance: frameProvenance,
   signal_classes_observed: 6,
-  country_headline: (() => {
-    // only the top and bottom country as teasers, with n — NOT the full table
-    const sorted = Object.entries(countryData).sort((a, b) => b[1].any_ai - a[1].any_ai);
+  // ccTLD, not country. A .de domain is not a German company: the suffix is not
+  // operator location, ownership, audience or hosting, and generic suffixes carry no
+  // geography at all. The field was called "country" and named countries; both were
+  // wrong and contradicted the dashboard's own labelling.
+  // Suffix groups, never countries. Retained for continuity; the dashboard's
+  // Segments tab is the canonical surface and carries the full caveat.
+  suffix_group_headline: (() => {
+    const sorted = Object.entries(cctldData).sort((a, b) => b[1].any_ai - a[1].any_ai);
     if (!sorted.length) return {};
     const [tc, td] = sorted[0], [bc, bd] = sorted[sorted.length - 1];
-    return { most_blocking: { country: tc, any_ai_block_pct: td.any_ai, n: td.n },
-             least_blocking: { country: bc, any_ai_block_pct: bd.any_ai, n: bd.n } };
+    return {
+      basis: "domains with a readable robots.txt, grouped by domain suffix",
+      caveat: "A ccTLD is a domain-suffix classification, not a country. It does not indicate operator location, ownership, audience or hosting.",
+      most_blocking: { cctld: tc, any_ai_block_pct: td.any_ai, n: td.n },
+      least_blocking: { cctld: bc, any_ai_block_pct: bd.any_ai, n: bd.n },
+    };
   })(),
-  enforcement_headline: enforcement.enforced_pct == null ? {} : { declared_blocks_enforced_pct: enforcement.enforced_pct, panel_checks: enforcement.n },
+  probe_panel_observations: {
+    checks: enforcement.n,
+    declared_block_and_refused: enforcement.declared_enforced,
+    declared_block_and_served: enforcement.declared_not_enforced,
+    no_declared_block_and_refused: enforcement.undeclared_blocked,
+    note: enforcement.note,
+  },
   tdmrep_headline: summary.tdmrep ? { adoption_pct: summary.tdmrep.adoption_pct, domains_probed: summary.tdmrep.probed } : {},
   methodology_version: METHODOLOGY_VERSION,
   freshness: FRESHNESS,
-  evidence_summary: { crawler_identity: EVIDENCE_MODEL.crawler_identity, observed: ["robots stances", "quoted prices", "payment signals"], derived: ["block rates", "country editions", "trends"], inferred: ["suggested price bands (checker only)"], full_model: "https://api.crawlpriceindex.com/v1/methodology" },
-  full_dataset: "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
-  terms: "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",
+  evidence_summary: { crawler_identity: EVIDENCE_MODEL.crawler_identity, observed: ["robots stances", "quoted prices", "payment signals"], derived: ["block rates", "suffix-group cuts", "edition-over-edition comparisons"], inferred: ["suggested price bands (checker only)"], full_model: "https://api.crawlpriceindex.com/v1/methodology" },
+  full_dataset: "gated — subscribe at https://app.crawlpriceindex.com/dashboard.html#account",
+  terms: "Headline figures free to cite with attribution. Full per-domain data, suffix-group detail and weekly history require a subscription.",
   license: "Headline figures CC-BY-4.0. Full dataset is licensed single-subscriber, redistribution prohibited.",
 };
 fs.writeFileSync("index.json", JSON.stringify(publicFeed, null, 2));
+// The deploy serves public/, not the repo root. Mirroring here means a manual
+// rebuild can never leave the published feed stale behind the site that reads it.
+try { fs.mkdirSync("public", { recursive: true }); fs.copyFileSync("index.json", "public/index.json"); } catch (e) {}
 
 // PAID paid-dataset.json — the actual product. Full detail. This file is NEVER
 // committed to the public repo/site; it is pushed into the Worker's DATA KV
@@ -306,7 +442,7 @@ const paidDataset = {
   block_rates: br, // full per-bot detail with counts
   observed_prices: prices.map(p => ({ raw: p })),
   signals: { tollbit_gated: tollbit, licensing_402: licensing, declares_free: declaredFree },
-  country_editions: countryData, // FULL per-country table
+  cctld_editions: cctldData, // FULL per-suffix table (suffix groups, never countries)
   per_domain: robots.filter(r => r.GPTBot && r.GPTBot !== "no_robots")
     .map(r => Object.fromEntries(Object.entries(r))), // the crown jewels: every domain's row
   enforcement,
@@ -395,14 +531,14 @@ const indexPayload = {
 swapPayload(fs.existsSync("public/index.html") ? "public/index.html" : "index.html", indexPayload);
 
 // ---- 6) rebuild world.html payload ----------------------------------------
-const worldRows = Object.entries(countryData)
+const worldRows = Object.entries(cctldData)
   .sort((a, b) => b[1].any_ai - a[1].any_ai)
-  .map(([c, d]) => ({ country: c, n: d.n, any: d.any_ai, gpt: d.GPTBot, claude: d.ClaudeBot, ge: d["Google-Extended"] }));
+  .map(([c, d]) => ({ cctld: c, n: d.n, any: d.any_ai, gpt: d.GPTBot, claude: d.ClaudeBot, ge: d["Google-Extended"] }));
 const worldPayload = {
   asof: asofNice,
   gtld_baseline: gtldBaseline,
   rows: worldRows,
-  note: "Directional. Samples are ccTLD domains carrying robots.txt within the Tranco top-N (n shown per country). Larger scans enlarge every sample.",
+  note: "Groups are domain suffixes, not countries: a suffix is not operator location, ownership, audience or hosting. Samples are domains carrying a readable robots.txt within the Tranco frame (n shown per group). Suffix groups also differ in rank composition, so part of any gap between them may be rank, not policy.",
 };
 swapPayload(fs.existsSync("public/world.html") ? "public/world.html" : "world.html", worldPayload);
 
@@ -411,9 +547,9 @@ console.log("PASS — site data rebuilt from scan.");
 console.log(`  domains parsed:   ${summary.robots_parsed}`);
 console.log(`  top price:        ${topPrice}`);
 console.log(`  GPTBot block:     ${gpt}%   asymmetry vs search: ${asymmetry}x`);
-console.log(`  countries:        ${worldRows.length}  (gTLD baseline ${gtldBaseline}%)`);
+console.log(`  ccTLD groups:     ${worldRows.length}  (gTLD baseline ${gtldBaseline}%)`);
 console.log(`  ticker signals:   ${indexPayload.ticker.length}`);
-console.log(`  enforcement:      ${enforcement.enforced_pct == null ? "n/a" : enforcement.enforced_pct + "% of declared blocks actually enforced (" + enforcement.n + " checks)"}`);
+console.log(`  probe panel:      ${enforcement.n} observations (${enforcement.declared_enforced} declared+refused, ${enforcement.declared_not_enforced} declared+served, ${enforcement.undeclared_blocked} undeclared+refused) — counts only, no rate`);
 console.log("Updated: index.json, index.html, world.html");
 
 // ---- 7) extend the time-series & recompute trends (the moat) ---------------
@@ -424,6 +560,7 @@ try {
   execSync("node archive.cjs", { stdio: "inherit" });
   execSync("node archive-editions.cjs", { stdio: "inherit" });
   execSync("node compute-dashboard.cjs", { stdio: "inherit" });
+  execSync("node compute-domains.cjs", { stdio: "inherit" });
   execSync("node trends.cjs", { stdio: "inherit" });
   // fold trends into the paid dataset so subscribers get history + deltas
   if (fs.existsSync("paid-dataset.json") && fs.existsSync("trends.json")) {

@@ -1,0 +1,427 @@
+{
+  "date": "2026-08-20",
+  "generated_utc": "2026-08-20T17:11:20.754Z",
+  "endpoint": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources",
+  "total": 15013,
+  "priced": 15013,
+  "real_domain": 14771,
+  "real_priced": 14771,
+  "by_type": {
+    "api": 8456,
+    "content": 5259,
+    "mcp": 1056
+  },
+  "by_network": {
+    "eip155:8453": 14423,
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": 193,
+    "eip155:84532": 124,
+    "eip155:56": 1,
+    "eip155:4663": 1,
+    "eip155:196": 18,
+    "base-sepolia": 7,
+    "algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=": 3,
+    "eip155:42161": 1
+  },
+  "by_scheme": {
+    "exact": 14666,
+    "upto": 104,
+    "batch-settlement": 1
+  },
+  "by_asset": {
+    "31566704": 3,
+    "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": 14423,
+    "epjfwdd5aufqssqem2qn1xzybapc8g4weggkzwytdt1v": 192,
+    "0x036cbd53842c5426634e7929541ec2318f3dcf7e": 131,
+    "0xce24439f2d9c6a2289f741120fe202248b666666": 1,
+    "es9vmfrzacermjfrf4h2fyd4kconky11mcce8benwnyb": 1,
+    "0x5fc5360d0400a0fd4f2af552add042d716f1d168": 1,
+    "0x779ded0c9e1022225f8e0630b35a9b54be713736": 18,
+    "0xaf88d065e77c8cc2239327c5edb3a432268e5831": 1
+  },
+  "rail_share_pct": 97.6,
+  "asset_usdc_share_pct": 99.9,
+  "price_stats_raw_units": {
+    "31566704": {
+      "n": 3,
+      "min": 200000,
+      "median": 200000,
+      "max": 750000
+    },
+    "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": {
+      "n": 14423,
+      "min": 1000,
+      "median": 10000,
+      "max": 1000000000
+    },
+    "epjfwdd5aufqssqem2qn1xzybapc8g4weggkzwytdt1v": {
+      "n": 192,
+      "min": 1000,
+      "median": 10000,
+      "max": 20600000
+    },
+    "0x036cbd53842c5426634e7929541ec2318f3dcf7e": {
+      "n": 131,
+      "min": 1000,
+      "median": 10000,
+      "max": 350000
+    },
+    "0xce24439f2d9c6a2289f741120fe202248b666666": {
+      "n": 1,
+      "min": 10000000000000000,
+      "median": 10000000000000000,
+      "max": 10000000000000000
+    },
+    "es9vmfrzacermjfrf4h2fyd4kconky11mcce8benwnyb": {
+      "n": 1,
+      "min": 1000,
+      "median": 1000,
+      "max": 1000
+    },
+    "0x5fc5360d0400a0fd4f2af552add042d716f1d168": {
+      "n": 1,
+      "min": 100000,
+      "median": 100000,
+      "max": 100000
+    },
+    "0x779ded0c9e1022225f8e0630b35a9b54be713736": {
+      "n": 18,
+      "min": 1000,
+      "median": 20000,
+      "max": 200000
+    },
+    "0xaf88d065e77c8cc2239327c5edb3a432268e5831": {
+      "n": 1,
+      "min": 100000,
+      "median": 100000,
+      "max": 100000
+    }
+  },
+  "usd": {
+    "n": 14620,
+    "testnet_excluded": 132,
+    "unnormalisable": 19,
+    "median": 0.01,
+    "p25": 0.003,
+    "p75": 0.05,
+    "min": 0.001,
+    "max": 1000,
+    "bands": {
+      "<=0.001": 1823,
+      "0.001-0.01": 6259,
+      "0.01-0.1": 4487,
+      "0.1-1": 1794,
+      ">1": 257
+    },
+    "note": "Advertised ask per listed endpoint request. USD = raw / 10^decimals for known mainnet stablecoins only; testnet and unknown-asset endpoints excluded from USD stats."
+  },
+  "sellers": {
+    "distinct": 1150,
+    "top_share_pct": 6.5,
+    "top10": [
+      {
+        "payTo": "0xb04994fbca786ae03ce3354fed2435c2e04020ec",
+        "endpoints": 965
+      },
+      {
+        "payTo": "0x50ab2018c06c6e4eaa9ba52057eb55ed284912fc",
+        "endpoints": 951
+      },
+      {
+        "payTo": "0x9f8bd9875b3e0b632a24a3a7c73f7787175e73a2",
+        "endpoints": 946
+      },
+      {
+        "payTo": "0xc85f0cf16f5e677bbe5dfc94662cc86f2fba0604",
+        "endpoints": 382
+      },
+      {
+        "payTo": "0x4466d4a84b7c49a6a094ec6eef4a0712d6dd125e",
+        "endpoints": 370
+      },
+      {
+        "payTo": "0x2880edfff13100677bf97a3cbdf3bc34771c4e5e",
+        "endpoints": 368
+      },
+      {
+        "payTo": "0xf22e558a00d91ee12a1f50c52186fecb8ddff493",
+        "endpoints": 348
+      },
+      {
+        "payTo": "0x85df5380debe236ad6bf49de788243924b080267",
+        "endpoints": 317
+      },
+      {
+        "payTo": "0xe73d86f185be79a33b0318d881b71f2a24371114",
+        "endpoints": 257
+      },
+      {
+        "payTo": "0xabf4fabd7c416fb67202e5f9002389fc75e2a9d0",
+        "endpoints": 184
+      }
+    ],
+    "note": "Distinct pay-to addresses among real+priced endpoints. Endpoint counts can be concentrated in a few sellers; this states how many."
+  },
+  "reach": {
+    "distinct_domains": 773,
+    "in_frame_real": 23,
+    "in_frame_hosting": 15,
+    "hosting_total": 15,
+    "beyond_frame": 735,
+    "note": "Distinct real Bazaar domains vs CPI's scanned 50k frame. 'hosting' = PaaS/cloud parents (third-party deploys, not publishers), excluded from the publisher cross-reference. 'beyond_frame' = not in the mainstream 50k (developer/API infrastructure)."
+  },
+  "intersection": {
+    "frame_source": "2026-08-17",
+    "frame_size": 49043,
+    "in_frame_total": 23,
+    "in_frame_content": 10,
+    "hosting_excluded": 15,
+    "by_rank_band": {
+      "1-100": {
+        "in": 0,
+        "band_size": 100,
+        "pct": 0
+      },
+      "101-1k": {
+        "in": 0,
+        "band_size": 900,
+        "pct": 0
+      },
+      "1k-10k": {
+        "in": 5,
+        "band_size": 9000,
+        "pct": 0.056
+      },
+      "10k-50k": {
+        "in": 18,
+        "band_size": 40000,
+        "pct": 0.045
+      }
+    },
+    "blockers_that_sell": 1,
+    "blockers_that_sell_examples": [
+      {
+        "domain": "telnyx.com",
+        "rank": 29250,
+        "type": "content",
+        "price_usd": 0.002856,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": true
+      }
+    ],
+    "examples": [
+      {
+        "domain": "coinmarketcap.com",
+        "rank": 2283,
+        "type": "api",
+        "price_usd": null,
+        "asset": "0xcE24439F2D9C6a2289F741120FE202248B666666",
+        "network": "eip155:56",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "coingecko.com",
+        "rank": 3330,
+        "type": "api",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "ondigitalocean.app",
+        "rank": 5787,
+        "type": "api",
+        "price_usd": 0.001,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "hstgr.cloud",
+        "rank": 6387,
+        "type": "content",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "alchemy.com",
+        "rank": 8863,
+        "type": "content",
+        "price_usd": 0.02,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "dpdns.org",
+        "rank": 10667,
+        "type": "api",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "ts.net",
+        "rank": 12267,
+        "type": "content",
+        "price_usd": 0.003,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "chatgpt.site",
+        "rank": 14133,
+        "type": "api",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "mypinata.cloud",
+        "rank": 15484,
+        "type": "content",
+        "price_usd": null,
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "network": "base-sepolia",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "builtwith.com",
+        "rank": 15638,
+        "type": "api",
+        "price_usd": 0.0495,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "apify.com",
+        "rank": 16219,
+        "type": "content",
+        "price_usd": 1,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "my.id",
+        "rank": 18382,
+        "type": "content",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "you.com",
+        "rank": 22389,
+        "type": "api",
+        "price_usd": 0.11,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "blockscout.com",
+        "rank": 28068,
+        "type": "api",
+        "price_usd": 0.002,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "telnyx.com",
+        "rank": 29250,
+        "type": "content",
+        "price_usd": 0.002856,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": true
+      },
+      {
+        "domain": "webhook.site",
+        "rank": 30128,
+        "type": "api",
+        "price_usd": 0.001,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "chain.link",
+        "rank": 31796,
+        "type": "content",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "tavily.com",
+        "rank": 34418,
+        "type": "content",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "exa.ai",
+        "rank": 35167,
+        "type": "api",
+        "price_usd": 0.007,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "zerion.io",
+        "rank": 37591,
+        "type": "api",
+        "price_usd": 0.01,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "arkm.com",
+        "rank": 41754,
+        "type": "api",
+        "price_usd": 0.2,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "bitrefill.com",
+        "rank": 46728,
+        "type": "api",
+        "price_usd": 0.002,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      },
+      {
+        "domain": "coinstats.app",
+        "rank": 47149,
+        "type": "content",
+        "price_usd": 0.001,
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "network": "eip155:8453",
+        "blocks_crawlers": false
+      }
+    ],
+    "note": "Genuine (non-hosting) registrable domains in the latest edition's 50k frame that advertise a machine-payable price. PaaS/cloud parent domains are excluded (counted in hosting_excluded). 'blockers_that_sell' = such domains that also block >=1 AI crawler in robots.txt.",
+    "hits_written_to": "private/bazaar-domains.json"
+  },
+  "vs_prior": null,
+  "new_endpoints": 0,
+  "capped": false
+}

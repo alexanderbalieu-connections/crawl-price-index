@@ -33,19 +33,22 @@
 <body class="prose">
 <div class="masthead"><div class="wrap">
   <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
-  <nav>
-    <a class="lnk" href="/check">Check a domain</a>
+  <nav class="navmid">
     <a class="lnk" href="/why">Why it matters</a>
-    <a class="lnk" href="/world">World editions</a>
-    <a class="lnk" href="/methodology" aria-current="page">Methodology</a>
-    <a class="ghost" href="/sample">Weekly email</a>
-    <a class="btn" href="/#access">Subscribe</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk on" aria-current="page" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
   </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
 </div></div>
 <div class="page-open"><div class="wrap">
   <p class="eyebrow">How we measure</p>
   <h1>Methodology</h1>
-  <p style="max-width:640px;margin:0">What we measure, how we measure it, what counts as an observation versus an inference, what we deliberately do not measure, and how to check our work.</p>
+  <p class="lede" style="margin:0">What we measure, how we measure it, what counts as an observation versus an inference, what we deliberately do not measure, and how to check our work.</p>
   <div class="meta">Methodology version <b class="mono">2026-08-10.1</b> · machine-readable at <a href="https://api.crawlpriceindex.com/v1/methodology">/v1/methodology</a></div>
 </div></div>
 
@@ -56,7 +59,7 @@
 <p>Once a week we read the <code>robots.txt</code> and homepage response headers of the Tranco top 50,000 domains using our own identified, cryptographically signed crawler. We record what each site tells AI crawlers: who is blocked, who is allowed, whether a price or payment wall is quoted, and what changed since last week. We publish the aggregates free and the per-domain detail to subscribers.</p>
 
 <div class="box">
-<b>The distinction that matters most.</b> “GPTBot is disallowed in this site’s robots.txt” is an <b>observation</b>. “15.3% of the scanned web blocks GPTBot” is a <b>derivation</b> from those observations. “A site of this size could charge $0.05 per crawl” is an <b>inference</b> — our judgement, not a measurement. We label all three differently everywhere they appear, and we never present the third as the first.
+<b>The distinction that matters most.</b> “GPTBot is disallowed in this site’s robots.txt” is an <b>observation</b>. “15.2% of domains with a readable robots.txt block GPTBot” is a <b>derivation</b> from those observations. “A site of this size could charge $0.05 per crawl” is an <b>inference</b> — our judgement, not a measurement. We label all three differently everywhere they appear, and we never present the third as the first.
 </div>
 
 </section>
@@ -70,7 +73,7 @@
   <tr><td><b>Payment signals</b></td><td>Status codes and headers on identified-crawler requests: 402 responses, TollBit-style token walls, licensing redirects, <code>payment:free</code> declarations.</td><td><span class="tag obs">observed</span></td></tr>
   <tr><td><b>Enforcement</b></td><td>Compares a site’s declaration against what an identified crawler actually receives. Publisher panel only (~49 domains), so directional, not projectable.</td><td><span class="tag obs">observed<br>(panel)</span></td></tr>
   <tr><td><b>Block rates</b></td><td>Share of parsed domains blocking each crawler. Denominator is domains successfully parsed, never the nominal top-N.</td><td><span class="tag der">derived</span></td></tr>
-  <tr><td><b>Country editions</b></td><td>Segmented by country-code TLD, published where at least 8 domains are present. ccTLD is a proxy for country, not for publisher nationality or audience.</td><td><span class="tag der">derived</span></td></tr>
+  <tr><td><b>ccTLD editions</b></td><td>Segmented by country-code TLD suffix, published where at least 8 domains are present. A ccTLD is a domain suffix, not a country — not operator location, ownership, audience or hosting.</td><td><span class="tag der">derived</span></td></tr>
   <tr><td><b>Trends &amp; movers</b></td><td>Difference between consecutive weekly snapshots in our archive.</td><td><span class="tag der">derived</span></td></tr>
   <tr><td><b>Suggested price band</b><br><span style="color:var(--dim);font-size:14px">checker only</span></td><td>Our judgement, anchored to observed quotes and the domain’s rank. Labelled as judgement wherever it appears.</td><td><span class="tag inf">inferred</span></td></tr>
 </table>
@@ -105,7 +108,7 @@ Signature-Input: sig=("@authority" "signature-agent");created=…;keyid="…";ta
   <li>We request <code>robots.txt</code> and the homepage only. We do not crawl article pages and we store no page content.</li>
   <li>Requests are rate-limited and back off automatically when a host signals pressure (429/403 rates above threshold reduce concurrency and increase spacing).</li>
   <li>A sweep is spread over days rather than hammering hosts in a burst.</li>
-  <li>Spoofed crawler identities are used only on a small, documented publisher panel to test enforcement — never at scale, and never to obtain content.</li>
+  <li>Spoofed crawler identities are used only on a small, documented publisher panel to observe identity-conditional responses — never at scale, and never to obtain content.</li>
   <li>To be excluded from the index entirely, email <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> from a domain-verifiable address.</li>
 </ul>
 
@@ -123,22 +126,59 @@ Signature-Input: sig=("@authority" "signature-agent");created=…;keyid="…";ta
   <div class="ix"><span class="lead-in">Coverage and freshness</span></div>
   <h2>Coverage and freshness</h2>
 <ul>
-  <li><b>Frame:</b> the Tranco top 50,000 (a research ranking that aggregates several sources and resists manipulation), plus an identity-matrix panel of ~90 domains (a fixed spine, plus domains promoted from the wide probe, plus a rotating audit — see above).</li>
-  <li><b>Reached vs parsed:</b> the Tranco list ranks registrable domains, not working websites. A large share never answer — no DNS record, refused connections, dead TLS, or a timeout on both the bare domain and its <code>www</code> host. Of roughly 39,000 domains that return a live response, about 28,000 publish a readable <code>robots.txt</code> — <b>~72% of the reachable web</b>. We report coverage against what is reachable, not against the raw 50,000, and every unreachable domain is itemised by reason (no DNS, refused, timeout, broken TLS, HTTP error) in a separate census. One finding falls straight out of it: a meaningful share of the busiest sites return an HTTP error to a crawler simply asking for their public <code>robots.txt</code>.</li>
+  <li><b>Frame &mdash; CPI-50K v1:</b> the top 50,000 domains of a <b>custom Tranco list</b> (<a href="https://tranco-list.eu/list/Y8V2G">tranco-list.eu/list/Y8V2G</a>, generated 21 August 2026; 30-day window, harmonic/Dowdall combination, pay-level domains). It is built from <b>Cisco Umbrella and Majestic only</b>. We deliberately exclude two providers the default Tranco list includes: <b>Cloudflare Radar</b> (CC BY-NC &mdash; a non-commercial licence, and this is a paid dataset) and the <b>Chrome User Experience Report</b> (CC BY-SA &mdash; a share-alike licence that could attach to data we redistribute). Excluding them is a licensing decision, and it also measurably improved the frame: non-website entries in the top 100 fell from 18% to 2%, because Radar ranks by DNS lookups and machines resolve names constantly without anyone visiting a site. We remove reverse-DNS zones (<code>*.in-addr.arpa</code>, 167 rows) and nothing else &mdash; CDN, cloud and parked domains stay in, because how much of a popularity ranking is not a website is a finding, not a defect to hide. Full provenance, including every removed row, is published in <code>frame-cpi50k-v1.json</code>. Alongside the frame we run an identity-matrix panel of ~90 domains (see above).</li>
+  <li><b>Reached vs parsed:</b> a popularity ranking lists registrable domains, not working websites. <b>27,975</b> of the 50,000-domain frame serve a readable <code>robots.txt</code>; that parsed count is the denominator behind every rate we publish, and it is the same figure the dashboard uses. We never quote a rate as a share of &ldquo;the web&rdquo;. The remainder is not a rounding error and we census it explicitly &mdash; see <b>Frame reachability</b> below.</li>
   <li><b>Cadence:</b> weekly full sweeps, run automatically.</li>
   <li><b>History:</b> begins the week we first observed a signal. It cannot be backfilled — by us or by anyone.</li>
 </ul>
 
 </section>
 <section class="panel wide">
+  <div class="ix"><span class="lead-in">Frame reachability</span></div>
+  <h2>Frame reachability &mdash; and declared versus enforced</h2>
+<p>A ranked list keeps domains long after the website behind them stops answering. Because every rate we publish carries a denominator, we measure that directly rather than assume it. Each week we attempt <code>robots.txt</code> and the homepage for all 50,000 domains, trying the apex over HTTPS, then <code>www</code>, then HTTP, and record the outcome by reason. Measured 20 August 2026 across the full frame:</p>
+<ul>
+  <li><b>40,272 (80.5%) alive</b> &mdash; answered an identified crawler.</li>
+  <li><b>6,318 (12.6%) dead</b> &mdash; the name does not resolve at all.</li>
+  <li><b>3,046 (6.1%) no response</b> within our window. We re-probed a random sample of 337 of these with a window tripled to 25 seconds plus a retry after a cool-down: <b>93.8% stayed silent</b>, so this bucket is overwhelmingly genuinely unreachable rather than an artefact of an impatient crawler. 3.0% turned out to be servers that silently drop a first request and return 403/429 on a second; they are reclassified as refused rather than dead.</li>
+  <li><b>~360</b> refused connections, connection resets or TLS failures.</li>
+</ul>
+<p><b>Declared policy and enforced access are different measurements, and we keep them apart.</b> <b>4,902 domains (9.8% of the frame)</b> serve a <code>robots.txt</code> and then return <b>403 or 429</b> to the same identified crawler at the homepage. That is a divergence between what a site declares to crawlers and what its edge actually does. It is not a robots.txt policy, it is not evidence of intent, and it is never folded into a block rate. A further <b>1,286 domains disallow our crawler in robots.txt</b>; we obey, we do not fetch their homepage, and they are recorded as excluded by their own instruction &mdash; a publisher of a compliance index does not get to make exceptions for itself.</p>
+<p class="foot">Timeout is defined as no response within 8 seconds, with a 22-second absolute ceiling per domain. Thresholds are stated because the choice changes the answer.</p>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Site-evidence signals</span></div>
+  <h2>Site-evidence signals &mdash; observations, not classifications</h2>
+<p>Alongside <code>robots.txt</code> we record a small set of <b>self-declared</b> signals a domain serves publicly on its own homepage. These are facts about observable artefacts, dated and attributable, in the same spirit as reading a <code>robots.txt</code>. Measured across the full frame on 20 August 2026:</p>
+<ul>
+  <li><b>10,326</b> serve schema.org JSON-LD type declarations.</li>
+  <li><b>9,637</b> publish an <code>ads.txt</code> file &mdash; an IAB standard declaring authorised digital sellers.</li>
+  <li><b>7,515</b> carry an identifiable platform or CMS fingerprint.</li>
+  <li><b>4,498</b> advertise an RSS or Atom feed.</li>
+  <li>In total, <b>39.4%</b> of the frame carries at least one such signal.</li>
+</ul>
+<p><b>What we do not do with them.</b> We publish what a domain declared and when we observed it &mdash; never an inferred label about what kind of organisation it is. We do not publish machine-generated category guesses. We do not publish inferred labels in sensitive categories. Where a site declares an adult content rating (RTA or an equivalent meta tag), that is reported only in aggregate, never as a per-domain field. Absence of a signal means we did not observe one; it is not evidence that the thing is absent.</p>
+
+</section>
+
+<section class="panel wide">
   <div class="ix"><span class="lead-in">Known limitations</span></div>
   <h2>Known limitations</h2>
 <ul>
-  <li><b>Declaration is not enforcement.</b> Our headline block rates measure what sites <em>say</em>. Our enforcement metric measures a small panel of what sites <em>do</em>, and the two differ substantially.</li>
+  <li><b>Declaration is not compliance.</b> Our block rates measure what sites <em>declare</em> in robots.txt — a request to crawlers, not an access control. On a small probe panel we also record what our own identified crawler is served, published as counts, never as an “enforcement rate”: robots.txt is advisory and we have no crawler-side logs to see what any other crawler does.</li>
   <li><b>robots.txt is not the whole story.</b> Sites also gate crawlers at the edge, by ASN, by fingerprint or by CAPTCHA. We do not see those from a single identified request.</li>
   <li><b>Prices are sparse.</b> Very few sites currently quote a machine-readable price. That sparsity is itself the finding, and we report the count rather than smoothing it.</li>
-  <li><b>ccTLD ≠ country.</b> A <code>.io</code> domain is rarely British Indian Ocean Territory.</li>
-  <li><b>Panel size.</b> Enforcement and payment-signal findings come from ~49 domains. We report n every time.</li>
+  <li><b>The index does not remove itself from the frame.</b> crawlpriceindex.com is measured
+    under exactly the same rules as every other domain, and so is any customer, partner or
+    competitor that appears in the frame. Our own robots.txt carries a hand-written
+    <code>Content-Signal</code> line and a <code>License:</code> directive, which places us
+    inside the small group of domains that declare terms about AI use &mdash; a group we also
+    count. We disclose that rather than exempting ourselves, because a measurer who removes
+    inconvenient observations has already conceded the point. No domain is ever excluded on
+    request.</li>
+  <li><b>ccTLD is a domain suffix, not a country.</b> A <code>.io</code> domain is rarely British Indian Ocean Territory, and <code>.com</code>/<code>.org</code>/<code>.io</code> carry no geography at all. Every published group, with the reasons a group&rsquo;s rate moves set out before the numbers: <a href="/world">suffix groups</a>.</li>
+  <li><b>Panel size.</b> Probe-panel and payment-signal observations come from the identity panel (~49–90 domains). We report n every time.</li>
   <li><b>One vantage point.</b> We crawl from one network. Sites that vary responses by geography or ASN may present differently elsewhere.</li>
   <li><b>The honest probe has a blind spot.</b> Our wide probe uses one honest identity, so a wall that fires <em>only</em> at a named AI crawler — showing our identified bot an ordinary page — is invisible to it, and enters the record only through the rotating audit. Today's data suggests this is uncommon (most walls show the honest bot something: a 403, a redirect, a header), but it is a real limit, and the audit exists to size it rather than hide it.</li>
 </ul>
@@ -174,10 +214,104 @@ curl -s https://example.com/robots.txt</pre>
 <p>The Crawl Price Index is funded by subscriptions. We take no payment from AI companies, publishers, CDNs or licensing platforms in exchange for coverage, ranking or inclusion. We link to Cloudflare, TollBit and RSL as setup routes for site owners with no commercial relationship to any of them. Our own site publishes machine-readable licensing terms and charges AI training crawlers, at a price derived from the index itself — disclosed in <a href="/rsl.xml">rsl.xml</a>.</p>
 
 </section>
+  <section class="panel wide" id="crawler-share">
+  <div class="ix"><span class="lead-in">An estimate, clearly marked</span></div>
+  <h2>Estimating what share of automated traffic is crawler activity</h2>
+  <p>Every other figure on this site is measured. This one is not. It is the one link in a chain we quote on <a href="/why">Why it matters</a> that no source publishes, so we estimate it &mdash; and the workings are here so they can be attacked. They already have been: see the correction at the bottom.</p>
+  <p><b>Estimate: crawler activity is roughly half of automated traffic. 45&ndash;60% depending on definition, 52% as the central case.</b></p>
+
+  <h3 style="margin-top:22px">How it is constructed</h3>
+  <p>&ldquo;Crawler activity&rdquo; has no agreed definition, so the answer depends where the line is drawn. Three readings, mapped onto Cloudflare&rsquo;s bot categories:</p>
+  <div class="mwrap"><table class="dt">
+    <thead><tr><th>Reading</th><th>What counts as crawling</th><th>Share of bot traffic</th></tr></thead>
+    <tbody>
+      <tr><td>Strict</td><td>search-engine crawlers + dedicated AI crawlers</td><td class="mono">~45%</td></tr>
+      <tr><td><b>Central</b></td><td>+ AI-search fetching, which retrieves pages to build an index</td><td class="mono"><b>~52%</b></td></tr>
+      <tr><td>Broad</td><td>+ AI assistants, which fetch on a person&rsquo;s behalf</td><td class="mono">~60%</td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:14px">We take the central case because it captures systematic machine acquisition of content &mdash; discovery, indexing, retrieval, model consumption &mdash; while excluding fetches a person triggered. That is the activity this index is about.</p>
+  <p><b>The 45&ndash;60% spread is a definition range, not a confidence interval.</b> It reflects classification choices, not measurement error, and will not narrow with better data. Applied to Imperva&rsquo;s 53% automated share it implies crawler activity at roughly <b>28% of all web traffic</b>, sensitivity 24&ndash;32%.</p>
+
+  <h3 style="margin-top:22px">Why we stop there</h3>
+  <p>The obvious next step is to multiply by Cloudflare&rsquo;s training share and publish a single headline share of all web traffic for AI-training crawling. We do not, and will not. The three layers come from different companies measuring different baskets along different dimensions &mdash; Imperva&rsquo;s all-traffic automated share, our derived crawler layer, and Cloudflare&rsquo;s purpose split of crawler requests. Compounding them produces a number with no honest denominator.</p>
+
+  <h3 style="margin-top:22px">How good the inputs are</h3>
+  <ul>
+    <li><b>The category shares are secondary.</b> The precise figures circulating for 2026 (search-engine ~26%, AI crawlers ~19%, AI assistants ~8%, AI search ~7%) come from write-ups of Cloudflare Radar, not a primary Cloudflare publication &mdash; and different write-ups, and even different sections of the same write-up, give different values. What is primary is Cloudflare&rsquo;s Radar 2025 Year in Review: <b>search-engine crawlers 40%, AI crawlers 20%, SEO bots 13% of verified bot traffic</b>. The estimate should be read as resting on that magnitude, not on the decimals.</li>
+    <li><b>Verified bots are not all bots.</b> Cloudflare&rsquo;s category shares describe traffic it has verified; Imperva&rsquo;s 53% includes unverified and malicious automation, much of which also crawls. The two populations do not line up, which is the main reason the range is wide.</li>
+    <li><b>One network is not the web.</b> Cloudflare fronts a large but non-random slice of it.</li>
+    <li><b>Both vendors sell bot mitigation.</b> Every input comes from a company whose product is stopping bots.</li>
+    <li><b>The taxonomy moved.</b> Cloudflare introduced and revised its AI bot categories across 2025&ndash;26; a 2025 figure and a 2026 figure may not count the same thing.</li>
+    <li><b>Almost nothing independent exists.</b> The one non-vendor measurement found is a server-log study of a single e-commerce site, which put bots at 22.3% of requests &mdash; far below both vendors, and far too narrow to generalise from.</li>
+  </ul>
+
+  <h3 style="margin-top:22px">Correction &middot; 22 August 2026</h3>
+  <p>An earlier version of this page argued that Cloudflare&rsquo;s <em>&ldquo;52% of crawler requests are now for AI training&rdquo;</em> must use AI crawlers as its denominator, on the grounds that the literal reading would make AI training larger than the entire AI-crawler category and was therefore impossible. We relabelled the chart on <a href="/why">Why it matters</a> accordingly.</p>
+  <p><b>That was wrong, and the chart has been changed back.</b> The argument confused two different dimensions. &ldquo;Training&rdquo; is a <em>purpose</em>; &ldquo;AI Crawler&rdquo; is a <em>bot category</em>. Cloudflare classifies Googlebot as a search-engine crawler while stating that it &ldquo;crawls for both search engine indexing and AI training&rdquo;, and that multi-purpose crawlers including Googlebot, Applebot and Bingbot are caught when a customer blocks Training. Training traffic therefore spans categories, and can exceed any single one of them without contradiction.</p>
+  <p>The full sentence also settles the denominator on its own: <em>&ldquo;52% &hellip; up from 22% in Spring 2025.&rdquo;</em> Cloudflare&rsquo;s August 2025 figure for training as a share of <em>AI</em> crawling was 72&ndash;79%. A fall to 52% could not be described as a rise from 22%. Read against all crawler requests, the trajectory is coherent.</p>
+  <p>Nothing measured changed. The 22%&nbsp;&rarr;&nbsp;52% movement and the two-speeds argument were never affected &mdash; only what the figure is a share of, and we had that right before we changed it. The estimate above also survived review, but its framing did not: three reviewers independently pointed out that the layers are not a nested hierarchy and that the range is definitional rather than statistical. Both corrections are reflected above.</p>
+  <p class="foot">This estimate is never folded into the weekly record, never quoted as a finding, and never appears in the newsletter. Wherever it appears on the site it is labelled as an estimate.</p>
+</section>
+
 </div></div>
-<footer>
-THE CRAWL PRICE INDEX · an independent observatory of the machine-readable web · <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> · <a href="/terms.html">terms</a> · <a href="/">index</a>
-</footer>
-</div>
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now. The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
+
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'methodology')">
+        <input id="fsub-methodology" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-methodology"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script></div>
 </body>
 </html>

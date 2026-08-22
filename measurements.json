@@ -1,0 +1,346 @@
+{
+ "version": 1,
+ "generated_note": "Edit this file, not the guard. The guard reads it.",
+ "rules": [
+  {
+   "glob": "node_modules/**",
+   "category": "ignore",
+   "why": "reinstallable from package.json"
+  },
+  {
+   "glob": ".git/**",
+   "category": "ignore",
+   "why": "git internals"
+  },
+  {
+   "glob": ".wrangler/**",
+   "category": "ignore",
+   "why": "miniflare caches and build bundles — regenerable, and excluded from backup by the Pi runbook"
+  },
+  {
+   "glob": "**/*.bak-*",
+   "category": "ignore",
+   "why": "patch-script rollback copies; live in .page-backups/ when they concern public/"
+  },
+  {
+   "glob": ".page-backups/**",
+   "category": "ignore",
+   "why": "moved out of the deployed directory; rollback only"
+  },
+  {
+   "glob": "_to_delete/**",
+   "category": "ignore",
+   "why": "staged for manual deletion"
+  },
+  {
+   "glob": "backups/**",
+   "category": "ignore",
+   "why": "point-in-time repo snapshots"
+  },
+  {
+   "glob": ".preview/**",
+   "category": "ignore",
+   "why": "local render scratch"
+  },
+  {
+   "glob": ".DS_Store",
+   "category": "ignore",
+   "why": "macOS noise"
+  },
+  {
+   "glob": "**/.DS_Store",
+   "category": "ignore",
+   "why": "macOS noise"
+  },
+  {
+   "glob": "**/*.bak*",
+   "category": "ignore",
+   "why": "every rollback-copy naming this repo has used: .bak, .bak2, .bak17, .bak-<label>"
+  },
+  {
+   "glob": "homepage-backups/**",
+   "category": "ignore",
+   "why": "pre-rebuild page snapshots"
+  },
+  {
+   "glob": "0.49",
+   "category": "ignore",
+   "why": "zero-byte shell-redirect accident, 18 Aug — delete"
+  },
+  {
+   "glob": "Perplexity-User",
+   "category": "ignore",
+   "why": "zero-byte shell-redirect accident, 18 Aug — delete"
+  },
+  {
+   "glob": "*.log",
+   "category": "ignore",
+   "why": "run logs; useful locally, regenerated each run"
+  },
+  {
+   "glob": ".admin-token",
+   "category": "secret",
+   "why": "admin bypass token. gitignored. In the Drive backup — decide deliberately whether it should be"
+  },
+  {
+   "glob": ".wba-private.pem",
+   "category": "secret",
+   "why": "Web Bot Auth signing key. gitignored. Losing it means re-registering with crawler operators, so it arguably SHOULD be backed up — but then the backup holds a key"
+  },
+  {
+   "glob": ".wba-private.b64",
+   "category": "secret",
+   "why": "encoded form of the same key"
+  },
+  {
+   "glob": "editions/**",
+   "category": "measurement",
+   "why": "per-domain edition archive — a week not measured cannot be reconstructed"
+  },
+  {
+   "glob": "history/**",
+   "category": "measurement",
+   "why": "dated aggregate history; the series a later entrant cannot backfill"
+  },
+  {
+   "glob": "robots-archive/**",
+   "category": "measurement",
+   "why": "NEW — raw robots.txt bodies. The whole point is that a field we do not parse today can still be parsed from this week's data later"
+  },
+  {
+   "glob": "scan-robots.csv",
+   "category": "measurement",
+   "why": "this edition's raw scan. Looks like output; is an observation"
+  },
+  {
+   "glob": "scan-robots-full.csv",
+   "category": "measurement",
+   "why": "the full 50k rows before panel restriction"
+  },
+  {
+   "glob": "scan-terms.csv",
+   "category": "measurement",
+   "why": "NEW — declared-use fields observed this edition"
+  },
+  {
+   "glob": "scan-failures.csv",
+   "category": "measurement",
+   "why": "the census of WHY a fetch failed — not reproducible later"
+  },
+  {
+   "glob": "scan-signals.csv",
+   "category": "measurement",
+   "why": "wire-probe panel observations"
+  },
+  {
+   "glob": "change-confirmation.json",
+   "category": "measurement",
+   "why": "NEW — re-fetch verdicts; the re-fetch cannot be repeated after the window"
+  },
+  {
+   "glob": "reachability-*.jsonl",
+   "category": "measurement",
+   "why": "frame reachability sweep, dated"
+  },
+  {
+   "glob": "reachability-*.json",
+   "category": "measurement",
+   "why": "reachability summary, dated"
+  },
+  {
+   "glob": "bazaar/**",
+   "category": "measurement",
+   "why": "dated captures of a public registry that changes without notice"
+  },
+  {
+   "glob": "bazaar-index.json",
+   "category": "measurement",
+   "why": "registry capture index"
+  },
+  {
+   "glob": "bazaar-endpoints.json",
+   "category": "measurement",
+   "why": "registry capture"
+  },
+  {
+   "glob": "app/private/**",
+   "category": "measurement",
+   "why": "the per-domain paid dataset, built from the edition"
+  },
+  {
+   "glob": "private/**",
+   "category": "measurement",
+   "why": "the per-domain paid dataset at the repo root, built from the edition"
+  },
+  {
+   "glob": "dataset.csv",
+   "category": "measurement",
+   "why": "the published per-domain dataset for this edition"
+  },
+  {
+   "glob": "last-sent-robots.csv",
+   "category": "measurement",
+   "why": "the state the last newsletter was computed against — needed to reproduce what subscribers were told"
+  },
+  {
+   "glob": "last-alert-robots.csv",
+   "category": "measurement",
+   "why": "the state the last alerts were computed against"
+  },
+  {
+   "glob": "terms-pilot*.json",
+   "category": "measurement",
+   "why": "pilot observations, 22 Aug 2026 — a point-in-time sample"
+  },
+  {
+   "glob": "rsl-read.json",
+   "category": "measurement",
+   "why": "licence-document reads; two of three refused the crawler and may not be readable again"
+  },
+  {
+   "glob": "classifiability-*.json",
+   "category": "measurement",
+   "why": "sampled classification observations"
+  },
+  {
+   "glob": "frame-cpi50k-v1.json",
+   "category": "measurement",
+   "why": "frame provenance — defines what every published rate is a rate OF"
+  },
+  {
+   "glob": "tranco-*.csv",
+   "category": "measurement",
+   "why": "the source frame for a dated Tranco release; not re-downloadable for a past date"
+  },
+  {
+   "glob": "tranco-*.csv.bak-*",
+   "category": "measurement",
+   "why": "prior frame versions — provenance for older editions"
+  },
+  {
+   "glob": "app/data/**",
+   "category": "derived",
+   "why": "computed from the edition by rebuild.cjs"
+  },
+  {
+   "glob": "public/*.json",
+   "category": "derived",
+   "why": "published feeds, rebuilt each edition"
+  },
+  {
+   "glob": "public/*.html",
+   "category": "derived",
+   "why": "generated pages — but the generators are CODE and must be in git"
+  },
+  {
+   "glob": "public/**",
+   "category": "derived",
+   "why": "the deployed site"
+  },
+  {
+   "glob": "trends-public.json",
+   "category": "derived",
+   "why": "rebuilt each edition"
+  },
+  {
+   "glob": "scan-summary.json",
+   "category": "derived",
+   "why": "summary of the scan"
+  },
+  {
+   "glob": "terms-pilot.json.tmp",
+   "category": "derived",
+   "why": "scratch"
+  },
+  {
+   "glob": "**/*.cjs",
+   "category": "code",
+   "why": "pipeline and guards"
+  },
+  {
+   "glob": "**/*.mjs",
+   "category": "code",
+   "why": "test harnesses"
+  },
+  {
+   "glob": "**/*.js",
+   "category": "code",
+   "why": "worker and views"
+  },
+  {
+   "glob": "*.command",
+   "category": "code",
+   "why": "the run script"
+  },
+  {
+   "glob": "**/*.sh",
+   "category": "code",
+   "why": "shell tooling"
+  },
+  {
+   "glob": "**/*.md",
+   "category": "code",
+   "why": "runbooks and decision records"
+  },
+  {
+   "glob": "*.json",
+   "category": "code",
+   "why": "package manifests and config"
+  },
+  {
+   "glob": "**/*.html",
+   "category": "code",
+   "why": "templates outside public/"
+  },
+  {
+   "glob": "**/*.css",
+   "category": "code",
+   "why": "styles"
+  },
+  {
+   "glob": "**/*.txt",
+   "category": "code",
+   "why": "notes and fixtures"
+  },
+  {
+   "glob": "**/*.xml",
+   "category": "code",
+   "why": "feeds and licences"
+  },
+  {
+   "glob": "**/*.png",
+   "category": "code",
+   "why": "site images"
+  },
+  {
+   "glob": "**/*.tar.gz",
+   "category": "code",
+   "why": "delivered bundles"
+  },
+  {
+   "glob": ".github/**",
+   "category": "code",
+   "why": "GitHub Actions — a SECOND runner of this pipeline; see note below"
+  },
+  {
+   "glob": "*.plist",
+   "category": "code",
+   "why": "launchd schedule for the weekly run on the Mac"
+  },
+  {
+   "glob": "*.toml",
+   "category": "code",
+   "why": "wrangler config"
+  },
+  {
+   "glob": ".gitignore",
+   "category": "code",
+   "why": "repo config"
+  },
+  {
+   "glob": "**/.gitignore",
+   "category": "code",
+   "why": "repo config"
+  }
+ ]
+}

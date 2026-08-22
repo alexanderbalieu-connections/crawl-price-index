@@ -1,0 +1,2047 @@
+/* CPI dashboard views — reads /data/dashboard.json. Language rules per DASHBOARD-SPEC:
+   five states never collapse · "declared policy" not "access" · denominators always shown
+   · "ccTLD" never "country" · rank = panel band. */
+(function () {
+  var D = null, EL = function (id) { return document.getElementById(id); };
+  var STATE_COLORS = { blocked:"#A33A2A", partial:"#8A6A1F", allowed:"#1C5D4A", unlisted:"#B8B0A2", no_robots:"#DCD6CB" };
+  var STATE_LABELS = { blocked:"Explicitly blocked", partial:"Partial", allowed:"Explicitly allowed", unlisted:"No explicit instruction", no_robots:"No robots.txt" };
+  var LINE_COLORS = ["#1C5D4A","#8A6A1F","#1D4E6F","#A33A2A","#5F5B54","#2E7D5B"];
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]); }); };
+  var fmt = function (n) { return (n == null ? "—" : Number(n).toLocaleString("en-GB")); };
+  var pct = function (n) { return (n == null ? "—" : Number(n).toFixed(2) + "%"); };
+
+  function delta(v) {
+    if (v == null) return '<span style="color:var(--dim);font-size:11.5px">—</span>';
+    if (Math.abs(v) < 0.005) return '<span style="color:var(--dim);font-size:11.5px">no change</span>';
+    var up = v > 0;
+    return '<span style="color:' + (up ? "#A33A2A" : "#1C5D4A") + ';font-size:11.5px;font-weight:600">' +
+      (up ? "▲" : "▼") + " " + Math.abs(v).toFixed(2) + "pp</span>";
+  }
+
+
+  /* ---------- WEEKLY BRIEF (replaces the control-panel overview) ---------- */
+  function sigPhrase(name) {
+    var g = (D.significance || {})[name];
+    if (!g || g.editions < 3) return "";
+    if (g.is_largest_increase) return " — its largest weekly rise since the index began";
+    if (g.is_largest_decrease) return " — its largest weekly fall since the index began";
+    return "";
+  }
+  function movers() {
+    return D.crawlers.filter(function (c) { return c.delta_pp != null; })
+      .slice().sort(function (a, b) { return Math.abs(b.delta_pp) - Math.abs(a.delta_pp); });
+  }
+  function headlineSentence() {
+    var any = D.any_ai, mv = movers(), top = D.crawlers[0];
+    var s1 = 'As of edition ' + esc(D.edition) + ', <b>' + any.pct + '%</b> of the ' + fmt(any.denominator) +
+      ' parsed top-50k domains explicitly block at least one of the ' + D.panel.crawlers +
+      ' tracked AI crawlers. <b>' + esc(top.name) + '</b> is the most blocked at <b>' + top.blocked_pct.toFixed(2) + '%</b>.';
+    if (mv.length) {
+      var m = mv[0];
+      s1 += ' The largest move this edition was <b>' + esc(m.name) + '</b>, ' +
+        (m.delta_pp > 0 ? "up" : "down") + ' ' + Math.abs(m.delta_pp).toFixed(2) + 'pp' + sigPhrase(m.name) + '.';
+    }
+    return s1;
+  }
+  function brief() {
+    var any = D.any_ai, mv = movers();
+    var h = '';
+    // 1. the lead
+    h += '<section class="panel wide lead"><div class="ix">This edition</div>' +
+      '<p class="leadline">' + headlineSentence() + '</p>' +
+      '<div class="ctrls" style="margin-top:6px">' +
+        '<button class="btnx copybtn" id="copy-lead">Copy this sentence</button>' +
+        '<span class="foot" style="border:0;padding:0;margin:0;align-self:center">Free to cite with attribution to The Crawl Price Index.</span>' +
+      '</div></section>';
+
+    h += '<p class="tabjob">The <b>briefing</b>: what moved this edition, and where to go next. ' +
+      'Every measure at once, with drill-downs, is on ' + link("detail", "Full detail") + '.</p>';
+
+    // 2. the composite + concentration
+    h += '<section class="panel"><div class="ix">The headline number</div>' +
+      '<div class="big">' + any.pct + '%</div>' +
+      '<p class="sub">of parsed domains block at least one tracked AI crawler (' + fmt(any.count) + ' of ' + fmt(any.denominator) + ').</p>' +
+      '<div class="dd-card"><div class="dd-h">By panel rank band</div>' +
+      any.by_band.filter(function (b) { return b.pct != null; }).map(function (b) {
+        var mx = Math.max.apply(null, any.by_band.map(function (z) { return z.pct || 0; })) || 1;
+        return '<div class="hrow"><span class="hk">' + b.band + '</span><span class="hb"><span style="width:' +
+          (b.pct / mx * 100).toFixed(1) + '%"></span></span><span class="hv">' + b.pct.toFixed(1) + '%</span></div>';
+      }).join("") + '</div>' +
+      '<p class="foot">' + esc(any.definition) + ' Rank band is sampling position in the Tranco frame, not traffic.' +
+      (D.archetypes && D.archetypes.dominant
+        ? ' One widely copied robots.txt signature accounts for ' + D.archetypes.dominant.pct_of_all_blocked_cells +
+          '% of all explicit blocks in this edition; excluding that cohort the figure is ' +
+          D.archetypes.ex_template.any_blocked_pct + '%. Both numbers are real &mdash; ' + link("policy","see the working") + '.'
+        : '') + '</p></section>';
+
+    // 3. biggest movements
+    h += '<section class="panel"><div class="ix">Biggest movements</div>' +
+      (mv.length
+        ? '<div class="lb">' + mv.slice(0, 6).map(function (m) {
+            var mx = Math.max.apply(null, mv.map(function (z) { return Math.abs(z.delta_pp); })) || 1;
+            return '<div class="lbrow clickable" data-crawler="' + esc(m.name) + '"><span class="nm">' + esc(m.name) + '</span>' +
+              '<span class="bar"><span style="width:' + (Math.abs(m.delta_pp) / mx * 100).toFixed(1) +
+              '%;background:' + (m.delta_pp > 0 ? "#A33A2A" : "#1C5D4A") + '"></span></span>' +
+              '<span class="v">' + m.blocked_pct.toFixed(2) + '%</span><span class="d">' + delta(m.delta_pp) + '</span></div>';
+          }).join("") + '</div>' +
+          '<p class="foot">Change versus the previous edition. Full leaderboard on ' + link("crawlers","Crawlers") + '.</p>'
+        : '<div class="empty">Movement needs a previous edition to compare against. One is archived every week.</div>') +
+      '</section>';
+
+    // 4. what changed + notable domains
+    h += '<section class="panel"><div class="ix">What changed</div>';
+    if (D.changes.available) {
+      var tr = D.changes.transitions, keys = Object.keys(tr).sort(function (a, b) { return tr[b] - tr[a]; });
+      // Direction of travel. NOT "tightened vs loosened": that would have to
+      // rank "no explicit instruction" against "explicitly allowed", and
+      // robots.txt treats the two identically. Into/out of blocked does not
+      // need that judgement call.
+      var intoB = 0, outB = 0;
+      keys.forEach(function (k) {
+        var p = k.split("->");
+        if (p[1] === "blocked" && p[0] !== "blocked") intoB += tr[k];
+        if (p[0] === "blocked" && p[1] !== "blocked") outB += tr[k];
+      });
+      var net = intoB - outB;
+      h += '<p class="sub"><b>' + fmt(D.changes.total_changes) + '</b> policy changes across <b>' +
+        fmt(D.changes.changed_domains) + '</b> domains between ' + esc(D.changes.interval) + '. ' +
+        (keys.length ? 'Most common: <b>' + fmt(tr[keys[0]]) + '</b> moved ' +
+          (STATE_LABELS[keys[0].split("->")[0]] || "") + ' &rarr; ' + (STATE_LABELS[keys[0].split("->")[1]] || "") + '.' : '') + '</p>' +
+        '<div class="mvpair">' +
+          '<div><div class="mvfig">' + fmt(intoB) + '</div><div class="mvlab">into explicit blocking</div></div>' +
+          '<div><div class="mvfig">' + fmt(outB) + '</div><div class="mvlab">out of explicit blocking</div></div>' +
+          '<div><div class="mvfig mvnet">' + (net >= 0 ? "+" : "") + fmt(net) + '</div><div class="mvlab">net this edition</div></div>' +
+        '</div>' +
+        '<p class="foot">Counts are crawler&ndash;domain cells, not domains: one site changing its line for eight crawlers is eight changes. ' +
+        'The full transition breakdown is on ' + link("changes", "Policy changes") + '.</p>' +
+        '<div class="ctrls"><button class="btnx" data-goto="changes">See the ' + fmt(D.changes.total_changes) + ' changes</button>' +
+        '<button class="btnx" data-goto="domains" style="background:#1D4E6F;border-color:#1D4E6F">Look up a domain</button></div>' +
+        '<div id="notable"></div>';
+    } else {
+      h += '<div class="empty">' + esc(D.changes.note) + ' Per-domain editions are archived weekly; the first comparison appears once two exist.</div>';
+    }
+    h += '</section>';
+
+    // 5. trend
+    // Half width, and NOT drillable here: the drillable by-edition version is
+    // the one on Full detail. Same series, two jobs — a glance and a reference.
+    h += '<section class="panel">' +
+      '<div class="ix">Observed weekly block rate</div>' +
+      (D.trend && D.trend.length >= 2
+        ? '<div style="position:relative"><svg id="sv-trend" viewBox="0 0 620 300" style="width:100%;height:auto"></svg><div id="tt-trend" class="tt"></div></div><div class="legend" id="lg-trend"></div>' +
+          '<p class="foot">' + D.trend.length + ' editions. Direction is meaningful on a series this short; a long-run trend is not. ' +
+          'The drillable by-edition version is on ' + link("detail", "Full detail") + '.</p>'
+        : '<div class="empty">The trend needs at least two editions.</div>') + '</section>';
+
+    // 6. methodology footer, demoted from KPI prominence
+    h += '<section class="panel wide"><div class="ix">Basis</div>' +
+      '<p class="foot" style="border:0;padding:0;margin:0">' + fmt(D.panel.robots_parsed) + ' domains with a readable robots.txt, from a ' +
+      fmt(D.panel.domains) + '-domain Tranco frame &middot; ' + D.panel.crawlers + ' named crawlers &middot; edition ' + esc(D.edition) +
+      ' &middot; declared robots.txt policy, not observed access &middot; ' + (D.editions || []).length + ' per-domain edition(s) retained. ' +
+      'Deeper cuts: ' + link("crawlers","Crawlers") + ' &middot; ' + link("segments","Segments") + ' &middot; ' +
+      link("wire","Wire evidence") + ' &middot; ' + link("account","Downloads") + '.</p></section>';
+
+    EL("content").innerHTML = h;
+    if (D.trend && D.trend.length >= 2) drawTrend();
+    wireDrill(); wireLinks();
+    var cb = EL("copy-lead");
+    if (cb) cb.addEventListener("click", function () {
+      var txt = EL("content").querySelector(".leadline").textContent;
+      navigator.clipboard.writeText(txt).then(function () { cb.textContent = "Copied"; setTimeout(function () { cb.textContent = "Copy this sentence"; }, 1600); });
+    });
+    // notable named examples, highest-ranked movers first — the named layer
+    // is paid, so say so rather than leaving the div silently empty
+    if (D.changes.available && !entitled()) {
+      var nb = EL("notable");
+      if (nb) nb.innerHTML = '<p class="foot" style="margin-top:12px">&#128274; <b>Which</b> domains moved, and for which crawlers, ' +
+        'is the per-domain layer &mdash; part of Terminal. The counts above are free to read and free to cite. ' +
+        '<a href="#account" class="locklink">See what Terminal includes &rarr;</a></p>';
+    }
+    if (D.changes.available && entitled()) loadDomains(function (pd) {
+      var top = (pd.changes || []).slice(0, 5);
+      if (!top.length) return;
+      EL("notable").innerHTML = '<div class="dd-h" style="margin-top:14px">Highest-ranked domains that changed</div>' +
+        '<div class="mwrap"><table class="dt"><tbody>' + top.map(function (c) {
+          return '<tr><td class="mono">#' + fmt(c[0]) + '</td><td><b>' + esc(c[1]) + '</b></td><td>' + esc(pd.crawlers[c[2]]) +
+            '</td><td>' + stPill(c[3]) + ' &rarr; ' + stPill(c[4]) + '</td></tr>';
+        }).join("") + '</tbody></table></div>';
+    });
+  }
+
+  /* ---------- OVERVIEW (full detail, one click deeper) ---------- */
+  function overview() {
+    var c = D.crawlers, top = c[0], low = c[c.length - 1];
+    var h = "";
+    h += kpiRow();
+    h += '<p class="tabjob">The <b>reference view</b>: every measure in this edition on one page, each clickable through to its working. ' +
+      'The short version of what moved is on ' + link("overview", "This edition") + '.</p>';
+    // hero leaderboard
+    var sorted = applyCrawlerSort(c);
+    h += '<section class="panel wide"><div class="ix">Crawler leaderboard &middot; declared robots policy</div>' +
+      '<p class="sub">Share of the ' + fmt(D.panel.robots_parsed) + ' domains with a readable robots.txt that <b>explicitly block</b> each crawler. ' +
+      'Full detail per crawler on ' + link("crawlers", "the Crawlers page") + '; segment cuts on ' + link("segments", "Segments") + '.</p>' +
+      controls('<input id="cw-q" class="inp" placeholder="Filter crawlers…" value="' + esc(UI.crawlerQ) + '">' +
+        sortSel("cw-sort", CRAWLER_SORTS, UI.crawlerSort) +
+        sortSel("cw-basis", basisOptions(), UI.basis), anyActive() ? "cw-clear" : null) +
+      '<div class="lb">' + sorted.map(function (x, i) {
+        var vmax = Math.max.apply(null, sorted.map(function (z) { return z.blocked_pct; })) || 1;
+        var w = x.blocked_pct / vmax * 100;
+        return '<div class="lbrow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span>' +
+          '<span class="bar"><span style="width:' + w.toFixed(1) + '%"></span></span>' +
+          '<span class="v">' + x.blocked_pct.toFixed(2) + '%</span>' +
+          '<span class="d">' + delta(x.delta_pp) + '</span></div>';
+      }).join("") + '</div>' +
+      '<p class="foot" id="basis-note"></p>' +
+      '<p class="foot">Blocked in robots.txt is a declared policy, not proof a crawler was denied. Denominator: ' +
+      fmt(D.panel.robots_parsed) + ' parsed domains of the ' + fmt(D.panel.domains) + '-domain index frame &mdash; not "the web".</p></section>';
+
+    // frame reachability — the alive/dead split of the census itself
+    if (D.reachability && D.reachability.states) {
+      var RS = D.reachability, st = RS.states, rn = Math.max(1, RS.domains);
+      var rrow = function (label, n, color, hint) {
+        return '<div class="hrow"><span class="hk">' + label + '</span><span class="hb"><span style="width:' +
+          (n / rn * 100).toFixed(1) + '%;background:' + color + '"></span></span><span class="hv">' + fmt(n) +
+          ' <span style="opacity:.6">' + (n / rn * 100).toFixed(1) + '%</span></span></div>' +
+          (hint ? '<div style="font-size:11.5px;color:var(--dim);margin:-2px 0 6px">' + hint + '</div>' : '');
+      };
+      h += '<section class="panel wide"><div class="ix">Frame reachability &middot; is the ranked web even alive?</div>' +
+        '<p class="sub">Of the ' + fmt(RS.domains) + ' ranked domains in the frame, how many actually answer an honest crawler at all. ' +
+        'Popularity rankings retain domains long after they die &mdash; every published rate elsewhere on this dashboard states its denominator, and this panel is why that matters.</p>' +
+        '<div class="dd-card">' +
+        rrow("Alive", st.alive, "#1C5D4A") +
+        rrow("Dead (DNS does not resolve)", st.dead_dns, "#A33A2A") +
+        rrow("No response (timeout)", st.timeout, "#8A6A1F",
+          "Diagnostic re-probe: ~94% of these remain unreachable under a tripled window with retry — effectively dead or refusing all automated access.") +
+        (st.tls_or_other ? rrow("TLS / connection errors", st.tls_or_other, "#B8B0A2") : "") +
+        '</div>' +
+        (st.bot_walled ? '<p class="foot">Of the alive domains, <b>' + fmt(st.bot_walled) + '</b> serve their robots.txt but refuse an honest crawler at the homepage (403/429) — declared policy and wire behaviour are separate measurements, compared on ' + link("wire", "Field notes") + '.</p>' : "") +
+        reading("How to read this",
+          'This is a census of the <b>frame</b>, not of &ldquo;the web&rdquo;. A domain can rank highly on DNS popularity long after its website is gone — resolver traffic and living websites are different things.<br>' +
+          '<b>Alive</b> means the host answered our crawler at robots.txt or the homepage. <b>Dead</b> means the name no longer resolves. <b>Timeout</b> is no answer within the stated window; re-probing shows nearly all of these stay silent.<br>' +
+          'Measured weekly by a separate sweep; it can lag the robots edition by one sweep. Full thresholds in the methodology.') +
+        '<p class="foot">Sweep basis: edition ' + esc(RS.edition || "—") + '. States are mutually exclusive except bot-walled, which is a subset of alive.</p></section>';
+    }
+
+    // trend + selective side by side
+    h += '<section class="panel' + (D.trend && D.trend.length >= 2 ? ' pclick" data-drill="trend' : '') + '"><div class="ix">Observed weekly block rate &middot; by edition</div>' +
+      (D.trend && D.trend.length >= 2
+        ? '<div style="position:relative"><svg id="sv-trend" viewBox="0 0 620 300" style="width:100%;height:auto"></svg><div id="tt-trend" class="tt"></div></div>' +
+          '<div class="legend" id="lg-trend"></div>' +
+          (D.trend.length < 6 ? '<p class="foot">Early series (' + D.trend.length + ' editions). Directional only until the history is longer.</p>' : '')
+        : '<div class="empty">The trend chart needs at least two editions. Currently ' + ((D.trend||[]).length) + '.</div>') +
+      '</section>';
+
+    h += '<section class="panel pclick" data-drill="selective"><div class="ix">Selective treatment</div>' +
+      '<div class="big">' + pct(D.selective.pct) + '</div>' +
+      '<p class="sub">of indexed domains treat at least one crawler differently from another &mdash; ' +
+      fmt(D.selective.count) + ' domains.</p>' +
+      '<p class="foot">Definition: ' + esc(D.selective.definition) + '</p>' +
+      '<div class="hist">' + histBars(D.restriction_hist, "crawlers blocked per domain") + '</div>' +
+      '</section>';
+
+    // changes + wire
+    var dir2 = D.changes.available ? changeDirections(D.changes.transitions) : null;
+    h += '<section class="panel' + (D.changes.available ? ' pclick" data-drill="changes' : '') + '"><div class="ix">Policy changes</div>' +
+      (D.changes.available
+        ? '<div class="big">' + fmt(D.changes.total_changes) + '</div><p class="sub">domain&times;crawler status changes in ' + esc(D.changes.interval) + ' across <b>' + fmt(D.changes.changed_domains) + '</b> domains.</p>' +
+          '<div class="dd-card" style="margin-top:10px">' +
+            '<div class="hrow"><span class="hk">More restrictive</span><span class="hb"><span style="width:' + (dir2.more / Math.max(1, dir2.more + dir2.less + dir2.other) * 100).toFixed(1) + '%;background:#A33A2A"></span></span><span class="hv">' + fmt(dir2.more) + '</span></div>' +
+            '<div class="hrow"><span class="hk">Less restrictive</span><span class="hb"><span style="width:' + (dir2.less / Math.max(1, dir2.more + dir2.less + dir2.other) * 100).toFixed(1) + '%;background:#1C5D4A"></span></span><span class="hv">' + fmt(dir2.less) + '</span></div>' +
+          '</div>' +
+          '<p class="foot"><b>' + fmt(dir2.reversions) + '</b> moved <b>off</b> an explicit block &mdash; deliberate edits, the highest-signal rows. Frame churn excluded (' + fmt(D.changes.frame_churn.entered) + ' in, ' + fmt(D.changes.frame_churn.left) + ' out). Full breakdown on ' + link("changes", "Policy changes") + '.</p>'
+        : '<div class="empty">' + esc(D.changes.note) + '</div>') +
+      '</section>';
+
+    h += '<section class="panel pclick" data-drill="wire"><div class="ix">Observed wire evidence</div>' +
+      '<p class="sub">Exploratory probe sample &mdash; exhibits, not population estimates.</p>' +
+      '<div class="exh">' +
+        exhibit("Posted prices", (D.wire.prices || []).length) +
+        exhibit("HTTP 402 responses", (D.wire.p402 || []).length) +
+        exhibit("Token walls", (D.wire.tollbit || []).length) +
+        exhibit("Payment headers", (D.wire.payment_headers || []).length) +
+      '</div>' +
+      ((D.wire.prices || []).length ? '<p class="foot">Observed quote: ' + esc(D.wire.prices[0]) + '</p>' : '') +
+      '</section>';
+
+    EL("content").innerHTML = h;
+    if (D.trend && D.trend.length >= 2) drawTrend();
+    wireDrill(); wireLinks(); wireCrawlerControls(overview);
+    var bs = EL("cw-basis");
+    if (bs) bs.addEventListener("change", function () { UI.basis = this.value; overview(); });
+    var bn = EL("basis-note");
+    if (bn) {
+      var n = (D.editions || []).length;
+      bn.innerHTML = UI.basis === "prev"
+        ? 'Change column compares the current edition with the one before it (' + esc(D.changes.interval || "—") + ').'
+        : 'Longer comparison windows need more history. ' + n + ' per-domain edition' + (n === 1 ? '' : 's') +
+          ' recorded so far; one is archived every week, so monthly and quarterly baselines unlock as the series grows. Showing the previous-edition change until then.';
+    }
+  }
+
+  function kpiRow() {
+    return '<section class="panel wide kpis">' +
+      kpi(fmt(D.panel.domains), "domains in index frame") +
+      kpi(fmt(D.panel.robots_parsed), "with readable robots.txt") +
+      kpi(String(D.panel.crawlers), "named crawlers tracked") +
+      kpi(String((D.editions || []).length || 1), "per-domain editions retained") +
+      '</section>';
+  }
+  function kpi(v, l) { return '<div class="kpi"><div class="kv">' + v + '</div><div class="kl">' + l + '</div></div>'; }
+  function exhibit(l, n) { return '<div class="ex"><div class="exv">' + n + '</div><div class="exl">' + l + '</div></div>'; }
+
+  var HIST_ORDER = ["0","1-3","4-6","7-12","13-17","18"];
+  function histBars(hist, label) {
+    var keys = HIST_ORDER.filter(function (k) { return hist[k] !== undefined; });
+    Object.keys(hist).forEach(function (k) { if (keys.indexOf(k) < 0) keys.push(k); });
+    var max = Math.max.apply(null, keys.map(function (k) { return hist[k]; })) || 1;
+    return '<div class="hlabel">' + label + '</div>' + keys.map(function (k) {
+      return '<div class="hrow"><span class="hk">' + k + '</span><span class="hb"><span style="width:' +
+        (hist[k] / max * 100).toFixed(1) + '%"></span></span><span class="hv">' + fmt(hist[k]) + '</span></div>';
+    }).join("");
+  }
+
+  function drawTrend() {
+    var t = D.trend, focus = ["GPTBot","ClaudeBot","CCBot","Google-Extended"].filter(function (f) { return t[0].rates[f] != null; });
+    var W = 620, H = 300, pl = 46, pr = 12, pt = 16, pb = 34;
+    var vals = []; t.forEach(function (p) { focus.forEach(function (f) { if (p.rates[f] != null) vals.push(p.rates[f]); }); });
+    var mx = Math.ceil(Math.max.apply(null, vals) / 5) * 5 || 10, mn = 0;   // always baseline at zero so lines and bars are comparable
+    var x = function (i) { return pl + i * (W - pl - pr) / Math.max(1, t.length - 1); };
+    var y = function (v) { return H - pb - (v - mn) / (mx - mn) * (H - pt - pb); };
+    var g = "";
+    for (var gv = mn; gv <= mx; gv += Math.max(1, Math.round((mx - mn) / 4))) {
+      g += '<line x1="' + pl + '" y1="' + y(gv) + '" x2="' + (W - pr) + '" y2="' + y(gv) + '" stroke="#E7E1D7"/>' +
+      '<text x="' + (pl - 6) + '" y="' + (y(gv) + 4) + '" text-anchor="end" font-size="10.5" fill="#5F5B54" font-family="Archivo">' + gv + '%</text>';
+    }
+    focus.forEach(function (f, fi) {
+      var pts = t.map(function (p, i) { return x(i) + "," + y(p.rates[f] || 0); }).join(" ");
+      g += '<polyline points="' + pts + '" fill="none" stroke="' + LINE_COLORS[fi] + '" stroke-width="2.2" stroke-linejoin="round"/>';
+      t.forEach(function (p, i) {
+        g += '<circle class="tp" data-f="' + f + '" data-d="' + p.date + '" data-v="' + (p.rates[f] || 0) +
+          '" cx="' + x(i) + '" cy="' + y(p.rates[f] || 0) + '" r="3.6" fill="' + LINE_COLORS[fi] + '" style="cursor:pointer"/>';
+      });
+    });
+    t.forEach(function (p, i) {
+      g += '<text x="' + x(i) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="10.5" fill="#5F5B54" font-family="Archivo">' + p.date.slice(5) + '</text>';
+    });
+    var svg = EL("sv-trend"); svg.innerHTML = g;
+    EL("lg-trend").innerHTML = focus.map(function (f, i) {
+      return '<span><b style="background:' + LINE_COLORS[i] + '"></b>' + esc(f) + '</span>';
+    }).join("");
+    var tip = EL("tt-trend");
+    svg.querySelectorAll(".tp").forEach(function (c) {
+      c.addEventListener("mouseenter", function () { tip.style.display = "block"; tip.innerHTML = "<b>" + esc(c.dataset.f) + "</b><br>" + c.dataset.d + " &middot; " + Number(c.dataset.v).toFixed(2) + "% blocked"; });
+      c.addEventListener("mousemove", function (e) { var r = svg.getBoundingClientRect(); tip.style.left = (e.clientX - r.left + 12) + "px"; tip.style.top = (e.clientY - r.top - 8) + "px"; });
+      c.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+    });
+  }
+
+  /* ---------- CRAWLERS ---------- */
+  function crawlers() {
+    var h = "";
+    var cs = applyCrawlerSort(D.crawlers);
+    h += '<section class="panel wide"><div class="ix">Policy distribution &middot; all five declared states</div>' +
+      '<p class="sub">Every state shown separately. <b>No explicit instruction</b> and <b>no robots.txt</b> are <em>not</em> permission &mdash; they mean the crawler was never named. ' +
+      'The grey band is identical width on every row because whether a domain has a robots.txt at all is a property of the <em>domain</em>, not of the crawler: ' +
+      fmt(D.panel.domains - D.panel.robots_parsed) + ' of ' + fmt(D.panel.domains) + ' domains served no readable file to anyone.</p>' +
+      controls('<input id="cw-q" class="inp" placeholder="Filter crawlers…" value="' + esc(UI.crawlerQ) + '">' +
+        sortSel("cw-sort", CRAWLER_SORTS, UI.crawlerSort), anyActive() ? "cw-clear" : null) +
+      '<div class="stack">' + cs.map(function (x) {
+        var tot = x.blocked + x.partial + x.allowed + x.unlisted + x.no_robots;
+        var seg = ["blocked","partial","allowed","unlisted","no_robots"].map(function (s) {
+          var w = tot ? x[s] / tot * 100 : 0;
+          return w > 0 ? '<span title="' + STATE_LABELS[s] + ': ' + fmt(x[s]) + '" style="width:' + w.toFixed(2) + '%;background:' + STATE_COLORS[s] + '"></span>' : "";
+        }).join("");
+        return '<div class="strow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span><span class="stbar">' + seg + '</span>' +
+          '<span class="stn"><b style="color:#A33A2A">' + x.blocked_pct.toFixed(1) + '%</b> blocked &middot; <b style="color:#1C5D4A">' +
+          x.allowed_pct.toFixed(1) + '%</b> allowed</span></div>';
+      }).join("") + '</div>' +
+      '<div class="legend">' + Object.keys(STATE_LABELS).map(function (s) {
+        return '<span><b style="background:' + STATE_COLORS[s] + '"></b>' + STATE_LABELS[s] + '</span>';
+      }).join("") + '</div></section>';
+
+    h += '<section class="panel wide"><div class="ix">Explicit-policy rate</div>' +
+      '<p class="sub">Share of parsed domains that made <em>any</em> crawler-specific decision (blocked, partial, or explicitly allowed) &mdash; the emergence of an AI-policy layer.</p>' +
+      '<div class="lb">' + applyCrawlerSort(D.crawlers).map(function (x) {
+        var mxv = Math.max.apply(null, D.crawlers.map(function (z) { return z.explicit_policy_pct; })) || 1;
+        return '<div class="lbrow clickable" data-crawler="' + esc(x.name) + '"><span class="nm">' + esc(x.name) + '</span><span class="bar"><span style="width:' +
+          (x.explicit_policy_pct / mxv * 100).toFixed(1) + '%;background:#1D4E6F"></span></span><span class="v">' +
+          x.explicit_policy_pct.toFixed(2) + '%</span><span class="d"></span></div>';
+      }).join("") + '</div></section>';
+
+    h += '<section class="panel wide"><div class="ix">Selective exclusion matrix</div>' +
+      '<p class="sub">Share of indexed domains where the <b>row</b> crawler is explicitly blocked while the <b>column</b> crawler is explicitly allowed. Who gets singled out.</p>' +
+      matrixTable(D.exclusion_matrix, D.matrix_crawlers, function (v) { return v == null ? "—" : v.toFixed(2) + "%"; }, "#A33A2A") +
+      '</section>';
+
+    h += '<section class="panel wide"><div class="ix">Co-treatment similarity</div>' +
+      '<p class="sub">Among domains with an explicit policy for <em>both</em>, the share where the two crawlers receive the <b>same</b> status. High values mean the web treats them as interchangeable.</p>' +
+      matrixTable(D.cotreat_matrix, D.matrix_crawlers, function (v) { return v == null ? "—" : v.toFixed(0) + "%"; }, "#1C5D4A") +
+      '<p class="foot">Unlisted and no-robots cells are excluded from this calculation, so it reflects deliberate decisions only. ' +
+      'Click any cell for the head-to-head breakdown, or a crawler name for its full profile. Segment cuts on ' + link("segments","Segments") +
+      '; recent movement on ' + link("changes","Changes") + '.</p></section>';
+
+    h += roleSections();
+
+    EL("content").innerHTML = h;
+    wireDrill(); wireLinks(); wireCrawlerControls(crawlers);
+    var vq = EL("ven-q");
+    if (vq) vq.addEventListener("input", function () { UI.venQ = this.value; crawlers(); EL("ven-q").focus(); });
+    bind("ven-sort", "change", function () { UI.venSort = this.value; crawlers(); });
+    bind("ven-clear", "click", function () { UI.venQ = ""; UI.venSort = "any_desc"; crawlers(); });
+  }
+
+  function matrixTable(m, names, fmtv, hue) {
+    var mx = 0;
+    m.forEach(function (r) { r.forEach(function (v) { if (v != null && v > mx) mx = v; }); });
+    var h = '<div class="mwrap"><table class="mx"><thead><tr><th></th>' +
+      names.map(function (n) { return '<th><span>' + esc(n) + '</span></th>'; }).join("") + '</tr></thead><tbody>';
+    m.forEach(function (row, i) {
+      h += '<tr><th class="rh">' + esc(names[i]) + '</th>' + row.map(function (v, j) {
+        if (i === j) return '<td class="diag"></td>';
+        var a = (v == null || !mx) ? 0 : Math.min(1, v / mx);
+        return '<td data-a="' + esc(names[i]) + '" data-b="' + esc(names[j]) + '" style="cursor:pointer;background:' + hue + Math.round(a * 200 + 10).toString(16).padStart(2, "0") + '" title="' +
+          esc(names[i]) + ' vs ' + esc(names[j]) + ' — click for ' + esc(names[i]) + ' detail">' + fmtv(v) + '</td>';
+      }).join("") + '</tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+
+
+
+
+  /* ---------- POLICY LAYER: denominator ladder, name recognition, archetypes ---------- */
+  var SIGSTATE = { B:"blocked", P:"partial", A:"allowed", u:"unlisted", "-":"no_robots" };
+  function sigStrip(sig, names) {
+    return '<span class="sig">' + sig.split("").map(function (ch, i) {
+      var st = SIGSTATE[ch] || "unlisted";
+      return '<i style="background:' + STATE_COLORS[st] + '" title="' + esc(names[i] || "") + ': ' + STATE_LABELS[st] + '"></i>';
+    }).join("") + '</span>';
+  }
+  function sigHead(names) {                 // rotated crawler labels, aligned cell-for-cell above a .sig strip
+    return '<span class="sighead">' + names.map(function (n) { return '<span>' + esc(n) + '</span>'; }).join("") + '</span>';
+  }
+  function sigKey(sig, names) {             // the readable version: two labelled lists, no decoding required
+    var groups = {};
+    sig.split("").forEach(function (ch, i) {
+      var st = SIGSTATE[ch] || "unlisted";
+      (groups[st] = groups[st] || []).push(names[i]);
+    });
+    var order = ["blocked", "partial", "allowed", "unlisted", "no_robots"];
+    return '<div class="sigkey">' + order.filter(function (s) { return groups[s] && groups[s].length; }).map(function (s) {
+      return '<div><h4>' + STATE_LABELS[s] + ' &middot; ' + groups[s].length + '</h4><ul>' + groups[s].map(function (n) {
+        return '<li><i style="background:' + STATE_COLORS[s] + '"></i>' + esc(n) + '</li>';
+      }).join("") + '</ul></div>';
+    }).join("") + '</div>';
+  }
+  function barCell(v, mx, hue) {
+    return '<span class="bar2"><span style="width:' + (mx ? (v / mx * 100).toFixed(1) : 0) + '%;background:' + hue + '"></span></span>';
+  }
+  // Direction of a transition. Higher = more restrictive toward crawlers.
+  // NOTE: "unlisted" (no explicit instruction) is deliberately ranked BETWEEN
+  // partial and allowed. Absence of a Disallow is not an endorsement, so losing
+  // an explicit "allow" counts as a step toward restriction, while it is never
+  // itself reported as "allowed" anywhere in this dashboard.
+  var RESTRICTION_RANK = { allowed: 0, unlisted: 1, partial: 2, blocked: 3 };
+  function trDirection(key) {
+    var p = String(key).split("->");
+    var a = RESTRICTION_RANK[p[0]], b = RESTRICTION_RANK[p[1]];
+    if (a == null || b == null) return "other";
+    if (b > a) return "more";
+    if (b < a) return "less";
+    return "other";
+  }
+  function changeDirections(tr) {
+    var o = { more: 0, less: 0, other: 0, reversions: 0 };
+    Object.keys(tr || {}).forEach(function (k) {
+      var n = tr[k] || 0;
+      o[trDirection(k)] += n;
+      if (String(k).indexOf("blocked->") === 0) o.reversions += n;   // moved OFF an explicit block
+    });
+    return o;
+  }
+  function reading(title, body) {           // plain-language "what a high or low number means here"
+    return '<div class="reading"><b class="rh2">' + esc(title) + '</b>' + body + '</div>';
+  }
+  /* Headline wording is derived from the current edition rather than written once.
+     If the data moves, the sentence moves with it. check-copy.cjs guards the
+     claims that cannot be expressed this way. */
+  function fracWord(p) {
+    var bands = [[8,12,"a tenth"],[14,19,"a sixth"],[19,23,"a fifth"],[23,28,"a quarter"],[28,37,"a third"],
+                 [37,44,"two fifths"],[44,56,"half"],[56,63,"three fifths"],[63,70,"two thirds"],[70,80,"three quarters"]];
+    for (var i = 0; i < bands.length; i++) if (p >= bands[i][0] && p < bands[i][1]) return bands[i][2];
+    return p.toFixed(0) + "%";
+  }
+  function sameSet(a, b) {
+    if (a.length !== b.length) return false;
+    var s = {}; a.forEach(function (x) { s[x] = 1; });
+    return b.every(function (x) { return s[x]; });
+  }
+
+  function policyLayer() {
+    var P = D.policy_layer, A = D.archetypes, L = P.ladder;
+    var h = "";
+
+    /* 1. the denominator ladder */
+    var rungs = [
+      { k: "Sampled from the Tranco frame", n: L.frame, pct: 100, hue: "#B8B0A2",
+        d: "Domains we attempted. Rank is sampling position in that list &mdash; not traffic, size or importance." },
+      { k: "Served a readable robots.txt", n: L.parsed, pct: L.parsed_pct, hue: "#5F5B54",
+        d: "The denominator behind every rate on this dashboard. The other " + fmt(L.no_robots_domains) + " served no readable file to anyone, which is a fact about the domain, not about any crawler." },
+      { k: "Names at least one AI crawler", n: L.ai_aware, pct: L.ai_aware_pct_frame, hue: "#1D4E6F",
+        d: "Explicitly blocks, partially blocks or allows one of the 18. This is the actual AI-policy layer, and it is much smaller than the other two." }
+    ];
+    h += '<section class="panel wide"><div class="ix">The denominator ladder</div>' +
+      '<p class="sub">Three populations, three different questions. Quoting a rate without saying which one produced it is the fastest way to be wrong in public. ' +
+      'Bars are share of the ' + fmt(L.frame) + '-domain frame.</p>' +
+      '<div class="hist">' + rungs.map(function (r) {
+        return '<div class="lrow"><div class="lk"><span>' + r.k + '</span><span class="lkv"><b>' + fmt(r.n) + '</b> &middot; ' +
+          r.pct.toFixed(1) + '% of frame</span></div>' +
+          '<div class="lb2"><span style="width:' + r.pct.toFixed(1) + '%;background:' + r.hue + '"></span></div>' +
+          '<div class="ld">' + r.d + '</div></div>';
+      }).join("") + '</div>' +
+      reading("How to read this",
+        'Each rung is a smaller, stricter population than the one above it. Which one sits under a percentage decides what that percentage means.<br>' +
+        'A rate over the <b>frame</b> answers &ldquo;out of every domain we looked at&rdquo; and is dragged down by the ' + fmt(L.no_robots_domains) +
+        ' that publish no robots.txt at all. A rate over <b>parsed</b> &mdash; the one used everywhere else on this dashboard &mdash; answers &ldquo;out of domains ' +
+        'that publish rules of any kind&rdquo;. A rate over <b>AI-aware</b> answers &ldquo;out of domains that have actually engaged with AI crawlers&rdquo;, and is ' +
+        'always the largest of the three because its denominator is the smallest.<br>' +
+        'The gap between them is the story: the AI-policy layer is real but small &mdash; <b>' + L.ai_aware_pct_frame + '%</b> of the frame, <b>' +
+        L.ai_aware_pct_parsed + '%</b> of parsed domains. Any figure quoted as &ldquo;the web&rdquo; is wrong on all three counts.') +
+      '<p class="foot">' + esc(L.note) + '</p></section>';
+
+    /* 2. name recognition — the star */
+    var cs = applyPlSort(P.crawlers);
+    var mxNamed = Math.max.apply(null, P.crawlers.map(function (x) { return x.named_pct; })) || 1;
+    var spread = P.crawlers.filter(function (x) { return x.blocked_when_named_pct != null; });
+    var hiN = spread.slice().sort(function (a, b) { return b.blocked_when_named_pct - a.blocked_when_named_pct; })[0];
+    var loN = spread.slice().sort(function (a, b) { return a.blocked_when_named_pct - b.blocked_when_named_pct; })[0];
+    h += '<section class="panel wide"><div class="ix">Name recognition &middot; being unlisted is not being tolerated</div>' +
+      '<p class="sub">A block rate answers two questions at once: <em>how often is this crawler refused</em>, and <em>how often is it addressed at all</em>. ' +
+      'They come apart sharply. A crawler almost nobody has heard of looks permissively treated because it is rarely named &mdash; not because it is welcome.</p>' +
+      controls('<input id="pl-q" class="inp" placeholder="Filter crawlers…" value="' + esc(UI.plQ) + '">' +
+        sortSel("pl-sort", PL_SORTS, UI.plSort) +
+        '<select id="pl-role" class="inp">' + [["", "All roles"], ["training", "Training only"], ["search", "Search only"], ["user-initiated", "User-initiated only"]].map(function (o) {
+          return '<option value="' + o[0] + '"' + (o[0] === UI.plRole ? ' selected' : '') + '>' + o[1] + '</option>';
+        }).join("") + '</select>',
+        (UI.plQ || UI.plRole || UI.plSort !== "named_desc") ? "pl-clear" : null) +
+      '<div class="mwrap"><table class="dt"><thead><tr>' +
+      '<th>Crawler</th><th>Role</th><th>Named at all</th><th></th><th>Blocked once named</th><th></th><th>Blocked (% parsed)</th></tr></thead><tbody>' +
+      (cs.length ? "" : '<tr><td colspan="7">No crawler matches that filter.</td></tr>') +
+      cs.map(function (x) {
+        return '<tr class="pl-row" data-crawler="' + esc(x.name) + '" style="cursor:pointer">' +
+          '<td><b>' + esc(x.name) + '</b><div class="foot" style="border:0;padding:0;margin:0;font-size:10px">' + esc(x.vendor) + '</div></td>' +
+          '<td><span class="rtag r' + esc(x.role.replace(/[^a-z]/g, "")) + '">' + esc(x.role) + '</span></td>' +
+          '<td class="mono">' + x.named_pct.toFixed(2) + '%<div class="foot" style="border:0;padding:0;margin:0;font-size:10px">' + fmt(x.named) + ' domains</div></td>' +
+          '<td style="width:110px">' + barCell(x.named_pct, mxNamed, "#1D4E6F") + '</td>' +
+          '<td class="mono"><b>' + (x.blocked_when_named_pct == null ? "&mdash;" : x.blocked_when_named_pct.toFixed(1) + "%") + '</b></td>' +
+          '<td style="width:110px">' + barCell(x.blocked_when_named_pct || 0, 100, "#A33A2A") + '</td>' +
+          '<td class="mono">' + x.blocked_pct_parsed.toFixed(2) + '%</td></tr>';
+      }).join("") + '</tbody></table></div>' +
+      reading("How to read this",
+        '<b>Named at all</b> is reach of awareness: what share of publishers with a robots.txt have heard of this crawler and written a rule for it. ' +
+        'Low means invisible, not welcome.<br>' +
+        '<b>Blocked once named</b> is the decision, with the awareness gap removed: of the publishers who did address it, how many said no. ' +
+        'High means genuinely unwanted. This is the fairer comparison between crawlers.<br>' +
+        'The two together explain most of the leaderboard. In this edition ' +
+        (hiN ? '<b>' + esc(hiN.name) + '</b> is refused ' + hiN.blocked_when_named_pct.toFixed(1) + '% of the times it is named while appearing on only ' +
+          hiN.named_pct.toFixed(2) + '% of parsed domains &mdash; a crawler that is rarely noticed and almost always rejected when it is. ' : '') +
+        (loN ? '<b>' + esc(loN.name) + '</b> sits lowest at ' + loN.blocked_when_named_pct.toFixed(1) + '%, closer to a coin flip.' : '')) +
+      '<p class="foot">&ldquo;Blocked once named&rdquo; is blocked &divide; (blocked + partial + explicitly allowed) &mdash; ' +
+      'it removes the awareness gap and leaves only the decision. Click any row for the crawler profile. ' +
+      'Role differences on this column are examined on ' + link("crawlers","Crawlers") + '.</p></section>';
+
+    /* 3. the template disclosure */
+    if (A.dominant) {
+      var dm = A.dominant, ex = A.ex_template;
+      var mxBand = Math.max.apply(null, dm.by_band.map(function (b) { return b.pct || 0; })) || 1;
+      h += '<section class="panel wide"><div class="ix">One template, ' + fracWord(dm.pct_of_all_blocked_cells) + ' of all blocking</div>' +
+        '<p class="sub">The single most common policy that blocks anything is not many independent decisions &mdash; it is one identical eighteen-cell signature on <b>' +
+        fmt(dm.n) + '</b> domains, <b>' + dm.pct_of_aware + '%</b> of every domain with an AI policy at all. ' +
+        'Those domains supply <b>' + fmt(dm.blocked_cells) + '</b> of the index&rsquo;s <b>' + fmt(A.total_blocked_cells) +
+        '</b> explicit blocks &mdash; <b>' + dm.pct_of_all_blocked_cells + '%</b> of all blocking. We publish it because it shapes every rate here.</p>' +
+        '<div class="dd-grid"><div class="dd-card"><div class="dd-h">Every one of the 18, and what this template says about it</div>' +
+          sigKey(dm.signature, D.matrix_crawlers) + '</div>' +
+        '<div class="dd-card"><div class="dd-h">Where it sits in the rank frame</div>' +
+          dm.by_band.map(function (b) {
+            return '<div class="hrow"><span class="hk">' + b.band + '</span><span class="hb"><span style="width:' +
+              ((b.pct || 0) / mxBand * 100).toFixed(1) + '%"></span></span><span class="hv">' + (b.pct == null ? "&mdash;" : b.pct.toFixed(2) + "%") + '</span></div>';
+          }).join("") +
+          '<p class="foot" style="border:0;padding:6px 0 0;margin:0">Share of each band&rsquo;s parsed domains. Median rank ' + fmt(dm.median_rank) +
+          '. Concentration in the tail rather than the head is what a copied default looks like; a considered editorial decision would not distribute this way.</p></div></div>' +
+        (function () {
+          var k = dm.crawlers_blocked.length;
+          var topNamed = P.crawlers.slice().sort(function (a, b) { return b.named_pct - a.named_pct; }).slice(0, k).map(function (c) { return c.name; });
+          var coincide = sameSet(topNamed, dm.crawlers_blocked);
+          return reading("Why this panel exists",
+            'A block rate silently assumes each block is somebody&rsquo;s decision. Here <b>' + dm.pct_of_all_blocked_cells + '%</b> of them are the same decision, ' +
+            'copied. That does not make the rate wrong &mdash; those domains really do declare those blocks &mdash; but it does mean a crawler&rsquo;s standing partly ' +
+            'reflects whether it appears on one popular list. ' +
+            (coincide
+              ? 'The ' + k + ' crawlers this template names are also the ' + k + ' named most often across the whole index, which is unlikely to be a coincidence.'
+              : 'In this edition the crawlers it names are not quite the ' + k + ' most-named across the index, so the two are drifting apart &mdash; worth watching.') +
+            '<br>The right-hand column of the next table is the honest sensitivity check: how much of each headline survives without this cohort.');
+        })();
+
+      if (ex) {
+        var rows = D.crawlers.slice().sort(function (a, b) { return b.blocked_pct - a.blocked_pct; }).slice(0, 8);
+        h += '<div class="dd-h" style="margin-top:16px">Every rate, with and without that cohort</div>' +
+          '<div class="mwrap"><table class="dt"><thead><tr><th>Crawler</th><th>Published rate</th><th>Excluding the template cohort</th><th>Difference</th></tr></thead><tbody>' +
+          rows.map(function (c) {
+            var v2 = ex.blocked_pct[c.name], d2 = v2 - c.blocked_pct;
+            return '<tr><td><b>' + esc(c.name) + '</b></td><td class="mono">' + c.blocked_pct.toFixed(2) + '%</td>' +
+              '<td class="mono">' + v2.toFixed(2) + '%</td><td class="mono" style="color:#A33A2A">' + d2.toFixed(2) + 'pp</td></tr>';
+          }).join("") +
+          '<tr><td><b>Blocks at least one</b></td><td class="mono">' + D.any_ai.pct.toFixed(2) + '%</td><td class="mono">' +
+            ex.any_blocked_pct.toFixed(2) + '%</td><td class="mono" style="color:#A33A2A">' +
+            (ex.any_blocked_pct - D.any_ai.pct).toFixed(2) + 'pp</td></tr>' +
+          '</tbody></table></div>' +
+          '<p class="foot">The published rate is the correct one &mdash; those domains do declare those blocks, and a copied policy is still a policy. ' +
+          'The right-hand column is here so a reader can see exactly how much of each figure rests on one widely reused snippet, ' +
+          'and so nobody discovers it for us. Denominator excluding the cohort: ' + fmt(ex.parsed_n) + ' parsed domains.</p>';
+      }
+      h += '<div class="dd-h" style="margin-top:16px">Ten of them, highest-ranked first</div>' +
+        '<div class="mwrap"><table class="dt"><tbody>' + dm.examples.map(function (e) {
+          return '<tr><td class="mono">#' + fmt(e.rank) + '</td><td><b>' + esc(e.domain) + '</b></td></tr>';
+        }).join("") + '</tbody></table></div>' +
+        '<p class="foot">' + esc(dm.note) + '</p></section>';
+    }
+
+    /* 4. policy signatures */
+    var sigs = applySigSort(A.top);
+    h += '<section class="panel wide"><div class="ix">Policy signatures</div>' +
+      '<p class="sub">Each domain&rsquo;s eighteen statuses read as one fingerprint. <b>' + fmt(A.distinct_parsed) +
+      '</b> distinct signatures exist across ' + fmt(D.panel.robots_parsed) + ' parsed domains. The top one alone covers <b>' +
+      A.top[0].pct_of_parsed.toFixed(1) + '%</b> of them and the distribution then goes straight into a long, unstructured tail &mdash; which is itself the finding. ' +
+      'There is no tidy taxonomy of policy archetypes to be had here.</p>' +
+      controls(sortSel("sig-sort", SIG_SORTS, UI.sigSort) +
+        '<label class="inp nw" style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" id="sig-silent"' +
+        (UI.sigHideSilent ? " checked" : "") + '> Hide signatures that name no crawler</label>',
+        (UI.sigSort !== "n_desc" || UI.sigHideSilent) ? "sig-clear" : null) +
+      '<div class="mwrap"><table class="dt"><thead><tr>' +
+      '<th style="vertical-align:bottom">' + sigHead(D.matrix_crawlers) + '</th>' +
+      '<th>Domains</th><th>% of parsed</th><th>What it declares</th></tr></thead><tbody>' +
+      (sigs.length ? "" : '<tr><td colspan="4">Nothing matches that filter.</td></tr>') +
+      sigs.map(function (a) {
+        var what = a.is_silent
+          ? '<span style="color:var(--dim)">Names no AI crawler at all &mdash; a robots.txt exists, but none of the 18 appear in it</span>'
+          : (a.blocked.length ? 'Blocks <b>' + a.blocked.length + '</b>: ' + a.blocked.slice(0, 6).map(esc).join(", ") + (a.blocked.length > 6 ? ' +' + (a.blocked.length - 6) + ' more' : '') : '') +
+            (a.allowed.length ? (a.blocked.length ? '<br>' : '') + 'Allows <b>' + a.allowed.length + '</b>: ' + a.allowed.map(esc).join(", ") : '') +
+            (a.partial.length ? '<br>Partial: ' + a.partial.map(esc).join(", ") : '');
+        return '<tr><td>' + sigStrip(a.signature, D.matrix_crawlers) + '</td><td class="mono">' + fmt(a.n) +
+          '</td><td class="mono">' + a.pct_of_parsed.toFixed(2) + '%</td><td>' + what + '</td></tr>';
+      }).join("") + '</tbody></table></div>' +
+      '<div class="legend">' + Object.keys(STATE_LABELS).map(function (s) {
+        return '<span><b style="background:' + STATE_COLORS[s] + '"></b>' + STATE_LABELS[s] + '</span>';
+      }).join("") + '</div>' +
+      reading("How to read this",
+        'Each row is one exact policy, not a category. The eighteen cells are the eighteen crawlers in the column order labelled above the table, ' +
+        'left to right, coloured by what that policy declares for each &mdash; hover any cell for the crawler and its state.<br>' +
+        '<b>A high domain count</b> means many sites landed on byte-identical wording, which almost always means a shared source: a CMS default, a host, ' +
+        'a published snippet. <b>A low count</b> means a policy somebody wrote themselves. ' +
+        'The concentration at the top of this table is the point: policy-making here is far less independent than a block rate suggests.') +
+      '<p class="foot">' + esc(A.note) + '</p></section>';
+
+    EL("content").innerHTML = h;
+    wireLinks();
+    document.querySelectorAll("tr.pl-row").forEach(function (r) {
+      r.addEventListener("click", function () { crawlerDetail(r.dataset.crawler); });
+    });
+    var q = EL("pl-q");
+    if (q) q.addEventListener("input", function () { UI.plQ = this.value; policyLayer(); EL("pl-q").focus(); });
+    bind("pl-sort", "change", function () { UI.plSort = this.value; policyLayer(); });
+    bind("pl-role", "change", function () { UI.plRole = this.value; policyLayer(); });
+    bind("pl-clear", "click", function () { UI.plQ = ""; UI.plRole = ""; UI.plSort = "named_desc"; policyLayer(); });
+    bind("sig-sort", "change", function () { UI.sigSort = this.value; policyLayer(); });
+    bind("sig-silent", "change", function () { UI.sigHideSilent = this.checked; policyLayer(); });
+    bind("sig-clear", "click", function () { UI.sigSort = "n_desc"; UI.sigHideSilent = false; policyLayer(); });
+  }
+
+  function bind(id, ev, fn) { var e = EL(id); if (e) e.addEventListener(ev, fn); }
+
+  var PL_SORTS = [["named_desc","Named at all: high to low"],["named_asc","Named at all: low to high"],
+                  ["whennamed_desc","Blocked once named: high to low"],["whennamed_asc","Blocked once named: low to high"],
+                  ["blocked_desc","Block rate: high to low"],["name_asc","Crawler name: A to Z"],["vendor_asc","Vendor: A to Z"]];
+  function applyPlSort(list) {
+    var q = (UI.plQ || "").toLowerCase();
+    var out = list.filter(function (c) {
+      if (UI.plRole && c.role !== UI.plRole) return false;
+      return !q || c.name.toLowerCase().indexOf(q) >= 0 || (c.vendor || "").toLowerCase().indexOf(q) >= 0;
+    });
+    var by = {
+      named_desc:     function (a, b) { return b.named_pct - a.named_pct; },
+      named_asc:      function (a, b) { return a.named_pct - b.named_pct; },
+      whennamed_desc: function (a, b) { return (b.blocked_when_named_pct || 0) - (a.blocked_when_named_pct || 0); },
+      whennamed_asc:  function (a, b) { return (a.blocked_when_named_pct || 0) - (b.blocked_when_named_pct || 0); },
+      blocked_desc:   function (a, b) { return b.blocked_pct_parsed - a.blocked_pct_parsed; },
+      name_asc:       function (a, b) { return a.name.localeCompare(b.name); },
+      vendor_asc:     function (a, b) { return (a.vendor || "").localeCompare(b.vendor || "") || a.name.localeCompare(b.name); },
+    };
+    return out.sort(by[UI.plSort] || by.named_desc);
+  }
+
+  var SIG_SORTS = [["n_desc","Domains: most to fewest"],["n_asc","Domains: fewest to most"],
+                   ["blocked_desc","Crawlers blocked: most to fewest"],["blocked_asc","Crawlers blocked: fewest to most"],
+                   ["allowed_desc","Crawlers explicitly allowed: most first"]];
+  function applySigSort(list) {
+    var out = list.filter(function (a) { return !(UI.sigHideSilent && a.is_silent); });
+    var by = {
+      n_desc:       function (a, b) { return b.n - a.n; },
+      n_asc:        function (a, b) { return a.n - b.n; },
+      blocked_desc: function (a, b) { return b.blocked.length - a.blocked.length || b.n - a.n; },
+      blocked_asc:  function (a, b) { return a.blocked.length - b.blocked.length || b.n - a.n; },
+      allowed_desc: function (a, b) { return b.allowed.length - a.allowed.length || b.n - a.n; },
+    };
+    return out.slice().sort(by[UI.sigSort] || by.n_desc);
+  }
+
+  var VEN_SORTS = [["any_desc","Blocks ≥1 of its crawlers: high to low"],["any_asc","Blocks ≥1 of its crawlers: low to high"],
+                   ["share_desc","Mean share of its crawlers blocked: high to low"],
+                   ["training_desc","Its training crawlers: high to low"],
+                   ["count_desc","Number of crawlers it fields"],["vendor_asc","Vendor: A to Z"]];
+  function applyVenSort(list) {
+    var q = (UI.venQ || "").toLowerCase();
+    var out = list.filter(function (v) {
+      return !q || v.vendor.toLowerCase().indexOf(q) >= 0 ||
+        v.crawlers.join(" ").toLowerCase().indexOf(q) >= 0;
+    });
+    var by = {
+      any_desc:      function (a, b) { return b.any_blocked_pct - a.any_blocked_pct; },
+      any_asc:       function (a, b) { return a.any_blocked_pct - b.any_blocked_pct; },
+      share_desc:    function (a, b) { return b.mean_share_blocked_pct - a.mean_share_blocked_pct; },
+      training_desc: function (a, b) { return (b.training_any_pct || 0) - (a.training_any_pct || 0); },
+      count_desc:    function (a, b) { return b.n_crawlers - a.n_crawlers || b.any_blocked_pct - a.any_blocked_pct; },
+      vendor_asc:    function (a, b) { return a.vendor.localeCompare(b.vendor); },
+    };
+    return out.slice().sort(by[UI.venSort] || by.any_desc);
+  }
+
+  /* ---------- ROLE & VENDOR sections (rendered inside the Crawlers tab) ---------- */
+  function roleSections() {
+    if (!D.roles) return "";
+    var R = D.roles, S = R.asymmetry.vs_search, NT = R.asymmetry.vs_nontraining;
+    var h = "";
+
+    var quad = [
+      { k: "Blocks training only", v: S.a, p: S.a_pct, hue: "#A33A2A", d: S.a_label },
+      { k: "Blocks search only", v: S.b, p: S.b_pct, hue: "#1D4E6F", d: S.b_label },
+      { k: "Blocks both", v: S.both, p: S.both_pct, hue: "#8A6A1F", d: "Blocks at least one of each" },
+      { k: "Blocks neither", v: S.neither, p: S.neither_pct, hue: "#B8B0A2", d: "No explicit block for either role" }
+    ];
+    var mxq = Math.max.apply(null, quad.map(function (q) { return q.p; })) || 1;
+    h += '<section class="panel wide"><div class="ix">Training versus traffic</div>' +
+      '<p class="sub">The role tags are the most economically loaded thing in this dataset. A crawler that trains a model and a crawler that sends a reader ' +
+      'are different propositions, and domains treat them differently' +
+      (S.ratio >= 5 ? ' &mdash; overwhelmingly in one direction. ' : S.ratio >= 2 ? ' &mdash; with a clear lean in one direction. ' : ', though not by much in this edition. ') +
+      '<b>' + fmt(S.a) + '</b> parsed domains block a training crawler while blocking no search crawler; ' + (S.ratio >= 2 ? 'only ' : '') + '<b>' + fmt(S.b) +
+      '</b> do the reverse. That is <b>' + S.ratio + ' to 1</b>.</p>' +
+      '<div class="hist">' + quad.map(function (q) {
+        return '<div class="lrow"><div class="lk"><span>' + q.k + '</span><span class="lkv"><b>' + fmt(q.v) + '</b> &middot; ' +
+          q.p.toFixed(2) + '% of parsed</span></div>' +
+          '<div class="lb2"><span style="width:' + (q.p / mxq * 100).toFixed(1) + '%;background:' + q.hue + '"></span></div>' +
+          '<div class="ld">' + esc(q.d) + '</div></div>';
+      }).join("") + '</div>' +
+      reading("How to read this",
+        'Every parsed domain falls into exactly one of these four groups, so they sum to 100%.<br>' +
+        '<b>The two middle groups are the interesting ones.</b> &ldquo;Blocks training only&rdquo; is a domain drawing a line between crawlers that consume its ' +
+        'work and crawlers that might send it a reader. &ldquo;Blocks search only&rdquo; is the opposite trade. A large gap between them means publishers are ' +
+        'making a functional distinction rather than a blanket one; a gap near 1 to 1 would mean they are not.<br>' +
+        'Here the ratio is <b>' + S.ratio + ' to 1</b>' +
+        (S.ratio >= 5 ? ' &mdash; strongly one-directional.' : S.ratio >= 2 ? ' &mdash; a clear lean, though not overwhelming.' : ' &mdash; close to even, so read any claim of a deliberate split with caution.') +
+        ' &ldquo;Blocks both&rdquo; at ' + S.both_pct.toFixed(2) + '% is blanket restriction, and &ldquo;blocks neither&rdquo; at ' + S.neither_pct.toFixed(2) +
+        '% is the large majority that has drawn no line at all.') +
+      '<p class="foot">Widening the second group to search <em>and</em> user-initiated crawlers gives ' + fmt(NT.a) + ' versus ' + fmt(NT.b) +
+      ' (' + NT.ratio + ' to 1), so the asymmetry is not an artefact of where the line is drawn. ' + esc(R.asymmetry.definition) +
+      ' This describes declared policy only; it is not evidence of motive.</p></section>';
+
+    var vsAll = R.vendors, vs = applyVenSort(vsAll);
+    var mxv = Math.max.apply(null, vsAll.map(function (v) { return v.any_blocked_pct; })) || 1;
+    var nMin = Math.min.apply(null, vsAll.map(function (v) { return v.n_crawlers; }));
+    var nMax = Math.max.apply(null, vsAll.map(function (v) { return v.n_crawlers; }));
+    h += '<section class="panel wide"><div class="ix">By vendor &middot; with the aggregation rule stated</div>' +
+      '<p class="sub">Vendors field between ' + nMin + ' and ' + nMax + ' of the tracked crawlers, so &ldquo;which company is most blocked&rdquo; is not a fair question until that is controlled for. ' +
+      'Three columns, three different meanings. Read them together or not at all.</p>' +
+      controls('<input id="ven-q" class="inp" placeholder="Filter vendors or crawlers…" value="' + esc(UI.venQ) + '">' +
+        sortSel("ven-sort", VEN_SORTS, UI.venSort),
+        (UI.venQ || UI.venSort !== "any_desc") ? "ven-clear" : null) +
+      '<div class="mwrap"><table class="dt"><thead><tr><th>Vendor</th><th>Crawlers</th><th>Blocks &ge;1 of its crawlers</th><th></th>' +
+      '<th>Mean share of its crawlers blocked</th><th>Its training crawlers</th><th>Its search / user crawlers</th></tr></thead><tbody>' +
+      (vs.length ? "" : '<tr><td colspan="7">No vendor matches that filter.</td></tr>') +
+      vs.map(function (v) {
+        return '<tr><td><b>' + esc(v.vendor) + '</b></td>' +
+          '<td class="mono">' + v.n_crawlers + '<div class="foot" style="border:0;padding:0;margin:0;font-size:10px">' + v.roles.map(esc).join(", ") + '</div></td>' +
+          '<td class="mono">' + v.any_blocked_pct.toFixed(2) + '%</td>' +
+          '<td style="width:110px">' + barCell(v.any_blocked_pct, mxv, "#A33A2A") + '</td>' +
+          '<td class="mono">' + v.mean_share_blocked_pct.toFixed(2) + '%</td>' +
+          '<td class="mono">' + (v.training_any_pct == null ? "&mdash;" : v.training_any_pct.toFixed(2) + "%") + '</td>' +
+          '<td class="mono">' + (v.nontraining_any_pct == null ? "&mdash;" : v.nontraining_any_pct.toFixed(2) + "%") + '</td></tr>';
+      }).join("") + '</tbody></table></div>' +
+      reading("How to read this",
+        '<b>Blocks &ge;1 of its crawlers</b> is the headline, and it is the one that flatters vendors with more crawlers &mdash; three chances to be blocked ' +
+        'rather than one. Use it for a single vendor, not to rank them.<br>' +
+        '<b>Mean share of its crawlers blocked</b> removes that: it asks what fraction of a vendor&rsquo;s own fleet the average domain refuses, so a one-crawler ' +
+        'vendor and a three-crawler vendor are on the same scale. When the two columns disagree, this is the more honest one.<br>' +
+        '<b>Its training crawlers</b> is the genuinely like-for-like comparison, because nearly every vendor fields one. If you want a defensible sentence about ' +
+        'which company the web is most closed to, take it from that column and say so.') +
+      '<p class="foot">' + esc(R.aggregation_rule) + '</p></section>';
+
+    var multi = vsAll.filter(function (v) { return v.splits_by_role; });
+    if (multi.length) {
+      var single = vsAll.filter(function (v) { return !v.splits_by_role; }).length;
+      h += '<section class="panel wide"><div class="ix">Does a domain split a vendor&rsquo;s own crawlers?</div>' +
+        '<p class="sub">' + (multi.length === 1 ? 'One vendor runs' : fmt(multi.length) + ' vendors run') +
+        ' both a training crawler and a crawler that sends traffic, so only ' + (multi.length === 1 ? 'it can' : 'they can') +
+        ' be asked this question; the other ' + single + ' field a single role and are excluded. On the same robots.txt, does a domain separate them? ' +
+        'This is the cleanest evidence of deliberate, functional policy in the dataset &mdash; and it is invisible in any per-crawler block rate.</p>' +
+        '<div class="mwrap"><table class="dt"><thead><tr><th>Vendor</th><th>Blocks its training crawler, not its search / user crawler</th>' +
+        '<th>The reverse</th><th>Ratio</th><th>How often those search / user crawlers are named at all</th></tr></thead><tbody>' +
+        multi.map(function (v) {
+          var s = v.splits_by_role, ratio = s.nontraining_only ? (s.training_only / s.nontraining_only).toFixed(1) + " : 1" : "&mdash;";
+          var nt = (D.policy_layer ? D.policy_layer.crawlers : []).filter(function (c) {
+            return c.vendor === v.vendor && c.role !== "training";
+          });
+          return '<tr><td><b>' + esc(v.vendor) + '</b><div class="foot" style="border:0;padding:0;margin:0;font-size:10px">' + v.crawlers.map(esc).join(", ") + '</div></td>' +
+            '<td class="mono"><b>' + fmt(s.training_only) + '</b> &middot; ' + s.training_only_pct.toFixed(2) + '% of parsed</td>' +
+            '<td class="mono">' + fmt(s.nontraining_only) + ' &middot; ' + s.nontraining_only_pct.toFixed(2) + '%</td>' +
+            '<td class="mono nw"><b>' + ratio + '</b></td>' +
+            '<td class="mono" style="font-size:11px">' + (nt.length
+              ? nt.map(function (c) { return esc(c.name) + " " + c.named_pct.toFixed(2) + "%"; }).join("<br>")
+              : "&mdash;") + '</td></tr>';
+        }).join("") + '</tbody></table></div>' +
+        reading("How to read this",
+          'A high ratio means domains that engage with a vendor tend to stop its training crawler while leaving the one that sends readers alone. ' +
+          'A ratio near 1 would mean they treat the vendor as a single entity.<br>' +
+          '<b>But the ratio is inflated by the last column.</b> A domain can only spare a crawler it has heard of, and these search and user-initiated crawlers ' +
+          'are named far less often than their training siblings &mdash; so some of what looks like a deliberate split is simply a rule nobody wrote. ' +
+          'Treat the ratio as the maximum possible amount of functional discrimination, and the true figure as somewhere below it.') +
+        '<p class="foot"><b>Read the last column before the ratio.</b> Part of every gap here is awareness, not preference: a domain cannot spare a crawler it never names, ' +
+        'and the search and user-initiated crawlers are named far less often than their training siblings. The ratio is real but it is an upper bound on deliberate ' +
+        'functional discrimination, not a measurement of it. Counted on parsed domains. Crawler identities are as measured in robots.txt; the vendor grouping is ours and is a label, ' +
+        'not a claim about company behaviour. Full name-recognition rates on ' + link("policy","Policy layer") + '.</p></section>';
+    }
+    return h;
+  }
+
+  /* ---------- shared UI state & helpers ---------- */
+  var UI = { crawlerSort: "blocked_desc", crawlerQ: "", chgSort: "rank", chgQ: "", chgDir: "", chgBand: "",
+             tldSort: "rate_desc", tldQ: "", basis: "prev", domCrawler: "", domStatus: "", domBand: "", domQ: "",
+             plQ: "", plRole: "", plSort: "named_desc", sigSort: "n_desc", sigHideSilent: false,
+             venQ: "", venSort: "any_desc", segCrawler: "__ANY__", segGroup: "" };
+  var HEADER_OFFSET = 118;                       // sticky masthead + tab bar
+  function scrollToEl(el) {
+    var y = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+    window.scrollTo({ top: y < 0 ? 0 : y, behavior: "smooth" });
+  }
+  function openDomains(opts) {              // "show me the domains behind this number"
+    UI.domCrawler = opts.crawler != null ? opts.crawler : "";
+    UI.domStatus = opts.status || "";
+    UI.domBand = opts.band || "";
+    UI.domQ = "";
+    goTab("domains");
+  }
+  function goTab(tab) {                          // cross-page links
+    var a = document.querySelector('nav.tabs a[data-tab="' + tab + '"]');
+    if (!a) return;
+    document.querySelectorAll("nav.tabs a").forEach(function (x) { x.classList.remove("on"); });
+    a.classList.add("on"); route(tab); window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function link(tab, label) {
+    return '<a href="#' + tab + '" class="xlink" data-goto="' + tab + '">' + esc(label) + '</a>';
+  }
+  function wireLinks() {
+    document.querySelectorAll("[data-goto]").forEach(function (a) {
+      a.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); goTab(a.dataset.goto); });
+    });
+    document.querySelectorAll("[data-open-dom]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        try { openDomains(JSON.parse(b.dataset.openDom)); } catch (err) {}
+      });
+    });
+  }
+  function controls(html, clearId) {
+    return '<div class="ctrls">' + html +
+      (clearId ? '<button class="btnx clearbtn" id="' + clearId + '">Clear filters</button>' : '') + '</div>';
+  }
+  function anyActive() {
+    return !!(UI.crawlerQ || UI.crawlerSort !== "blocked_desc");
+  }
+  function sortSel(id, opts, cur) {
+    return '<select id="' + id + '" class="inp">' + opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join("") + '</select>';
+  }
+  function applyCrawlerSort(list) {
+    var q = UI.crawlerQ.toLowerCase();
+    var out = list.filter(function (c) { return !q || c.name.toLowerCase().indexOf(q) >= 0; });
+    var by = {
+      blocked_desc: function (a, b) { return b.blocked_pct - a.blocked_pct; },
+      blocked_asc:  function (a, b) { return a.blocked_pct - b.blocked_pct; },
+      name_asc:     function (a, b) { return a.name.localeCompare(b.name); },
+      explicit_desc:function (a, b) { return b.explicit_policy_pct - a.explicit_policy_pct; },
+      delta_desc:   function (a, b) { return (b.delta_pp == null ? -1e9 : b.delta_pp) - (a.delta_pp == null ? -1e9 : a.delta_pp); },
+      allowed_desc: function (a, b) { return b.allowed_pct - a.allowed_pct; }
+    };
+    return out.sort(by[UI.crawlerSort] || by.blocked_desc);
+  }
+  var CRAWLER_SORTS = [["blocked_desc","Block rate: high to low"],["blocked_asc","Block rate: low to high"],
+    ["name_asc","Name: A to Z"],["explicit_desc","Explicit-policy rate"],["delta_desc","Biggest increase"],
+    ["allowed_desc","Explicitly allowed rate"]];
+  function wireCrawlerControls(rerender) {
+    var q = EL("cw-q"), so = EL("cw-sort"), cl = EL("cw-clear");
+    if (q) q.addEventListener("input", function () { UI.crawlerQ = this.value; rerender(); setTimeout(function () {
+      var f = EL("cw-q"); if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); } }, 0); });
+    if (so) so.addEventListener("change", function () { UI.crawlerSort = this.value; rerender(); });
+    if (cl) cl.addEventListener("click", function () { UI.crawlerQ = ""; UI.crawlerSort = "blocked_desc"; rerender(); });
+  }
+  /* comparison basis — honest about what history exists */
+  function basisOptions() {
+    var n = (D.editions || []).length;
+    var o = [["prev", "vs previous edition"]];
+    o.push(["m1", "vs 1 month ago" + (n >= 5 ? "" : " (building)")]);
+    o.push(["m2", "vs 2 months ago" + (n >= 9 ? "" : " (building)")]);
+    o.push(["first", "vs first edition" + (n >= 2 ? "" : " (building)")]);
+    return o;
+  }
+
+  /* ---------- the server's entitlement decision ----------
+     The Account tab used to read Clerk's client-side metadata and draw its own
+     conclusion, which is how it came to say "Headline dashboard" to an account
+     that could pull the whole dataset. It now renders what the gate decided. */
+  var ME = null, ME_STATE = "idle", ME_WAIT = [];
+  function meForget() { ME = null; ME_STATE = "idle"; }
+  function loadMe(cb) {
+    if (ME) return cb(ME);
+    // queue rather than drop: account() paints a placeholder before calling
+    // this, so a dropped callback leaves "Checking your access…" on screen
+    ME_WAIT.push(cb);
+    if (ME_STATE === "loading") return;
+    ME_STATE = "loading";
+    var go = function (token) {
+      fetch("/api/me", { cache: "no-store", headers: token ? { Authorization: "Bearer " + token } : {} })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (jn) { meDone(jn || { entitled: false, tier: "unknown", via: "unavailable" }); })
+        .catch(function () { meDone({ entitled: false, tier: "unknown", via: "unavailable" }); });
+    };
+    if (window.Clerk && window.Clerk.session) window.Clerk.session.getToken().then(go).catch(function () { go(null); });
+    else go(null);
+  }
+  function meDone(res) {
+    ME = res; ME_STATE = "ready";
+    var q = ME_WAIT; ME_WAIT = [];
+    q.forEach(function (fn) { try { fn(ME); } catch (e) {} });
+  }
+
+  /* ---------- gated per-domain loader ---------- */
+  var PD = null, PD_STATE = "idle";
+  function loadDomains(cb) {
+    if (PD) return cb(PD);
+    if (PD_STATE === "loading") return;
+    PD_STATE = "loading";
+    var go = function (token) {
+      fetch("/api/domains", { cache: "no-store", headers: token ? { Authorization: "Bearer " + token } : {} })
+        .then(function (r) {
+          if (r.status === 401) throw new Error("Your session expired — reload the page to sign in again.");
+          if (r.status === 503) throw new Error("We couldn't check your subscription just now — that's our end, not yours. Try again in a moment.");
+          if (r.status === 402) throw new Error("A Terminal subscription is required for the per-domain dataset. Open Account & data to subscribe.");
+          if (!r.ok) throw new Error("Dataset unavailable (" + r.status + ").");
+          return r.json();
+        })
+        .then(function (j) { PD = j; PD_STATE = "ready"; cb(j); })
+        .catch(function (e) { PD_STATE = "error"; var el = EL("pd-status"); if (el) el.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+    };
+    if (window.Clerk && window.Clerk.session) window.Clerk.session.getToken().then(go).catch(function () { go(null); });
+    else go(null);
+  }
+  // authenticated POST to our worker (checkout / portal), returns a promise of JSON
+  function cpiPost(path, body) {
+    var send = function (token) {
+      return fetch(path, {
+        method: "POST",
+        headers: Object.assign({ "content-type": "application/json" }, token ? { Authorization: "Bearer " + token } : {}),
+        body: JSON.stringify(body || {}),
+      }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, status: r.status, d: d }; }); });
+    };
+    if (window.Clerk && window.Clerk.session) return window.Clerk.session.getToken().then(send);
+    return send(null);
+  }
+  var STCODE = { b:"blocked", p:"partial", a:"allowed", u:"unlisted", n:"no_robots" };
+  function stPill(code) {
+    var lab = STATE_LABELS[STCODE[code]] || code;
+    return '<span class="pill" style="background:' + (STATE_COLORS[STCODE[code]] || "#ccc") + '" title="' + lab + '">' + code + '</span>';
+  }
+
+  /* ---------- CHANGES ---------- */
+  function changes() {
+    var h = '<section class="panel wide"><div class="ix">Policy changes &middot; edition over edition</div>';
+    if (!D.changes.available) {
+      h += '<p class="sub">' + esc(D.changes.note) + ' Each weekly edition is archived per domain, so the first diff appears once two editions exist.</p>' +
+        '<div class="empty">No comparison available yet. Editions retained: ' + ((D.editions || []).length || 1) + '.</div></section>';
+      EL("content").innerHTML = h; return;
+    }
+    h += '<p class="sub">Every domain&times;crawler status change between <b>' + esc(D.changes.interval) + '</b>. ' +
+      'Domains entering or leaving the index frame are excluded (' + fmt(D.changes.frame_churn.entered) + ' in, ' +
+      fmt(D.changes.frame_churn.left) + ' out) so frame churn is never counted as a policy change. ' +
+      'Look up any domain on ' + link("domains","the Domains tab") + '.</p>' +
+      '<div class="dd-kpis">' + kpi(fmt(D.changes.total_changes), "policy changes (domain\u00d7crawler)") +
+      kpi(fmt(D.changes.changed_domains != null ? D.changes.changed_domains : "—"), "distinct domains changed") +
+      kpi(String(Object.keys(D.changes.transitions).length), "transition types") +
+      kpi(esc(D.changes.interval.split(" -> ")[1]), "current edition") + '</div>' +
+      (D.changes.availability ? '<p class="foot" style="margin-top:14px">Excluded as measurement noise: ' +
+        fmt(D.changes.availability.cells) + ' cells across ' + fmt(D.changes.availability.domains) +
+        ' domains moved to or from &ldquo;no robots.txt&rdquo;. ' + esc(D.changes.availability.note) + '</p>' : '');
+    // direction split — the question the bare count cannot answer
+    var dir = changeDirections(D.changes.transitions);
+    var dirTotal = Math.max(1, dir.more + dir.less + dir.other);
+    var dirBar = function (label, n, color) {
+      return '<div class="hrow"><span class="hk">' + label + '</span><span class="hb"><span style="width:' +
+        (n / dirTotal * 100).toFixed(1) + '%;background:' + color + '"></span></span><span class="hv">' +
+        fmt(n) + '</span></div>';
+    };
+    h += '<div class="dd-card" style="margin-top:16px"><div class="dd-h">Direction of travel</div>' +
+      dirBar("More restrictive", dir.more, "#A33A2A") +
+      dirBar("Less restrictive", dir.less, "#1C5D4A") +
+      (dir.other ? dirBar("Lateral", dir.other, "#8A6A1F") : "") +
+      '<div style="margin-top:12px;padding:10px 14px;background:#efe8d7;border-left:3px solid #c9a24b;font-size:12.5px;color:var(--dim)">' +
+        '<b>' + fmt(dir.reversions) + '</b> of these moved <b>off</b> an explicit block. ' +
+        'Blocking is the low-effort default; removing a block is a deliberate edit, which makes these the ' +
+        'highest-signal rows in the edition. They are listed below &mdash; filter to <em>Less restrictive</em>.' +
+      '</div></div>';
+    h += reading("How to read this",
+      'Each transition is scored by how restrictive the <em>declared</em> status is toward crawlers, ' +
+      'so a domain moving to a block counts as more restrictive and a domain leaving one counts as less.<br>' +
+      '<b>&ldquo;No explicit instruction&rdquo; is not &ldquo;allowed&rdquo;.</b> It sits between <em>partial</em> and ' +
+      '<em>allowed</em> on this scale only because dropping an explicit permission is a step toward restriction ' +
+      '&mdash; it is never counted as permission anywhere in this dashboard.<br>' +
+      'This counts <b>declared status changes in robots.txt</b>. It is not evidence that an organisation changed ' +
+      'its AI policy, and it says nothing about why a file changed.');
+
+    // transition matrix
+    var tr = D.changes.transitions, keys = Object.keys(tr).sort(function (a, b) { return tr[b] - tr[a]; });
+    var tmax = keys.length ? tr[keys[0]] : 1;
+    h += '<div class="dd-card" style="margin-top:16px"><div class="dd-h">Transitions, most common first</div>' +
+      keys.map(function (k) {
+        var parts = k.split("->");
+        return '<div class="hrow trrow" data-tr="' + esc(k) + '" title="Click to see where this happened"><span class="hk">' +
+          (STATE_LABELS[parts[0]] || parts[0]) + ' &rarr; ' + (STATE_LABELS[parts[1]] || parts[1]) + '</span>' +
+          '<span class="hb"><span style="width:' + (tr[k] / tmax * 100).toFixed(1) + '%;background:' +
+          (parts[1] === "blocked" ? "#A33A2A" : parts[1] === "allowed" ? "#1C5D4A" : "#8A6A1F") + '"></span></span>' +
+          '<span class="hv">' + fmt(tr[k]) + '</span></div>';
+      }).join("") + '</div>';
+    h += '<div id="pd-status" style="margin-top:16px"><div class="empty">Loading the full change list…</div></div>' +
+      '<div id="chg-table"></div></section>';
+    EL("content").innerHTML = h;
+    // the totals above are free; the full feed is Terminal. Free accounts see
+    // the sample the public file ships rather than a spinner that ends in 402.
+    loadMe(function (me) {
+      if (!me || !me.entitled) { changesSample(); return; }
+      changesFull();
+    });
+  }
+
+  function changesSample() {
+    var C = D.changes, s = C.items || [];
+    EL("pd-status").innerHTML = "";
+    var rows = s.map(function (c) {
+      return '<tr><td class="mono">' + fmt(c.rank) + '</td><td><b>' + esc(c.domain) + '</b></td>' +
+        '<td>' + esc(c.crawler) + '</td><td>' + stPill(c.prev.charAt(0)) + ' &rarr; ' + stPill(c.cur.charAt(0)) + '</td></tr>';
+    }).join("");
+    var shownDomains = {};
+    s.forEach(function (c) { shownDomains[c.domain] = 1; });
+    var nShown = Object.keys(shownDomains).length;
+    var nTotal = C.items_domains_total != null ? C.items_domains_total : C.changed_domains;
+    EL("chg-table").innerHTML =
+      '<div class="dd-h" style="margin-top:12px">Change feed &middot; the ' + nShown + ' highest-ranked domains that changed</div>' +
+      '<div class="mwrap"><table class="dt"><thead><tr><th>Rank</th><th>Domain</th><th>Crawler</th><th>Change</th></tr></thead><tbody>' +
+      rows + '</tbody></table></div>' +
+      '<div id="chg-upsell" style="margin-top:14px;padding:14px 16px;border:1px dashed var(--line);border-radius:3px;background:#efe8d7;' +
+      'display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">' +
+      '<span style="font-size:13px">The totals above cover every change. <b>' + fmt(Math.max(0, nTotal - nShown)) +
+      ' more domains</b> changed this interval &mdash; the full feed, filterable and exportable, is in Terminal.</span>' +
+      '<a href="#account" style="color:var(--signal);font-weight:600;text-decoration:none;white-space:nowrap">See the full change feed &rarr;</a></div>';
+    var up = EL("chg-upsell");
+    if (up) up.querySelector("a").addEventListener("click", function (e) {
+      e.preventDefault(); location.hash = "#account"; account();
+    });
+  }
+
+  function changesFull() {
+    loadDomains(function (pd) {
+      var items = pd.changes || [];
+      EL("pd-status").innerHTML = "";
+      if (!items.length) { EL("chg-table").innerHTML = '<div class="empty">No per-domain changes in this interval.</div>'; return; }
+      var q = UI.chgQ.toLowerCase();
+      var filtered = items.filter(function (c) {
+        if (q && c[1].toLowerCase().indexOf(q) < 0 && pd.crawlers[c[2]].toLowerCase().indexOf(q) < 0) return false;
+        if (UI.chgDir === "more" && c[4] !== "b") return false;
+        if (UI.chgDir === "less" && c[3] !== "b") return false;
+        if (UI.chgDir === "other" && (c[3] === "b" || c[4] === "b")) return false;
+        if (UI.chgBand) { var pb = UI.chgBand.split("-"); if (c[0] < +pb[0] || c[0] > +pb[1]) return false; }
+        return true;
+      });
+      var by = {
+        rank:      function (a, b) { return a[0] - b[0]; },
+        rank_desc: function (a, b) { return b[0] - a[0]; },
+        domain:    function (a, b) { return a[1].localeCompare(b[1]); },
+        crawler:   function (a, b) { return pd.crawlers[a[2]].localeCompare(pd.crawlers[b[2]]) || a[0] - b[0]; }
+      };
+      filtered.sort(by[UI.chgSort] || by.rank);
+      var rows = filtered.slice(0, 400).map(function (c) {
+        return '<tr><td class="mono">' + fmt(c[0]) + '</td><td><b>' + esc(c[1]) + '</b></td><td>' + esc(pd.crawlers[c[2]]) + '</td>' +
+          '<td>' + stPill(c[3]) + ' &rarr; ' + stPill(c[4]) + '</td><td>' +
+          (c[4] === "b" ? '<span style="color:#A33A2A">more restrictive</span>' :
+           c[3] === "b" ? '<span style="color:#1C5D4A">less restrictive</span>' : '<span style="color:var(--dim)">reclassified</span>') +
+          '</td></tr>';
+      }).join("");
+      var legend = '<div class="legend" style="margin:10px 0 4px">' + Object.keys(STCODE).map(function (k) {
+        return '<span><b style="background:' + STATE_COLORS[STCODE[k]] + '"></b>' + k + ' = ' + STATE_LABELS[STCODE[k]] + '</span>';
+      }).join("") + '</div>';
+      EL("chg-table").innerHTML = legend +
+        controls('<input id="chg-q" class="inp" placeholder="Filter by domain or crawler…" value="' + esc(UI.chgQ) + '">' +
+          sortSel("chg-sort", [["rank","Rank: top first"],["rank_desc","Rank: tail first"],["domain","Domain: A to Z"],["crawler","Crawler: A to Z"]], UI.chgSort) +
+          sortSel("chg-dir", [["","All directions"],["more","Became more restrictive"],["less","Became less restrictive"],["other","Reclassified"]], UI.chgDir) +
+          sortSel("chg-band", [["","Any rank"],["1-100","Rank 1-100"],["1-1000","Top 1,000"],["1-10000","Top 10,000"],["10001-50000","10,001-50,000"]], UI.chgBand),
+          (UI.chgQ || UI.chgDir || UI.chgBand || UI.chgSort !== "rank") ? "chg-clear" : null) +
+        '<p class="foot" style="margin:8px 0 0;border:0;padding:0">Click any transition above to see where in the frame it happened.</p>' +
+      '<div class="dd-h" style="margin-top:12px">Change feed &middot; showing ' +
+        Math.min(400, filtered.length) + ' of ' + fmt(filtered.length) +
+        (filtered.length !== items.length ? ' filtered (' + fmt(items.length) + ' total)' : '') + '</div>' +
+        '<div class="mwrap"><table class="dt"><thead><tr><th>Rank</th><th>Domain</th><th>Crawler</th><th>Change</th><th>Direction</th></tr></thead><tbody>' +
+        rows + '</tbody></table></div>';
+      var rq = EL("chg-q"), rs = EL("chg-sort"), rd = EL("chg-dir");
+      if (rq) rq.addEventListener("input", function () { UI.chgQ = this.value; changes(); });
+      if (rs) rs.addEventListener("change", function () { UI.chgSort = this.value; changes(); });
+      if (rd) rd.addEventListener("change", function () { UI.chgDir = this.value; changes(); });
+      var rb = EL("chg-band");
+      if (rb) rb.addEventListener("change", function () { UI.chgBand = this.value; changes(); });
+      document.querySelectorAll(".trrow").forEach(function (r) {
+        r.addEventListener("click", function () { transitionDetail(r.dataset.tr); });
+      });
+      var rc = EL("chg-clear");
+      if (rc) rc.addEventListener("click", function () { UI.chgQ = ""; UI.chgDir = ""; UI.chgBand = ""; UI.chgSort = "rank"; changes(); });
+      wireLinks();
+    });
+  }
+
+  /* ---------- DOMAINS ---------- */
+  function domains() {
+    var h = '<section class="panel wide"><div class="ix">Domain explorer</div>' +
+      '<p class="sub">Search any domain for its declared policy across all ' + D.panel.crawlers + ' crawlers, or filter the index by status. ' +
+      'Per-domain data is licensed to your account.</p>' +
+      '<div class="ctrls">' +
+        '<input id="q" class="inp" placeholder="Search a domain, e.g. wikipedia.org" autocomplete="off" value="' + esc(UI.domQ || "") + '">' +
+        '<select id="f-crawler" class="inp"><option value="">Any crawler…</option></select>' +
+        '<select id="f-band" class="inp">' + ['', '1-100','101-500','501-1000','1001-5000','5001-10000','10001-25000','25001-50000']
+          .map(function (b) { return '<option value="' + b + '"' + (b === UI.domBand ? ' selected' : '') + '>' + (b ? "Rank " + b : "Any rank") + '</option>'; }).join("") + '</select>' +
+        '<select id="f-status" class="inp">' +
+          '<option value="">Any status</option><option value="b">Explicitly blocked</option><option value="p">Partial</option>' +
+          '<option value="a">Explicitly allowed</option><option value="u">No explicit instruction</option><option value="n">No robots.txt</option>' +
+        '</select>' +
+        '<button id="btn-csv" class="btnx">Export CSV</button>' +
+        '<button id="btn-clear" class="btnx clearbtn">Clear filters</button>' +
+      '</div>' +
+      '<div id="pd-status"><div class="empty">Loading the per-domain index…</div></div>' +
+      '<div id="dom-out"></div></section>';
+    EL("content").innerHTML = h;
+    loadDomains(function (pd) {
+      EL("pd-status").innerHTML = "";
+      var sel = EL("f-crawler");
+      pd.crawlers.forEach(function (c, i) {
+        var o = document.createElement("option"); o.value = String(i); o.textContent = c;
+        if (UI.domCrawler && (UI.domCrawler === c || UI.domCrawler === String(i))) o.selected = true;
+        sel.appendChild(o);
+      });
+      if (UI.domStatus) EL("f-status").value = UI.domStatus;
+      var render = function () {
+        var q = EL("q").value.trim().toLowerCase();
+        var ci = EL("f-crawler").value, st = EL("f-status").value, band = EL("f-band").value;
+        var lo = 0, hi = 1e9;
+        if (band) { var pb = band.split("-"); lo = +pb[0]; hi = +pb[1]; }
+        var out = [], matched = 0;
+        for (var i = 0; i < pd.rows.length; i++) {
+          var r = pd.rows[i];
+          if (r[0] < lo || r[0] > hi) continue;
+          if (q && r[1].toLowerCase().indexOf(q) < 0) continue;
+          if (st) {
+            if (ci !== "") { if (r[2][+ci] !== st) continue; }
+            else if (r[2].indexOf(st) < 0) continue;
+          } else if (ci !== "" && !q) { /* crawler alone: no filter */ }
+          matched++;
+          if (out.length < 300) out.push(r);
+        }
+        var head = '<tr><th>Rank</th><th>Domain</th>' + pd.crawlers.map(function (c) {
+          return '<th class="rot"><span>' + esc(c) + '</span></th>'; }).join("") + '</tr>';
+        EL("dom-out").innerHTML = '<div class="dd-h" style="margin-top:14px">' + fmt(matched) + ' match' + (matched === 1 ? '' : 'es') +
+          (matched > 300 ? ' &middot; showing first 300' : '') + ' &middot; export returns all shown' + '</div>' +
+          (out.length ? '<div class="mwrap"><table class="dt"><thead>' + head + '</thead><tbody>' +
+            out.map(function (r) {
+              return '<tr><td class="mono">' + fmt(r[0]) + '</td><td><b>' + esc(r[1]) + '</b></td>' +
+                r[2].split("").map(function (c) { return '<td class="pc">' + stPill(c) + '</td>'; }).join("") + '</tr>';
+            }).join("") + '</tbody></table></div>' +
+            '<div class="legend">' + Object.keys(STCODE).map(function (k) {
+              return '<span><b style="background:' + STATE_COLORS[STCODE[k]] + '"></b>' + k + " = " + STATE_LABELS[STCODE[k]] + '</span>'; }).join("") + '</div>'
+          : '<div class="empty">No domains match those filters.</div>');
+        window.__CPI_LAST__ = out;
+      };
+      EL("q").addEventListener("input", render);
+      EL("f-crawler").addEventListener("change", render);
+      EL("f-status").addEventListener("change", render);
+      EL("f-band").addEventListener("change", render);
+      EL("btn-clear").addEventListener("click", function () {
+        UI.domCrawler = ""; UI.domStatus = ""; UI.domBand = ""; UI.domQ = "";
+        EL("q").value = ""; EL("f-crawler").value = ""; EL("f-status").value = ""; EL("f-band").value = "";
+        render();
+      });
+      EL("btn-csv").addEventListener("click", function () {
+        var rows = window.__CPI_LAST__ || [];
+        if (!rows.length) return;
+        var csv = "rank,domain," + pd.crawlers.join(",") + "\n" + rows.map(function (r) {
+          return r[0] + "," + r[1] + "," + r[2].split("").map(function (c) { return STCODE[c]; }).join(",");
+        }).join("\n");
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+        a.download = "cpi-domains-" + pd.edition + ".csv"; a.click();
+      });
+      render();
+    });
+  }
+
+
+  /* ---------- the free/paid line ----------
+     ME is the server's own entitlement decision, loaded once per session. */
+  function entitled() { return !!(ME && ME.entitled); }
+
+  // rows: array of pre-rendered row HTML. freeN of them stay readable.
+  function cpiLocked(rows, freeN, what) {
+    if (entitled() || rows.length <= freeN) return rows.join("");
+    return rows.slice(0, freeN).join("") +
+      '<div class="lockwrap"><div class="lockblur" aria-hidden="true">' + rows.slice(freeN).join("") + '</div>' +
+      '<div class="lockbar"><span>&#128274; <b>' + fmt(rows.length - freeN) + '</b> more ' + esc(what) +
+      ' &mdash; the full cut is in Terminal.</span>' +
+      '<a href="#account" class="locklink">Unlock &rarr;</a></div></div>';
+  }
+
+  // a whole grid behind the wall, with the panel's title and prose left intact
+  function cpiLockedGrid(bodyHtml, what) {
+    if (entitled()) return bodyHtml;
+    return '<div class="lockwrap"><div class="lockblur" aria-hidden="true">' + bodyHtml + '</div>' +
+      '<div class="lockbar"><span>&#128274; ' + esc(what) + ' &mdash; in Terminal.</span>' +
+      '<a href="#account" class="locklink">Unlock &rarr;</a></div></div>';
+  }
+
+  /* ---------- SEGMENTS ---------- */
+  function segments() {
+    var sel = UI.segCrawler || "__ANY__";
+    var isAny = sel === "__ANY__";
+    var segDirty = !!(UI.tldQ || UI.tldSort !== "rate_desc" || (UI.segCrawler && UI.segCrawler !== "__ANY__") || UI.segGroup);
+    var h = '<section class="panel wide"><div class="ix">Segments</div>' +
+      '<p class="sub">How declared blocking varies by position in the index frame and by top-level domain. ' +
+      '&ldquo;Any AI crawler&rdquo; counts a domain once if it blocks at least one of the ' + D.panel.crawlers + '.</p>' +
+      controls('<select id="seg-crawler" class="inp">' +
+        '<option value="__ANY__"' + (isAny ? ' selected' : '') + '>Any AI crawler (all 18)</option>' +
+        D.crawlers.map(function (c) {
+          return '<option' + (c.name === sel ? ' selected' : '') + (entitled() ? '' : ' disabled') + '>' +
+            esc(c.name) + (entitled() ? '' : ' \u2014 Terminal') + '</option>';
+        }).join("") +
+        '</select>', segDirty ? "seg-clear" : null) +
+      (entitled() ? '' :
+        '<p class="foot" style="margin-top:10px">&#128274; Filtering these cuts to a <b>single named crawler</b> is part of Terminal. ' +
+        'The any-crawler view below is free to read and free to cite. ' +
+        '<a href="#account" class="locklink">See what Terminal includes &rarr;</a></p>') +
+      '</section>';
+
+    // rank bands
+    var bands = isAny
+      ? (D.any_ai.by_band || []).map(function (b) { return { band: b.band, n: b.n, v: b.pct }; }).filter(function (b) { return b.v != null; })
+      : D.rank_bands.map(function (b) { return { band: b.band, n: b.n, v: b.blocked_pct[sel] }; }).filter(function (b) { return b.v != null; });
+    var bmax = Math.max.apply(null, bands.map(function (b) { return b.v; })) || 1;
+    h += '<section class="panel wide"><div class="ix">By panel rank band &middot; ' + esc(isAny ? "any AI crawler" : sel) + '</div>' +
+      '<p class="sub">Is restriction concentrated among the highest-ranked domains, or spread through the tail?</p>' +
+      '<div class="dd-card">' + bands.map(function (b) {
+        return '<div class="hrow"><span class="hk">' + b.band + '</span><span class="hb"><span style="width:' +
+          (b.v / bmax * 100).toFixed(1) + '%"></span></span><span class="hv">' + b.v.toFixed(1) + '% <span style="opacity:.6">n=' + fmt(b.n) + '</span></span></div>';
+      }).join("") + '</div>' +
+      '<p class="foot">Rank band is position in the index frame &mdash; a sampling attribute, not traffic, audience size, or commercial importance.</p></section>';
+
+    // ccTLD
+    var tq = UI.tldQ.toLowerCase();
+    var rows = (D.tld.rows || []).map(function (t) { return { tld: t.tld, n: t.n, v: isAny ? t.any_blocked_pct : t.blocked_pct[sel], any: t.any_blocked_pct }; })
+      .filter(function (t) { return t.v != null && (!tq || t.tld.toLowerCase().indexOf(tq) >= 0); });
+    var tby = { rate_desc: function (a, b) { return b.v - a.v; }, rate_asc: function (a, b) { return a.v - b.v; },
+                name_asc: function (a, b) { return a.tld.localeCompare(b.tld); }, n_desc: function (a, b) { return b.n - a.n; } };
+    rows.sort(tby[UI.tldSort] || tby.rate_desc);
+    var tmax = rows.length ? rows[0].v : 1;
+    h += '<section class="panel wide"><div class="ix">By top-level domain &middot; ' + esc(isAny ? "any AI crawler" : sel) + '</div>' +
+      '<p class="sub">Minimum ' + D.tld.min_n + ' domains per group. Counts shown so small groups cannot masquerade as strong signals.</p>' +
+      controls('<input id="tld-q" class="inp" placeholder="Filter suffix, e.g. .de…" value="' + esc(UI.tldQ) + '">' +
+        sortSel("tld-sort", [["rate_desc","Block rate: high to low"],["rate_asc","Block rate: low to high"],["name_asc","Suffix: A to Z"],["n_desc","Group size"]], UI.tldSort),
+        (UI.tldQ || UI.tldSort !== "rate_desc") ? "tld-clear" : null) +
+      '<div class="dd-card" style="max-height:520px;overflow:auto">' + cpiLocked(rows.map(function (t) {
+        return '<div class="hrow"><span class="hk">' + esc(t.tld) + '</span><span class="hb"><span style="width:' +
+          (t.v / tmax * 100).toFixed(1) + '%"></span></span><span class="hv">' + t.v.toFixed(1) + '% <span style="opacity:.6">n=' + fmt(t.n) + '</span></span></div>';
+      }), 5, "suffix groups") + '</div>' +
+      '<p class="foot">' + esc(D.tld.note) + ' A .de domain is not necessarily a German company, and generic suffixes (.com, .org, .io) carry no geographic meaning at all.</p></section>';
+
+
+    // Which crawlers does a group treat unusually? Compare each crawler's rate inside
+    // the group with its rate across the whole index — the gap is the "targeting" signal.
+    // The group can be a ccTLD suffix OR a rank band — "does the top 100 single out
+    // particular crawlers?" is at least as interesting as the same question for .de,
+    // and rank bands have no ownership confound to apologise for.
+    var groupOpts = [];
+    (D.rank_bands || []).forEach(function (b) { if (b.n) groupOpts.push({ key: "band:" + b.band, label: "Rank " + b.band, kind: "band", n: b.n, rates: b.blocked_pct }); });
+    rows.forEach(function (t) {
+      var full = null; (D.tld.rows || []).forEach(function (x) { if (x.tld === t.tld) full = x; });
+      if (full) groupOpts.push({ key: "tld:" + full.tld, label: full.tld, kind: "tld", n: full.n, rates: full.blocked_pct });
+    });
+    var focusKey = UI.segGroup;
+    var grp = null;
+    groupOpts.forEach(function (g) { if (g.key === focusKey) grp = g; });
+    if (!grp) grp = groupOpts[0] || null;
+
+    if (grp) {
+      var gaps = D.crawlers.map(function (c) {
+        var inGrp = grp.rates[c.name];
+        return inGrp == null ? null : { name: c.name, inGrp: inGrp, all: c.blocked_pct, gap: +(inGrp - c.blocked_pct).toFixed(2) };
+      }).filter(Boolean).sort(function (a, b) { return b.gap - a.gap; });
+      var gmax = Math.max.apply(null, gaps.map(function (g) { return Math.abs(g.gap); })) || 1;
+      var isBand = grp.kind === "band";
+      h += '<section class="panel wide"><div class="ix">Does one group single out particular crawlers?</div>' +
+        '<p class="sub">For <b>' + esc(grp.label) + '</b> (n=' + fmt(grp.n) + '), each crawler&rsquo;s block rate inside the group versus its rate across the whole index. ' +
+        'A positive bar means that crawler is blocked <em>more</em> here than elsewhere.</p>' +
+        '<div class="ctrls"><select id="seg-group" class="inp">' +
+          '<optgroup label="Rank bands">' + groupOpts.filter(function (g) { return g.kind === "band"; }).map(function (g) {
+            return '<option value="' + esc(g.key) + '"' + (g.key === grp.key ? ' selected' : '') + '>' + esc(g.label) + ' (n=' + fmt(g.n) + ')</option>'; }).join("") + '</optgroup>' +
+          '<optgroup label="Top-level domains">' + groupOpts.filter(function (g) { return g.kind === "tld"; }).map(function (g) {
+            return '<option value="' + esc(g.key) + '"' + (g.key === grp.key ? ' selected' : '') + '>' + esc(g.label) + ' (n=' + fmt(g.n) + ')</option>'; }).join("") + '</optgroup>' +
+        '</select></div>' +
+        '<div class="dd-card">' + cpiLockedGrid(gaps.map(function (g) {
+          var half = (Math.abs(g.gap) / gmax * 50).toFixed(1);
+          var fill = g.gap >= 0
+            ? '<span style="position:absolute;left:50%;top:0;bottom:0;width:' + half + '%;background:#A33A2A"></span>'
+            : '<span style="position:absolute;right:50%;top:0;bottom:0;width:' + half + '%;background:#1C5D4A"></span>';
+          return '<div class="hrow"><span class="hk">' + esc(g.name) + '</span>' +
+            '<span class="hb" style="position:relative"><span style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--dim);opacity:.55"></span>' + fill + '</span>' +
+            '<span class="hv">' + (g.gap >= 0 ? "+" : "") + g.gap.toFixed(2) + 'pp <span style="opacity:.6">(' + g.inGrp.toFixed(1) + '% vs ' + g.all.toFixed(1) + '%)</span></span></div>';
+        }).join(""), "Per-crawler targeting for this group") + '</div>' +
+        reading("How to read this",
+          'This is the answer to &ldquo;does this group target particular crawlers, or is it just restrictive in general?&rdquo;<br>' +
+          '<b>Bars all leaning the same way and roughly equal</b> means the group is simply more or less restrictive than the index across the board &mdash; ' +
+          'no targeting, just a level difference. <b>An uneven profile</b> &mdash; some crawlers far out, others near zero &mdash; is the group actually ' +
+          'discriminating between crawlers.<br>' +
+          (isBand
+            ? 'Rank bands are the cleaner comparison of the two: every domain sits in exactly one, and there is no question of shared ownership or nationality to explain away.'
+            : 'Suffix groups carry a confound rank bands do not: a suffix may simply contain lower-ranked domains. Compare a suffix against a rank band before concluding the suffix is doing the work.')) +
+        '<p class="foot">Differences of a point or two on small groups are not meaningful. This compares declared policy only' +
+        (isBand ? ', and rank band is sampling position in the Tranco frame, not traffic.' : ', and a shared suffix does not imply shared ownership, country, or coordination.') +
+        '</p></section>';
+    }
+
+    EL("content").innerHTML = h;
+    wireLinks();
+    bind("seg-crawler", "change", function () { UI.segCrawler = this.value; segments(); });
+    bind("seg-group", "change", function () { UI.segGroup = this.value; segments(); });
+    var tq2 = EL("tld-q"), ts = EL("tld-sort");
+    if (tq2) tq2.addEventListener("input", function () { UI.tldQ = this.value; segments(); var f = EL("tld-q"); if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); } });
+    if (ts) ts.addEventListener("change", function () { UI.tldSort = this.value; segments(); });
+    bind("tld-clear", "click", function () { UI.tldQ = ""; UI.tldSort = "rate_desc"; segments(); });
+    bind("seg-clear", "click", function () { UI.tldQ = ""; UI.tldSort = "rate_desc"; UI.segCrawler = "__ANY__"; UI.segGroup = ""; segments(); });
+  }
+
+  /* ---------- WIRE EVIDENCE ---------- */
+  function wire() {
+    var w = D.wire || {};
+    var groups = [
+      { key: "prices", label: "Posted per-crawl prices", desc: "A machine-readable price named in the response to an identified AI crawler." },
+      { key: "p402", label: "HTTP 402 responses", desc: "Payment Required returned to a named crawler on probe." },
+      { key: "tollbit", label: "Token walls", desc: "A third-party token/paywall intermediary answered instead of the content." },
+      { key: "payment_headers", label: "Payment-related headers", desc: "Headers declaring price, free access, or payment support." },
+      { key: "maxprice_flips", label: "Max-price behaviour", desc: "Response changed when a maximum-price signal was supplied." }
+    ];
+    var total = groups.reduce(function (a, g) { return a + ((w[g.key] || []).length); }, 0);
+    var h = '<section class="panel wide"><div class="ix">Field notes &middot; exploratory exhibits</div>' +
+    '<div style="margin:0 0 12px;padding:10px 14px;background:#efe8d7;border-left:3px solid #c9a24b;font-size:12.5px;color:var(--dim)">' +
+      '<b>Non-random probe.</b> These are individual observations collected by targeted probing, not a sample of the web. ' +
+      'Counts are exhibits, not prevalence &mdash; no share of the web can be computed from them.</div>' +
+      '<p class="sub">What actually happened on the wire when an identified AI crawler knocked. This is a <b>curated probe sample</b>, not a census: ' +
+      'it answers &ldquo;does this behaviour exist, and where&rdquo;, never &ldquo;what share of the web does this&rdquo;.</p>' +
+      '<div class="dd-kpis">' + kpi(fmt(total), "observed responses in this probe") +
+      kpi(fmt((w.prices || []).length), "posted prices") +
+      kpi(fmt((w.p402 || []).length), "402 responses") +
+      kpi(fmt((w.tollbit || []).length + (w.payment_headers || []).length), "wall / header signals") + '</div>' +
+      '<p class="foot">No percentage of the web is computed from these figures, and none should be. Robots-policy rates elsewhere in this dashboard come from the full index frame; these are hand-probed exhibits. Each row is one observed response from one probe on one date &mdash; a domain appearing once does not mean it always behaves this way.</p></section>';
+
+    groups.forEach(function (g) {
+      var list = w[g.key] || [];
+      // "domain[probe_identity]" strings -> domain + identity columns, grouped per domain
+      var parsed = list.map(function (x) {
+        var m = String(x).match(/^(.*?)\[([^\]]*)\]\s*$/);
+        return m ? { d: m[1], probe: m[2] } : { d: String(x), probe: "" };
+      });
+      var byDom = {};
+      parsed.forEach(function (r) { (byDom[r.d] = byDom[r.d] || []).push(r.probe); });
+      var doms = Object.keys(byDom).sort(function (a, b) { return byDom[b].length - byDom[a].length; });
+      h += '<section class="panel"><div class="ix">' + g.label + ' &middot; ' + list.length + '</div>' +
+        '<p class="sub">' + g.desc + '</p>' +
+        (list.length
+          ? '<div class="mwrap" style="max-height:320px"><table class="dt"><thead><tr><th>Domain</th><th>Observed for</th></tr></thead><tbody>' +
+            cpiLocked(doms.map(function (d) {
+              var probes = byDom[d].filter(Boolean);
+              return '<tr><td><b>' + esc(d) + '</b></td><td>' + (probes.length
+                ? probes.map(function (p) { return '<span class="rtag" style="margin:1px 3px 1px 0">' + esc(p) + '</span>'; }).join("")
+                : '<span class="rtag" style="margin:1px 3px 1px 0">&mdash;</span>') + '</td></tr>';
+            }), 2, "domains in this exhibit") + '</tbody></table></div>' +
+            '<p class="foot">' + fmt(doms.length) + ' distinct domain(s); a domain appears once per probe identity that observed the behaviour.</p>'
+          : '<div class="empty">None observed in the current probe sample. Absence here is not evidence of absence on the web.</div>') +
+        '</section>';
+    });
+    EL("content").innerHTML = h;
+  }
+
+  /* ---------- ACCOUNT & DATA ---------- */
+  function account() {
+    EL("content").innerHTML = '<section class="panel"><div class="ix">Account</div><div class="empty">Checking your access…</div></section>';
+    loadMe(function (me) { accountView(me); });
+  }
+  function accountView(me) {
+    var u = (window.Clerk && window.Clerk.user) || null;
+    var email = u && u.primaryEmailAddress ? u.primaryEmailAddress.emailAddress : "—";
+    // the gate's answer, not our own guess at it
+    var isTerminal = !!(me && me.entitled);
+    var h = '<section class="panel"><div class="ix">Account</div>' +
+      '<div class="hrow" style="grid-template-columns:120px 1fr"><span class="hk">Email</span><span><b>' + esc(email) + '</b></span></div>' +
+      '<div class="hrow" style="grid-template-columns:120px 1fr"><span class="hk">Edition</span><span>' + esc(D.edition) + '</span></div>' +
+      '<div class="hrow" style="grid-template-columns:120px 1fr"><span class="hk">Access</span><span>' +
+        (isTerminal ? "Terminal — full dashboard &amp; per-domain data" : "Headline dashboard (subscribe for per-domain data)") +
+        (me && me.via === "admin-list" ? ' <b style="color:#8A6A1F">· granted by the admin list, not a subscription</b>' : "") +
+        (me && me.via === "unverified" ? ' <b style="color:#8A6A1F">· could not be checked just now, this is our end</b>' : "") +
+        '</span></div>' +
+      '<p class="foot">Profile, password and sign-out are managed from the avatar menu at the top right.</p></section>';
+
+    var unverified = !!(me && me.via === "unverified");
+    h += '<section class="panel"><div class="ix">Subscription</div>' +
+      (unverified
+        ? '<p class="sub">We couldn&rsquo;t check your subscription just now &mdash; that&rsquo;s our end, not yours. ' +
+          'Nothing has changed on your account.</p>' +
+          '<div class="ctrls"><button class="btnx" id="acct-retry">Try again</button></div>' +
+          '<p class="foot">Deliberately not showing a purchase button here: if you are already a subscriber, ' +
+          'a failed check is not a reason to be sold the same thing twice.</p>'
+        : isTerminal
+        ? '<p class="sub">Your <b>Terminal</b> subscription is active — full dashboard, per-domain data and weekly history.</p>' +
+          '<div class="ctrls"><button class="btnx" id="bill-portal">Manage billing &amp; invoices</button></div>' +
+          '<p class="foot">Opens Stripe&rsquo;s secure portal to change payment method, download invoices, or cancel.</p>'
+        : '<p class="sub">Unlock the full per-domain dataset and the accumulating weekly history. Billing is handled securely by Stripe; cancel anytime.</p>' +
+          '<div class="ctrls">' +
+            '<button class="btnx" id="buy-sub" style="background:#1C5D4A;border-color:#1C5D4A">Subscribe — €49/mo</button>' +
+            '<button class="btnx" id="buy-snap">Buy single snapshot — €29</button>' +
+          '</div>' +
+          '<p class="foot">Terminal: full dataset + weekly history + API, founding rate held for 24 months. ' +
+          'Snapshot: the current edition as a one-off machine-readable download (credited toward a subscription).</p>') +
+      '<div id="pay-status"></div></section>';
+
+    h += '<section class="panel wide"><div class="ix">Data downloads</div>' +
+      '<p class="sub">' + (isTerminal
+        ? 'Your licensed extracts of the current edition. Per-domain data is licensed to your account and not for redistribution.'
+        : 'The aggregate dashboard is yours to download and cite. The per-domain extracts are part of Terminal.') + '</p>' +
+      '<div class="ctrls">' +
+        '<button class="btnx' + (isTerminal ? '' : ' dl-locked') + '" id="dl-json"' +
+          (isTerminal ? '' : ' disabled title="Per-domain JSON needs a Terminal subscription"') +
+          '>Per-domain JSON (current edition)' + (isTerminal ? '' : ' &middot; \u20ac49') + '</button>' +
+        '<button class="btnx' + (isTerminal ? '' : ' dl-locked') + '" id="dl-csv"' +
+          (isTerminal ? '' : ' disabled title="Per-domain CSV needs a Terminal subscription"') +
+          '>Per-domain CSV (current edition)' + (isTerminal ? '' : ' &middot; \u20ac49') + '</button>' +
+        '<button class="btnx" id="dl-agg" style="background:#1D4E6F;border-color:#1D4E6F">Aggregate dashboard JSON</button>' +
+      '</div><div id="pd-status"></div>' +
+      (isTerminal ? '' :
+        '<p class="foot" style="margin-top:10px">The two per-domain extracts unlock with a subscription &mdash; ' +
+        'every domain &times; every tracked crawler, as JSON or CSV. ' +
+        '<a href="#account" id="dl-upsell" style="color:var(--signal);font-weight:600;text-decoration:none">See what Terminal includes &rarr;</a></p>') +
+      '<p class="foot">Downloads reflect edition ' + esc(D.edition) + '. Figures are free to cite with attribution to The Crawl Price Index; the per-domain dataset is not.</p></section>';
+    EL("content").innerHTML = h;
+
+    var save = function (name, text, type) {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: type }));
+      a.download = name; a.click();
+    };
+    // "Not more, not less": the file must match what this account sees on
+    // screen. Free gets the shipped sample; Terminal gets the full change feed
+    // folded back in, in the same shape, so their download matches their view.
+    if (EL("dl-agg")) EL("dl-agg").addEventListener("click", function () {
+      var btn = this;
+      var emit = function (obj) { save("cpi-dashboard-" + D.edition + ".json", JSON.stringify(obj, null, 2), "application/json"); };
+      loadMe(function (me) {
+        if (!me || !me.entitled) return emit(D);
+        btn.disabled = true; var was = btn.textContent; btn.textContent = "Preparing…";
+        loadDomains(function (pd) {
+          var full = JSON.parse(JSON.stringify(D));
+          full.changes.items = (pd.changes || []).map(function (c) {
+            return { domain: c[1], rank: c[0], crawler: pd.crawlers[c[2]],
+                     prev: STCODE[c[3]] || c[3], cur: STCODE[c[4]] || c[4] };
+          });
+          full.changes.items_sample = false;
+          emit(full);
+          btn.disabled = false; btn.textContent = was;
+        });
+      });
+    });
+    if (EL("dl-json") && !EL("dl-json").disabled) EL("dl-json").addEventListener("click", function () {
+      EL("pd-status").innerHTML = '<div class="empty">Preparing…</div>';
+      loadDomains(function (pd) { EL("pd-status").innerHTML = ""; save("cpi-domains-" + pd.edition + ".json", JSON.stringify(pd), "application/json"); });
+    });
+    if (EL("dl-csv") && !EL("dl-csv").disabled) EL("dl-csv").addEventListener("click", function () {
+      EL("pd-status").innerHTML = '<div class="empty">Preparing…</div>';
+      loadDomains(function (pd) {
+        EL("pd-status").innerHTML = "";
+        var csv = "rank,domain," + pd.crawlers.join(",") + "\n" + pd.rows.map(function (r) {
+          return r[0] + "," + r[1] + "," + r[2].split("").map(function (c) { return STCODE[c]; }).join(",");
+        }).join("\n");
+        save("cpi-domains-" + pd.edition + ".csv", csv, "text/csv");
+      });
+    });
+
+    /* ---- Stripe: checkout / snapshot / portal ---- */
+    var payStatus = function (html) { var e = EL("pay-status"); if (e) e.innerHTML = html ? '<div class="empty">' + html + '</div>' : ""; };
+    var startCheckout = function (plan, btn) {
+      if (btn) { btn.disabled = true; }
+      payStatus("Opening secure checkout…");
+      cpiPost("/api/checkout", { plan: plan }).then(function (r) {
+        if (r.ok && r.d && r.d.url) { window.location.href = r.d.url; }
+        else { payStatus((r.d && r.d.error ? r.d.error : "Could not start checkout") + " — please try again."); if (btn) btn.disabled = false; }
+      }).catch(function () { payStatus("Could not reach checkout — please try again."); if (btn) btn.disabled = false; });
+    };
+    if (EL("buy-sub")) EL("buy-sub").addEventListener("click", function () { startCheckout("sub", this); });
+    if (EL("dl-upsell")) EL("dl-upsell").addEventListener("click", function (e) {
+      e.preventDefault();
+      var s = document.querySelector(".ctrls #buy-sub");
+      if (s) s.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+    if (EL("acct-retry")) EL("acct-retry").addEventListener("click", function () {
+      this.disabled = true; this.textContent = "Checking…";
+      meForget();
+      account();
+    });
+    if (EL("buy-snap")) EL("buy-snap").addEventListener("click", function () { startCheckout("snap", this); });
+    if (EL("bill-portal")) EL("bill-portal").addEventListener("click", function () {
+      var b = this; b.disabled = true; payStatus("Opening billing portal…");
+      cpiPost("/api/portal", {}).then(function (r) {
+        if (r.ok && r.d && r.d.url) window.location.href = r.d.url;
+        else { payStatus((r.d && r.d.error ? r.d.error : "Could not open the portal") + "."); b.disabled = false; }
+      }).catch(function () { payStatus("Could not reach the billing portal."); b.disabled = false; });
+    });
+
+    /* ---- returning from Stripe Checkout ---- */
+    var qs = new URLSearchParams(location.search);
+    if (qs.get("sub") === "success") {
+      payStatus("Payment received — activating your subscription. This can take a few seconds.");
+      // the webhook sets the tier; force a fresh token so the gate sees it, then refresh the view
+      var tries = 0;
+      var poll = function () {
+        tries++;
+        if (window.Clerk && window.Clerk.session) {
+          window.Clerk.session.getToken({ skipCache: true }).then(function () {
+            if (window.Clerk.user) window.Clerk.user.reload && window.Clerk.user.reload().then(function () {
+              // ask the gate, not Clerk's client-side copy: the gate is what
+              // unlocks the data, and a cached ME would otherwise show the
+              // pre-payment answer to someone who has just paid
+              meForget();
+              loadMe(function (me) {
+                if (me && me.entitled) { history.replaceState({}, "", "/dashboard.html#account"); account(); }
+                else if (tries < 8) setTimeout(poll, 2000);
+                else payStatus("Subscription is processing. If it doesn't appear shortly, reload the page.");
+              });
+            });
+          });
+        }
+      };
+      setTimeout(poll, 1500);
+    } else if (qs.get("snap_session")) {
+      var sid = qs.get("snap_session");
+      payStatus("Payment received — preparing your snapshot download…");
+      var a2 = document.createElement("a");
+      a2.href = "/api/snapshot?session_id=" + encodeURIComponent(sid);
+      a2.download = "cpi-snapshot.json";
+      document.body.appendChild(a2); a2.click(); a2.remove();
+      history.replaceState({}, "", "/dashboard.html#account");
+      setTimeout(function () { payStatus("If the download didn't start, <a href='/api/snapshot?session_id=" + esc(sid) + "'>click here</a>."); }, 1500);
+    }
+  }
+
+
+  /* ---------- DRILL-DOWN: topic panels ---------- */
+  function drillOpen(html) {
+    var box = EL("drill"); box.innerHTML = html; box.style.display = "block";
+    var c = EL("dd-close"); if (c) c.addEventListener("click", function () { box.style.display = "none"; });
+    scrollToEl(box);
+  }
+  function ddHead(eyebrow, title) {
+    return '<div class="dd-head"><div><div class="dd-eyebrow">' + esc(eyebrow) + '</div><div class="dd-title">' + esc(title) +
+      '</div></div><button class="dd-close" id="dd-close">Close &times;</button></div>';
+  }
+  function drillTrend() {
+    if (!D.trend || D.trend.length < 2) return;
+    var first = D.trend[0], last = D.trend[D.trend.length - 1];
+    var names = Object.keys(last.rates).filter(function (k) { return first.rates[k] != null; });
+    var movers = names.map(function (n) { return { name: n, from: first.rates[n], to: last.rates[n], d: last.rates[n] - first.rates[n] }; })
+      .sort(function (a, b) { return b.d - a.d; });
+    var mx = Math.max.apply(null, movers.map(function (m) { return Math.abs(m.d); })) || 1;
+    var h = ddHead("Trend detail", "Movement since " + first.date) +
+      '<div class="dd-kpis">' + kpi(String(D.trend.length), "editions recorded") +
+      kpi(first.date, "first edition") + kpi(last.date, "latest edition") +
+      kpi(movers[0].name, "largest increase") + '</div>' +
+      '<div class="dd-card"><div class="dd-h">Change in block rate, first to latest edition</div>' +
+      movers.map(function (m) {
+        var pos = m.d >= 0;
+        return '<div class="hrow"><span class="hk">' + esc(m.name) + '</span><span class="hb"><span style="width:' +
+          (Math.abs(m.d) / mx * 100).toFixed(1) + '%;background:' + (pos ? "#A33A2A" : "#1C5D4A") + '"></span></span>' +
+          '<span class="hv">' + (pos ? "+" : "") + m.d.toFixed(2) + 'pp</span></div>';
+      }).join("") +
+      '<p class="foot">' + D.trend.length + ' editions is an early series. Direction is meaningful; magnitude is not yet stable, and coverage varies slightly between scans.</p></div>';
+    drillOpen(h);
+  }
+  function drillSelective() {
+    var r = D.restriction_hist, dv = D.diversity_hist;
+    var h = ddHead("Selective treatment", "How differentiated are policies?") +
+      '<div class="dd-kpis">' + kpi(pct(D.selective.pct), "treat crawlers differently") +
+      kpi(fmt(D.selective.count), "domains") +
+      kpi(fmt(r["0"]), "block none of the 18") +
+      kpi(fmt(r["18"]), "block all 18") + '</div>' +
+      '<div class="dd-grid">' +
+        '<div class="dd-card"><div class="dd-h">Crawlers blocked per domain</div>' + histBars(r, "domains") + '</div>' +
+        '<div class="dd-card"><div class="dd-h">Distinct statuses used per domain</div>' + histBars(dv, "domains") +
+        '<p class="foot">A domain using one status treats all 18 crawlers identically; more statuses means a more differentiated policy.</p></div>' +
+      '</div>' +
+      '<div class="dd-card" style="margin-top:14px"><p class="sub" style="margin:0">Definition: ' + esc(D.selective.definition) +
+      '. Domains that simply never mention any crawler are not &ldquo;selective&rdquo; &mdash; they have made no declaration at all.</p></div>';
+    drillOpen(h);
+  }
+  function drillChanges() {
+    if (!D.changes.available) return;
+    var c = D.changes, tr = c.transitions, keys = Object.keys(tr).sort(function (a, b) { return tr[b] - tr[a]; });
+    var restrictive = 0, permissive = 0;
+    keys.forEach(function (k) { var to = k.split("->")[1]; if (to === "blocked") restrictive += tr[k]; if (to === "allowed") permissive += tr[k]; });
+    var h = ddHead("Policy changes", c.interval) +
+      '<div class="dd-kpis">' + kpi(fmt(c.total_changes), "policy changes") +
+      kpi(fmt(c.changed_domains != null ? c.changed_domains : "—"), "distinct domains") +
+      kpi(fmt(restrictive), "became more restrictive") +
+      kpi(fmt(permissive), "became explicitly allowed") + '</div>' +
+      '<div class="dd-card"><div class="dd-h">What moved</div>' +
+      keys.map(function (k) {
+        var p = k.split("->"), mx = tr[keys[0]];
+        return '<div class="hrow"><span class="hk">' + (STATE_LABELS[p[0]] || p[0]) + ' &rarr; ' + (STATE_LABELS[p[1]] || p[1]) + '</span>' +
+          '<span class="hb"><span style="width:' + (tr[k] / mx * 100).toFixed(1) + '%;background:' +
+          (p[1] === "blocked" ? "#A33A2A" : p[1] === "allowed" ? "#1C5D4A" : "#8A6A1F") + '"></span></span><span class="hv">' + fmt(tr[k]) + '</span></div>';
+      }).join("") +
+      (c.availability ? '<p class="foot">' + fmt(c.availability.cells) + ' further cells across ' + fmt(c.availability.domains) +
+        ' domains moved to or from &ldquo;no robots.txt&rdquo; and are excluded: that is fetch availability between scans, not a publisher decision.</p>' : '') +
+      '</div>' +
+      '<p class="foot">Open the Changes tab for the full per-domain feed.</p>';
+    drillOpen(h);
+  }
+  function drillWire() {
+    var w = D.wire || {};
+    var h = ddHead("Observed wire evidence", "Probe exhibits") +
+      '<div class="dd-card"><div class="dd-h">What was observed</div>' +
+      [["Posted prices","prices"],["HTTP 402","p402"],["Token walls","tollbit"],["Payment headers","payment_headers"],["Max-price behaviour","maxprice_flips"]]
+        .map(function (g) {
+          var l = w[g[1]] || [];
+          return '<div class="hrow"><span class="hk">' + g[0] + '</span><span class="hb"><span style="width:' +
+            Math.min(100, l.length * 3) + '%;background:#8A6A1F"></span></span><span class="hv">' + l.length + '</span></div>';
+        }).join("") +
+      '<p class="foot">Curated probe sample &mdash; evidence that a behaviour exists and where, never a share of the web. Full list on the Wire evidence tab.</p></div>';
+    drillOpen(h);
+  }
+
+
+  function pairDetail(a, b) {
+    var i = D.matrix_crawlers.indexOf(a), jx = D.matrix_crawlers.indexOf(b);
+    if (i < 0 || jx < 0) return;
+    var A = null, B = null;
+    D.crawlers.forEach(function (c) { if (c.name === a) A = c; if (c.name === b) B = c; });
+    var aBlockedBAllowed = D.exclusion_matrix[i][jx];
+    var bBlockedAAllowed = D.exclusion_matrix[jx][i];
+    var same = D.cotreat_matrix[i][jx];
+    var h = ddHead("Head to head", a + "  vs  " + b) +
+      '<div class="dd-kpis">' +
+        kpi(same == null ? "—" : same.toFixed(0) + "%", "treated the same, where both have an explicit policy") +
+        kpi(aBlockedBAllowed.toFixed(2) + "%", esc(a) + " blocked while " + esc(b) + " allowed") +
+        kpi(bBlockedAAllowed.toFixed(2) + "%", esc(b) + " blocked while " + esc(a) + " allowed") +
+        kpi(((A.blocked_pct - B.blocked_pct) >= 0 ? "+" : "") + (A.blocked_pct - B.blocked_pct).toFixed(2) + "pp",
+            "block-rate gap (" + esc(a) + " minus " + esc(b) + ")") +
+      '</div>' +
+      '<div class="dd-grid">' +
+        '<div class="dd-card"><div class="dd-h">Side by side</div>' +
+          [["Explicitly blocked","blocked_pct","#A33A2A"],["Explicitly allowed","allowed_pct","#1C5D4A"],
+           ["Any explicit policy","explicit_policy_pct","#1D4E6F"]].map(function (m) {
+            var av = A[m[1]], bv = B[m[1]], mx = Math.max(av, bv) || 1;
+            return '<div style="margin-bottom:12px"><div class="dd-h" style="color:var(--dim);margin-bottom:6px">' + m[0] + '</div>' +
+              '<div class="hrow"><span class="hk">' + esc(a) + '</span><span class="hb"><span style="width:' +
+                (av / mx * 100).toFixed(1) + '%;background:' + m[2] + '"></span></span><span class="hv">' + av.toFixed(2) + '%</span></div>' +
+              '<div class="hrow"><span class="hk">' + esc(b) + '</span><span class="hb"><span style="width:' +
+                (bv / mx * 100).toFixed(1) + '%;background:' + m[2] + ';opacity:.6"></span></span><span class="hv">' + bv.toFixed(2) + '%</span></div></div>';
+          }).join("") + '</div>' +
+        '<div class="dd-card"><div class="dd-h">What this means</div>' +
+          '<p class="sub">Among domains that named <b>both</b> crawlers explicitly, ' +
+            (same == null ? "there is not enough overlap to compare" : '<b>' + same.toFixed(0) + '%</b> gave them the <b>same</b> status') + '. ' +
+            (same != null && same > 90 ? 'They are treated as near-interchangeable.' :
+             same != null && same > 70 ? 'Mostly aligned, with a meaningful minority differentiating.' :
+             same != null ? 'Publishers frequently distinguish between them.' : '') + '</p>' +
+          '<p class="sub">On <b>' + aBlockedBAllowed.toFixed(2) + '%</b> of indexed domains ' + esc(a) +
+            ' is shut out while ' + esc(b) + ' is welcomed; the reverse happens on <b>' + bBlockedAAllowed.toFixed(2) + '%</b>. ' +
+            (aBlockedBAllowed > bBlockedAAllowed * 1.5 ? esc(a) + ' is the more frequently excluded of the two.' :
+             bBlockedAAllowed > aBlockedBAllowed * 1.5 ? esc(b) + ' is the more frequently excluded of the two.' :
+             'Neither is systematically singled out over the other.') + '</p>' +
+          '<p class="foot">Both figures describe declared robots.txt policy, not enforced access. Find the individual domains on ' + link("domains","the Domains tab") + '.</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ctrls" style="margin-top:14px">' +
+        '<button class="btnx" data-open-dom=\'{"crawler":"' + esc(a) + '","status":"b"}\'>Domains blocking ' + esc(a) + '</button>' +
+        '<button class="btnx" style="background:#1C5D4A" data-open-dom=\'{"crawler":"' + esc(b) + '","status":"b"}\'>Domains blocking ' + esc(b) + '</button>' +
+        '<button class="btnx" data-crawler-open="' + esc(a) + '">Full profile: ' + esc(a) + '</button>' +
+        '<button class="btnx" data-crawler-open="' + esc(b) + '" style="background:#1D4E6F;border-color:#1D4E6F">Full profile: ' + esc(b) + '</button>' +
+      '</div>';
+    drillOpen(h);
+    document.querySelectorAll("[data-crawler-open]").forEach(function (btn) {
+      btn.addEventListener("click", function () { crawlerDetail(btn.dataset.crawlerOpen); });
+    });
+  }
+
+
+  function transitionDetail(key) {
+    var parts = key.split("->"), fromL = STATE_LABELS[parts[0]] || parts[0], toL = STATE_LABELS[parts[1]] || parts[1];
+    var CODE = { blocked:"b", partial:"p", allowed:"a", unlisted:"u", no_robots:"n" };
+    var fc = CODE[parts[0]], tc = CODE[parts[1]];
+    drillOpen(ddHead("Transition detail", fromL + "  \u2192  " + toL) +
+      '<div id="tr-body"><div class="empty">Loading the per-domain breakdown\u2026</div></div>');
+    loadDomains(function (pd) {
+      var items = (pd.changes || []).filter(function (c) { return c[3] === fc && c[4] === tc; });
+      var BANDS = [[1,100,"1-100"],[101,1000,"101-1,000"],[1001,10000,"1,001-10,000"],[10001,50000,"10,001-50,000"]];
+      var byBand = BANDS.map(function (b) {
+        return { label: b[2], n: items.filter(function (c) { return c[0] >= b[0] && c[0] <= b[1]; }).length };
+      });
+      var byCrawler = {};
+      items.forEach(function (c) { var n = pd.crawlers[c[2]]; byCrawler[n] = (byCrawler[n] || 0) + 1; });
+      var cKeys = Object.keys(byCrawler).sort(function (a, b) { return byCrawler[b] - byCrawler[a]; });
+      var bmax = Math.max.apply(null, byBand.map(function (b) { return b.n; })) || 1;
+      var cmax = cKeys.length ? byCrawler[cKeys[0]] : 1;
+      var domainsTouched = {}; items.forEach(function (c) { domainsTouched[c[1]] = 1; });
+      var head = items.slice().sort(function (a, b) { return a[0] - b[0]; }).slice(0, 8);
+      EL("tr-body").innerHTML =
+        '<div class="dd-kpis">' + kpi(fmt(items.length), "changes of this type") +
+          kpi(fmt(Object.keys(domainsTouched).length), "distinct domains") +
+          kpi(byBand[0].n + byBand[1].n ? fmt(byBand[0].n + byBand[1].n) : "0", "in the top 1,000") +
+          kpi(cKeys.length ? esc(cKeys[0]) : "\u2014", "most affected crawler") + '</div>' +
+        '<div class="dd-grid">' +
+          '<div class="dd-card"><div class="dd-h">Where in the frame</div>' +
+            byBand.map(function (b) {
+              return '<div class="hrow"><span class="hk">' + b.label + '</span><span class="hb"><span style="width:' +
+                (b.n / bmax * 100).toFixed(1) + '%"></span></span><span class="hv">' + fmt(b.n) + '</span></div>';
+            }).join("") +
+            '<p class="foot">Rank band is sampling position in the Tranco frame, not traffic. Bands hold very different numbers of domains, so compare shares with care.</p></div>' +
+          '<div class="dd-card"><div class="dd-h">Which crawlers</div>' +
+            cKeys.slice(0, 8).map(function (n) {
+              return '<div class="hrow"><span class="hk">' + esc(n) + '</span><span class="hb"><span style="width:' +
+                (byCrawler[n] / cmax * 100).toFixed(1) + '%;background:' + (tc === "b" ? "#A33A2A" : "#1C5D4A") + '"></span></span>' +
+                '<span class="hv">' + fmt(byCrawler[n]) + '</span></div>';
+            }).join("") + '</div>' +
+        '</div>' +
+        (head.length ? '<div class="dd-card" style="margin-top:14px"><div class="dd-h">Highest-ranked examples</div>' +
+          '<div class="mwrap" style="max-height:260px"><table class="dt"><tbody>' + head.map(function (c) {
+            return '<tr><td class="mono">#' + fmt(c[0]) + '</td><td><b>' + esc(c[1]) + '</b></td><td>' + esc(pd.crawlers[c[2]]) + '</td></tr>';
+          }).join("") + '</tbody></table></div></div>' : '');
+    });
+  }
+
+  /* ---------- DRILL-DOWN: crawler detail ---------- */
+  function crawlerDetail(name) {
+    var x = null; D.crawlers.forEach(function (c) { if (c.name === name) x = c; });
+    if (!x) return;
+    var i = D.matrix_crawlers.indexOf(name);
+    var tot = x.blocked + x.partial + x.allowed + x.unlisted + x.no_robots;
+
+    // rank bands for this crawler
+    var bands = D.rank_bands.map(function (b) { return { band: b.band, n: b.n, v: b.blocked_pct[name] }; })
+      .filter(function (b) { return b.v != null; });
+    var bmax = Math.max.apply(null, bands.map(function (b) { return b.v; })) || 1;
+
+    // top ccTLDs for this crawler
+    var tlds = (D.tld.rows || []).map(function (t) { return { tld: t.tld, n: t.n, v: t.blocked_pct[name] }; })
+      .filter(function (t) { return t.v != null; }).sort(function (a, b) { return b.v - a.v; });
+    var topT = tlds.slice(0, 6), tmax = topT.length ? topT[0].v : 1;
+
+    // most/least similarly treated peers
+    var peers = [];
+    if (i >= 0 && D.cotreat_matrix[i]) {
+      D.cotreat_matrix[i].forEach(function (v, j) {
+        if (j !== i && v != null) peers.push({ name: D.matrix_crawlers[j], v: v });
+      });
+      peers.sort(function (a, b) { return b.v - a.v; });
+    }
+    // who is excluded in favour of whom
+    var exclOut = [], exclIn = [];
+    if (i >= 0) {
+      D.exclusion_matrix[i].forEach(function (v, j) { if (j !== i && v > 0) exclOut.push({ name: D.matrix_crawlers[j], v: v }); });
+      D.exclusion_matrix.forEach(function (row, j) { if (j !== i && row[i] > 0) exclIn.push({ name: D.matrix_crawlers[j], v: row[i] }); });
+      exclOut.sort(function (a, b) { return b.v - a.v; }); exclIn.sort(function (a, b) { return b.v - a.v; });
+    }
+
+    var h = '<div class="dd-head"><div><div class="dd-eyebrow">Crawler detail</div><div class="dd-title">' + esc(name) + '</div></div>' +
+      '<button class="dd-close" id="dd-close">Close &times;</button></div>' +
+      '<div class="dd-kpis">' +
+        kpi(x.blocked_pct.toFixed(2) + "%", "explicitly blocked") +
+        kpi(x.allowed_pct.toFixed(2) + "%", "explicitly allowed") +
+        kpi(x.explicit_policy_pct.toFixed(2) + "%", "any explicit policy") +
+        kpi(x.delta_pp == null ? "—" : (x.delta_pp > 0 ? "+" : "") + x.delta_pp.toFixed(2) + "pp", "change vs previous edition") +
+      '</div>';
+
+    h += '<div class="dd-grid">';
+    // states
+    h += '<div class="dd-card"><div class="dd-h">Declared states</div>' +
+      ["blocked","partial","allowed","unlisted","no_robots"].map(function (st) {
+        return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + STATE_LABELS[st] + '</span>' +
+          '<span class="hb"><span style="width:' + (tot ? x[st] / tot * 100 : 0).toFixed(1) + '%;background:' + STATE_COLORS[st] + '"></span></span>' +
+          '<span class="hv">' + fmt(x[st]) + '</span></div>';
+      }).join("") + '</div>';
+    // rank bands
+    h += '<div class="dd-card"><div class="dd-h">By panel rank band</div>' +
+      bands.map(function (b) {
+        return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + b.band + '</span>' +
+          '<span class="hb"><span style="width:' + (b.v / bmax * 100).toFixed(1) + '%"></span></span>' +
+          '<span class="hv">' + b.v.toFixed(1) + '%</span></div>';
+      }).join("") + '<p class="foot">Rank band is position in the index frame &mdash; not traffic or site size. n per band: ' +
+      bands.map(function (b) { return b.n; }).join(" / ") + '</p></div>';
+    // ccTLD
+    h += '<div class="dd-card"><div class="dd-h">Highest-blocking ccTLD groups</div>' +
+      topT.map(function (t) {
+        return '<div class="hrow"><span class="hk" style="width:auto">' + esc(t.tld) + '</span>' +
+          '<span class="hb"><span style="width:' + (t.v / tmax * 100).toFixed(1) + '%"></span></span>' +
+          '<span class="hv">' + t.v.toFixed(1) + '% <span style="opacity:.6">n=' + t.n + '</span></span></div>';
+      }).join("") + '<p class="foot">ccTLD is a domain-suffix classification &mdash; not operator location, ownership, or audience. Minimum n=' + D.tld.min_n + '.</p></div>';
+    // peers + exclusion
+    h += '<div class="dd-card"><div class="dd-h">Treated most alike</div>' +
+      peers.slice(0, 4).map(function (p) {
+        return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + esc(p.name) + '</span>' +
+          '<span class="hb"><span style="width:' + p.v.toFixed(0) + '%"></span></span><span class="hv">' + p.v.toFixed(0) + '%</span></div>';
+      }).join("") +
+      (peers.length ? '<div class="dd-h" style="margin-top:14px">Treated least alike</div>' +
+        peers.slice(-3).reverse().map(function (p) {
+          return '<div class="hrow"><span class="hk" style="width:auto;white-space:nowrap">' + esc(p.name) + '</span>' +
+            '<span class="hb"><span style="width:' + p.v.toFixed(0) + '%;background:#A33A2A"></span></span><span class="hv">' + p.v.toFixed(0) + '%</span></div>';
+        }).join("") : "") +
+      '<p class="foot">Share of domains with an explicit policy for both that give them the same status.</p></div>';
+    h += '</div>';
+
+    h += '<div class="ctrls" style="margin-top:14px">' +
+      '<button class="btnx" data-open-dom=\'{"crawler":"' + esc(name) + '","status":"b"}\'>Show the ' + fmt(x.blocked) + ' domains blocking ' + esc(name) + '</button>' +
+      '<button class="btnx" style="background:#1C5D4A" data-open-dom=\'{"crawler":"' + esc(name) + '","status":"a"}\'>Show the ' + fmt(x.allowed) + ' explicitly allowing</button>' +
+      '</div>';
+
+    if (exclOut.length || exclIn.length) {
+      h += '<div class="dd-card" style="margin-top:14px"><div class="dd-h">Selective exclusion</div>' +
+        (exclOut.length ? '<p class="sub" style="margin:6px 0">' + esc(name) + ' is blocked while another is explicitly allowed &mdash; most often against <b>' +
+          esc(exclOut[0].name) + '</b> (' + exclOut[0].v.toFixed(2) + '% of indexed domains).</p>' : '') +
+        (exclIn.length ? '<p class="sub" style="margin:6px 0">Conversely, <b>' + esc(exclIn[0].name) + '</b> is blocked while ' + esc(name) +
+          ' is allowed on ' + exclIn[0].v.toFixed(2) + '% of indexed domains.</p>' : '') +
+        '</div>';
+    }
+
+    var box = EL("drill");
+    box.innerHTML = h; box.style.display = "block";
+    EL("dd-close").addEventListener("click", function () { box.style.display = "none"; });
+    wireLinks(); scrollToEl(box);
+  }
+
+  function wireDrill() {
+    document.querySelectorAll(".lbrow.clickable").forEach(function (r) {
+      r.addEventListener("click", function () { crawlerDetail(r.dataset.crawler); });
+    });
+    var DRILLS = { trend: drillTrend, selective: drillSelective, changes: drillChanges, wire: drillWire };
+    document.querySelectorAll(".panel.pclick").forEach(function (p) {
+      p.addEventListener("click", function (e) {
+        if (e.target.closest("a,button,input,select,.tp,.ppt")) return;
+        var f = DRILLS[p.dataset.drill]; if (f) f();
+      });
+    });
+    document.querySelectorAll(".strow[data-crawler]").forEach(function (r) {
+      r.addEventListener("click", function () { crawlerDetail(r.dataset.crawler); });
+    });
+    document.querySelectorAll("table.mx td[data-a]").forEach(function (td) {
+      td.addEventListener("click", function () { pairDetail(td.dataset.a, td.dataset.b); });
+    });
+  }
+
+  /* ---------- THE BAZAAR (machine payments) ---------- */
+  var BZ = null, BZD = null, BZD_STATE = "idle";
+  function bazaar() {
+    if (BZ) return renderBazaar(BZ);
+    EL("content").innerHTML = '<section class="panel wide"><div class="ix">Loading</div><div class="empty">Loading the machine-payment snapshot…</div></section>';
+    fetch("/data/bazaar.json", { cache: "no-store" }).then(function (r) { return r.json(); })
+      .then(function (j) { BZ = j; renderBazaar(j); })
+      .catch(function () { EL("content").innerHTML = '<section class="panel wide"><div class="ix">Unavailable</div><div class="empty">The Bazaar snapshot has not published yet — it captures with each weekly edition.</div></section>'; });
+  }
+  function bzBar(label, n, denom, color, valTxt) {
+    var w = denom ? Math.max(n > 0 ? 2 : 0, Math.round(n / denom * 100)) : 0;
+    return '<div style="display:grid;grid-template-columns:170px 1fr 120px;gap:12px;align-items:center;margin:8px 0;font-size:13.5px">' +
+      '<span style="color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(label) + '</span>' +
+      '<span style="height:12px;background:#efe8d7;border:1px solid var(--line);border-radius:2px;overflow:hidden"><span style="display:block;height:100%;width:' + w + '%;background:' + color + '"></span></span>' +
+      '<span style="text-align:right;color:var(--dim);white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:12px">' + (valTxt || (fmt(n) + " · " + w + "%")) + '</span></div>';
+  }
+  function loadBazaarDomains(cb) {
+    if (BZD) return cb(BZD);
+    if (BZD_STATE === "loading") return;
+    BZD_STATE = "loading";
+    var go = function (token) {
+      fetch("/api/bazaar-domains", { cache: "no-store", headers: token ? { Authorization: "Bearer " + token } : {} })
+        .then(function (r) {
+          if (r.status === 401) throw new Error("Your session expired — reload to sign in again.");
+          if (r.status === 503) throw new Error("We couldn't check your subscription just now — that's our end, not yours. Try again in a moment.");
+          if (r.status === 402) throw new Error("A Terminal subscription unlocks the full list. Open Account & data to subscribe.");
+          if (!r.ok) throw new Error("Unavailable (" + r.status + ").");
+          return r.json();
+        })
+        .then(function (j) { BZD = j; BZD_STATE = "ready"; cb(j); })
+        .catch(function (e) { BZD_STATE = "error"; var el = EL("bz-status"); if (el) el.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+    };
+    if (window.Clerk && window.Clerk.session) window.Clerk.session.getToken().then(go).catch(function () { go(null); });
+    else go(null);
+  }
+  function renderBazaar(B) {
+    var GREEN = "#1C5D4A", RED = "#A33A2A", GOLD = "#8A6A1F", BLUE = "#1D4E6F", DIM = "#B8B0A2", MID = "#2E7D5B";
+    var SER = Georgia();
+    function Georgia() { return "Georgia,'Times New Roman',serif"; }
+    var rp = B.real_priced, t = B.by_type || {}, u = B.usd || {}, s = B.sellers || {}, re = B.reach || {}, i = B.intersection || null, byNet = B.by_network || {};
+    var ser = B.series || [];
+    var h = "";
+
+    // Panel 1 — headline
+    h += '<section class="panel wide"><div class="ix">The machine-payable surface</div>' +
+      '<p class="sub">How to read: endpoints that <b>advertise</b> a machine-payable price in the Coinbase x402 registry — a declared, opt-in surface, not observed transactions.</p>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:34px;align-items:flex-end;margin-top:8px">' +
+        '<div><div style="font-family:' + SER + ';font-size:clamp(40px,7vw,70px);line-height:1;color:' + GREEN + '">' + fmt(rp) + '</div>' +
+          '<div style="font-size:12.5px;color:var(--dim);margin-top:4px">real-domain endpoints advertising a machine price</div></div>' +
+        '<div style="display:flex;gap:24px;flex-wrap:wrap">' +
+          kpi(fmt(s.distinct), "distinct pay-to addresses") +
+          kpi((B.rail_share_pct != null ? B.rail_share_pct + "%" : "—"), "on Base rail") +
+          kpi((ser.length >= 2 && B.vs_prior && B.vs_prior.net != null ? (B.vs_prior.net >= 0 ? "+" : "") + fmt(B.vs_prior.net) : "1st"), (ser.length >= 2 ? "net vs last week" : "edition")) +
+        '</div></div>' +
+      '<p class="foot">Denominator: ' + fmt(B.total) + ' endpoints captured · ' + fmt(rp) + ' after removing demo/test hosts, across ' + fmt(s.distinct) + ' distinct pay-to addresses (top holds ' + (s.top_share_pct != null ? s.top_share_pct + "%" : "—") + '). Advertised acceptance in an opt-in registry — not transactions or revenue. x402 is a stablecoin HTTP-402 rail, distinct from Cloudflare pay-per-crawl.</p></section>';
+
+    // Panel 2 — composition
+    var baseN = byNet["eip155:8453"] || 0;
+    h += '<section class="panel wide"><div class="ix">What it&rsquo;s made of</div>' +
+      '<p class="sub">How to read: the machine-payment economy today is mostly <b>APIs and tools</b>, not paid web pages.</p>' +
+      '<div style="margin-top:8px">' + bzBar("API", t.api || 0, rp, GREEN) + bzBar("Content", t.content || 0, rp, BLUE) + bzBar("MCP (tools)", t.mcp || 0, rp, GOLD) + '</div>' +
+      '<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">' +
+        bzBar("Base mainnet", baseN, rp, GREEN, fmt(baseN) + " · " + B.rail_share_pct + "%") +
+        bzBar("USDC settlement", Math.round(rp * ((B.asset_usdc_share_pct || 0) / 100)), rp, MID, B.asset_usdc_share_pct + "% of assets") + '</div>' +
+      '<p class="foot">Share of <b>observed advertised endpoints in this week&rsquo;s registry</b> &mdash; not market share, and not a measure of use. Of ' + fmt(rp) + ' real+priced endpoints. Rail share (Base ' + B.rail_share_pct + '%) and asset share (USDC ' + B.asset_usdc_share_pct + '%) use different denominators. ' + fmt(u.testnet_excluded || 0) + ' testnet endpoints excluded from price stats.</p></section>';
+
+    // Panel 3 — price
+    var bd = u.bands || {}, mb = Math.max(1, bd["<=0.001"] || 0, bd["0.001-0.01"] || 0, bd["0.01-0.1"] || 0, bd["0.1-1"] || 0, bd[">1"] || 0);
+    h += '<section class="panel wide"><div class="ix">What machine access costs</div>' +
+      '<p class="sub">How to read: the advertised ask per listed endpoint request, in USD (known mainnet stablecoins only).</p>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:26px;align-items:flex-end;margin:8px 0 14px">' +
+        '<div><div style="font-family:' + SER + ';font-size:clamp(34px,6vw,52px);line-height:1;color:' + GREEN + '">$' + (u.median != null ? u.median : "—") + '</div><div style="font-size:12.5px;color:var(--dim)">median advertised price</div></div>' +
+        '<div style="display:flex;gap:22px">' + kpi("$" + (u.p25 != null ? u.p25 : "—"), "25th pct") + kpi("$" + (u.p75 != null ? u.p75 : "—"), "75th pct") + kpi(fmt(u.n), "priced in USD") + '</div></div>' +
+      bzBar("≤ $0.001", bd["<=0.001"] || 0, mb, DIM, fmt(bd["<=0.001"] || 0)) +
+      bzBar("$0.001–0.01", bd["0.001-0.01"] || 0, mb, GREEN, fmt(bd["0.001-0.01"] || 0)) +
+      bzBar("$0.01–0.10", bd["0.01-0.1"] || 0, mb, GREEN, fmt(bd["0.01-0.1"] || 0)) +
+      bzBar("$0.10–1", bd["0.1-1"] || 0, mb, GOLD, fmt(bd["0.1-1"] || 0)) +
+      bzBar("> $1", bd[">1"] || 0, mb, RED, fmt(bd[">1"] || 0)) +
+      '<div style="margin-top:12px;padding:10px 14px;background:#efe8d7;border-left:3px solid #c9a24b;font-size:12.5px;color:var(--dim)">Highest advertised price: <b>$' + (u.max != null ? fmt(u.max) : "—") + '</b> — a single endpoint, not the median. ' + fmt(u.unnormalisable || 0) + ' endpoints use unknown assets (raw units, excluded).</div>' +
+      '<p class="foot">For reference, CPI observes one posted per-crawl price of $0.50 — machine micro-payments cluster far lower, and mostly for tools. Advertised asks, not observed payments.</p></section>';
+
+    // Panel 4 — cross-reference
+    if (i) {
+      var bb = i.by_rank_band || {};
+      var pRow = function (k, lab) { var b = bb[k] || { in: 0, pct: 0 }; return bzBar(lab, b.in, Math.max(1, i.in_frame_total), GREEN, fmt(b.in) + " of " + fmt(b.band_size || 0) + " in frame"); };
+      h += '<section class="panel wide"><div class="ix">Has the mainstream web entered it?</div>' +
+        '<p class="sub">How to read: of the 50,000 domains CPI scans, how many advertise a machine price &mdash; and which of those also block AI crawlers. ' +
+          'Blocking crawlers while selling machine access is not a contradiction: it is a coherent posture &mdash; <em>do not scrape me for free, buy the endpoint</em>. ' +
+          'At these counts this is an observation and a watchlist, not a rate.</p>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:26px;align-items:flex-end;margin:8px 0 14px">' +
+          '<div><div style="font-family:' + SER + ';font-size:clamp(34px,6vw,52px);line-height:1;color:' + GREEN + '">' + fmt(i.in_frame_total) + '<span style="font-size:.4em;color:var(--dim)"> / ' + fmt(i.frame_size) + '</span></div><div style="font-size:12.5px;color:var(--dim)">genuine sites in the 50k frame that advertise a machine price</div></div>' +
+          '<div style="display:flex;gap:22px;flex-wrap:wrap">' + kpi(fmt(i.in_frame_content), "selling content") + kpi(fmt(i.blockers_that_sell), "block crawlers, yet sell (watchlist)") + kpi(fmt(re.beyond_frame), "beyond the 50k") + '</div></div>' +
+        '<div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:6px 0 4px">Penetration by Tranco rank band</div>' +
+        pRow("1-100", "Top 100") + pRow("101-1k", "101–1,000") + pRow("1k-10k", "1,001–10,000") + pRow("10k-50k", "10,001–50,000") +
+        '<div style="margin-top:14px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:6px">A few examples · Terminal shows all ' + fmt(i.in_frame_total) + '</div>' +
+        (i.examples || []).map(function (e) { return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)"><span><b>' + esc(e.domain) + '</b> <span style="color:var(--dim)">#' + fmt(e.rank) + " · " + esc(e.type) + '</span></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px">' + (e.price_usd != null ? "$" + e.price_usd : "—") + (e.blocks_crawlers ? ' · <span style="color:#A33A2A">blocks+sells</span>' : "") + '</span></div>'; }).join("") +
+        '<div style="margin-top:14px"><button class="btnx" id="bz-load" style="background:#1C5D4A;border-color:#1C5D4A;color:#fff">Load the full list — Terminal</button></div>' +
+        '<div id="bz-status"></div><div id="bz-full"></div>' +
+        '<p class="foot">Registrable-domain match to the current 50k edition; PaaS/cloud hosts (' + fmt(i.hosting_excluded || 0) + ' excluded) are not counted as publishers. Counts are of domains observed <b>in this edition&rsquo;s frame</b>; on numbers this small a percentage would imply precision the observations do not carry. Advertised acceptance, declared and opt-in &mdash; never transactions, volume or revenue.</p></section>';
+    } else {
+      h += '<section class="panel wide"><div class="ix">Has the mainstream web entered it?</div><div class="empty">The 50k cross-reference populates with the next weekly edition.</div></section>';
+    }
+
+    // Panel 5 — trend
+    h += '<section class="panel wide"><div class="ix">How it&rsquo;s changing</div>';
+    if (ser.length >= 2) {
+      var fN = ser[ser.length - 1];
+      h += '<div style="display:flex;gap:26px;flex-wrap:wrap">' + kpi(fmt(fN.real_priced), "endpoints (latest)") + kpi("$" + (fN.usd_median != null ? fN.usd_median : "—"), "median (latest)") + kpi((fN.in_frame ? fmt(fN.in_frame.total) : "—"), "in 50k frame") + kpi(ser.length + " editions", "recorded") + '</div>' +
+        '<p class="foot">' + ser.length + ' editions recorded; week-over-week detail deepens with the series.</p>';
+    } else {
+      h += '<div class="empty">1 edition recorded — the series builds each week. Week-over-week movement, price changes, and new-entrant tracking activate from the second edition.</div>';
+    }
+    h += '</section>';
+
+    EL("content").innerHTML = h;
+    var b = EL("bz-load");
+    if (b) b.addEventListener("click", function () {
+      EL("bz-status").innerHTML = '<div class="empty">Loading…</div>';
+      loadBazaarDomains(function (j) {
+        EL("bz-status").innerHTML = "";
+        var rows = (j.rows || []).slice().sort(function (a, c) { return a.rank - c.rank; });
+        EL("bz-full").innerHTML = '<div class="mwrap" style="max-height:440px;margin-top:10px"><table class="dt"><thead><tr><th>Domain</th><th>Rank</th><th>Type</th><th>Advertised</th><th>Policy</th></tr></thead><tbody>' +
+          rows.map(function (r) { return '<tr><td><b>' + esc(r.domain) + '</b></td><td style="font-family:ui-monospace,monospace">' + fmt(r.rank) + '</td><td>' + esc(r.type) + '</td><td style="font-family:ui-monospace,monospace">' + (r.price_usd != null ? "$" + r.price_usd : "—") + '</td><td>' + (r.blocks_crawlers ? '<b style="color:#A33A2A">blocks &amp; sells</b>' : "sells") + '</td></tr>'; }).join("") +
+          '</tbody></table></div><p class="foot">' + fmt(rows.length) + ' domains · your licensed extract, not for redistribution.</p>';
+      });
+    });
+  }
+
+  /* ---------- router ---------- */
+  var TABS = {
+    overview: { title: "This edition", render: brief },
+    detail:   { title: "Full detail", render: overview },
+    crawlers: { title: "Crawlers", render: crawlers },
+    policy:   { title: "Policy layer", render: policyLayer },
+    changes:  { title: "Policy changes", render: changes },
+    domains:  { title: "Domains",  render: domains },
+    segments: { title: "Segments", render: segments },
+    wire:     { title: "Wire evidence", render: wire },
+    bazaar:   { title: "The Bazaar", render: bazaar },
+    account:  { title: "Account & data", render: account }
+  };
+  function route(tab) {
+    var box = EL("drill");                 // a drill panel belongs to the view that opened it
+    if (box) { box.style.display = "none"; box.innerHTML = ""; }
+    var t = TABS[tab];
+    EL("page-title").textContent = t ? t.title : (tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (t) { t.render(); }
+    else {
+      EL("content").innerHTML = '<section class="panel wide"><div class="ix">In build</div>' +
+        '<div class="empty">This view is being built this week. Overview and Crawlers are live now.</div></section>';
+    }
+  }
+  window.CPI_BOOT = function () {
+    fetch("/data/dashboard.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
+      D = j; window.CPI_D = j;
+      EL("ed").textContent = j.edition + " · generated " + (j.generated_utc || "").slice(0, 10);
+      // returning from Stripe Checkout lands on the Account tab
+      var qs = new URLSearchParams(location.search);
+      var hash = (location.hash || "#overview").slice(1);
+      if (qs.get("sub") === "success" || qs.get("snap_session")) hash = "account";
+      var startTab = document.querySelector('nav.tabs a[data-tab="' + hash + '"]');
+      if (startTab) { document.querySelectorAll("nav.tabs a").forEach(function (x) { x.classList.remove("on"); }); startTab.classList.add("on"); }
+      route(hash);
+      document.querySelectorAll("nav.tabs a").forEach(function (a) {
+        a.addEventListener("click", function () {
+          document.querySelectorAll("nav.tabs a").forEach(function (x) { x.classList.remove("on"); });
+          a.classList.add("on"); route(a.dataset.tab);
+        });
+      });
+    }).catch(function (e) {
+      EL("content").innerHTML = '<section class="panel wide"><div class="ix">Data unavailable</div>' +
+        '<div class="empty">Could not load the edition data. If this persists, the weekly build may not have published yet.</div></section>';
+      console.error(e);
+    });
+  };
+})();

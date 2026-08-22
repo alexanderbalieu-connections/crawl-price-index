@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Crawl Price Index — what the web charges AI to read it</title>
+<meta name="description" content="A weekly, independent measure of what the web charges AI crawlers: block rates, the one observed per-crawl price, and where the pay-per-crawl market is heading.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23FBFAF8%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%231C5D4A%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<style>
+.bignum{font-family:var(--serif);font-weight:400;font-size:clamp(52px,9vw,104px);line-height:.9;letter-spacing:-.03em;color:var(--signal)}
+.bignum .u{font-size:.28em;color:var(--dim);letter-spacing:0}
+.nprice{font-family:var(--sans);font-size:13px;color:var(--amber);font-weight:600;letter-spacing:.04em}
+.trend-svg{width:100%;height:auto;display:block;margin-top:6px;max-width:100%}
+.trend-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--dim)}
+.trend-legend b{display:inline-block;width:22px;height:2px;vertical-align:middle;margin-right:6px}
+.brow2{display:grid;grid-template-columns:150px 1fr 52px;gap:12px;align-items:center;font-size:13.5px;padding:4px 0}
+.brow2 .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brk{height:13px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.brk>span{display:block;height:100%;background:var(--signal);width:0;transition:width .7s cubic-bezier(.2,.7,.2,1)}
+.brow2 .pc{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+.postgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.postcell{border:1px solid var(--line);border-radius:3px;padding:16px;background:var(--sand);min-width:0}
+.postcell.hi{border-left:3px solid var(--signal)}
+.postcell .pn{font-family:var(--serif);font-size:30px;color:var(--fg)}
+.postcell.hi .pn{color:var(--signal)}
+.postcell .pt{font-size:12.5px;color:var(--fg);font-weight:600;margin-top:2px}
+.postcell .pd{font-size:12px;color:var(--dim);margin-top:4px;line-height:1.4}
+.calc-out{font-family:var(--serif);font-size:clamp(34px,6vw,60px);line-height:.95;letter-spacing:-.02em;color:var(--signal);margin:2px 0}
+.slider{margin:16px 0}
+.slider label{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:8px;gap:10px}
+.slider label b{font-variant-numeric:tabular-nums;color:var(--signal);font-weight:600;white-space:nowrap}
+.slider input[type=range]{width:100%;accent-color:var(--signal)}
+.assume{font-size:12px;color:var(--dim);line-height:1.5;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.tick{display:flex;gap:10px;overflow-x:auto;padding:4px 0 2px;margin-top:10px}
+.tick .ti{flex:0 0 auto;border:1px solid var(--line);border-radius:3px;padding:8px 12px;font-size:12.5px;background:#fff;white-space:nowrap}
+.tick .ti b{color:var(--fg)}
+.tick .ti .tg{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-right:6px}
+.tg.PRICED{color:var(--signal)} .tg.GATED{color:var(--amber)} .tg.LICENSING{color:var(--blue)} .tg.FREE{color:var(--dim)}
+.subrow-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px}
+.subrow-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.subpanel{border:1px solid var(--line);border-radius:4px;padding:14px;background:var(--sand)}
+.subpanel.hi{border-left:3px solid var(--signal)}
+.subpanel .sublabel{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:10px}
+.slidernote{font-size:11px;color:var(--dim);margin-top:4px;line-height:1.4}
+@media(max-width:720px){.subrow-3,.subrow-2{grid-template-columns:1fr}}
+@media(max-width:640px){.postgrid{grid-template-columns:1fr}.brow2{grid-template-columns:110px 1fr 44px}}
+</style>
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" href="/#access">Subscribe</a>
+  </nav>
+</div></div>
+
+<div class="page-open"><div class="wrap">
+  <p class="eyebrow">Independent &middot; at least weekly &middot; edition of <span id="asof-eyebrow">&mdash;</span></p>
+  <h1>What the web charges <em>AI</em> to read it.</h1>
+  <p class="lede">Every edition we read the crawler policy of the top <span id="lede-topn">50,000</span> domains and record what they charge, block, or allow. Block rates are widely reported. Observed prices are not &mdash; that is the record we keep.</p>
+</div></div>
+
+<div class="wrap"><div class="panels">
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The number</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:30px;align-items:flex-end;justify-content:space-between;min-width:0">
+      <div style="min-width:0">
+        <div class="bignum">$<span id="obs-price">&mdash;</span><span class="u"> / crawl</span></div>
+        <p class="nprice" style="margin-top:10px">n = 1 &middot; the only posted per-crawl price on the measurable web</p>
+      </div>
+      <p style="max-width:38ch;margin:0;color:var(--dim)"><b id="obs-domain" style="color:var(--fg)">&mdash;</b> quotes this to ClaudeBot via Cloudflare pay-per-crawl. We probed thousands of AI-aware domains; this is the only machine-readable price any of them posts. The market has toll booths. It barely has prices.</p>
+    </div>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The wall is rising</span></div>
+    <h2>Block rates, every edition since the baseline.</h2>
+    <p>Each edition, more of the web disallows AI crawlers in robots.txt. The series is young, but every crawler we track has trended the same direction: up. This accumulating history is the part a competitor who starts later cannot reconstruct.</p>
+    <div style="position:relative">
+      <svg class="trend-svg" id="trend" viewBox="0 0 800 260" preserveAspectRatio="xMidYMid meet" aria-label="Block rate trend"></svg>
+      <div id="trend-tip" style="position:absolute;display:none;pointer-events:none;background:var(--fg);color:#fff;font-family:var(--sans);font-size:12px;padding:6px 9px;border-radius:3px;white-space:nowrap;z-index:20"></div>
+    </div>
+    <div class="trend-legend" id="trend-legend"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px;line-height:1.5">This plots the <em>change</em> in each edition's block rate versus the one before, so a point below zero means that edition's rate ticked down, not that blocking reversed. Small dips (like 16 Aug) reflect coverage variation &mdash; each scan reaches a slightly different set of domains, so the reachable sample shifts a little edition to edition. The underlying level has risen across the series.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">Who gets blocked</span></div>
+    <h2>Not all crawlers are treated alike.</h2>
+    <p style="margin-bottom:12px">Share of domains with a readable robots.txt that disallow each crawler. Training bots are walled harder than the search crawlers that send traffic back.</p>
+    <div id="rates"></div>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">How the door answers</span></div>
+    <h2>Priced, gated, or blocked.</h2>
+    <p style="margin-bottom:4px">When an identified AI crawler knocks, the response falls into a few distinct behaviours &mdash; measured on the wire this edition.</p>
+    <div class="postgrid" id="posture"></div>
+    <div class="tick" id="board"></div>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">A sensitivity tool, not a forecast</span></div>
+    <h2>Explore the range: what could a priced crawl-web be worth?</h2>
+    <p>Almost nobody charges today, but the pay-per-crawl rails are one toggle away across much of the web. This is a <b>sensitivity tool with no base case</b> &mdash; it predicts nothing. It shows how a hypothetical annual market value depends entirely on assumptions <b>you</b> set. Every number here is illustrative.</p>
+    <p style="font-size:13px;color:var(--dim);border-left:3px solid var(--amber);padding:8px 0 8px 14px;margin:8px 0 0">The $0.50 we observe (Stack Overflow) is one posted <b>quote</b>, not a market rate. Cloudflare&rsquo;s documented minimum is $0.001 and its own example is $0.01; observed effective rates cluster around <b>$0.001&ndash;$0.05</b>. Across tens of billions of daily crawls, a realistic <b>blended clearing rate</b> sits in that range &mdash; so the presets default there, and effective price softens as more of the web charges (crawlers substitute).</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 2px" id="presets">
+      <button type="button" class="ghost preset" data-s="low" style="padding:8px 16px;font-size:13px">Conservative</button>
+      <button type="button" class="ghost preset" data-s="mid" style="padding:8px 16px;font-size:13px">Middle</button>
+      <button type="button" class="ghost preset" data-s="high" style="padding:8px 16px;font-size:13px">Aggressive</button>
+      <button type="button" class="ghost preset" data-s="ceiling" style="padding:8px 16px;font-size:13px">$0.50 ceiling</button>
+    </div>
+    <p id="preset-note" style="font-size:12px;color:var(--dim);margin:6px 0 0;min-height:1.2em">Each is an assumption set, not a forecast. Pick one, then move any slider.</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:26px;align-items:flex-end;margin:14px 0 2px">
+      <div style="min-width:0">
+        <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:600">2032 illustrative value</div>
+        <div class="calc-out" id="calc-out">&mdash;</div>
+      </div>
+      <div style="padding-bottom:6px;min-width:0">
+        <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:600">Implied CAGR 2026&ndash;32</div>
+        <div style="font-family:var(--serif);font-size:clamp(26px,4vw,40px);color:var(--amber);line-height:1.05"><span id="calc-cagr">&mdash;</span>%</div>
+      </div>
+    </div>
+
+    <div style="position:relative"><svg class="trend-svg" id="proj" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet" style="margin-top:8px"></svg>
+    <div id="proj-tip" style="position:absolute;display:none;pointer-events:none;background:var(--fg);color:#fff;font-family:var(--sans);font-size:12px;padding:6px 9px;border-radius:3px;white-space:nowrap;z-index:20"></div></div>
+
+    <div class="subrow-3">
+      <div class="subpanel">
+        <div class="slider" style="margin:0">
+          <label>Crawl req/day, bn <b><span id="s-vol">50</span>B</b></label>
+          <input type="range" id="vol" min="1" max="500" value="50">
+          <div class="slidernote">Cloudflare-reported &gt;50B/day (AI Labyrinth, Mar 2025); a sample on ~20% of web traffic, not a global total.</div>
+        </div>
+      </div>
+      <div class="subpanel">
+        <div class="slider" style="margin:0">
+          <label>Monetised share today <b><span id="s-start">1.0</span>%</b></label>
+          <input type="range" id="start" min="1" max="50" value="10">
+          <div class="slidernote">Share of crawls paid for today &mdash; unsourced, a major driver, yours to set (0.1&ndash;5%).</div>
+        </div>
+      </div>
+      <div class="subpanel">
+        <div class="slider" style="margin:0">
+          <label>Price growth/yr <b><span id="s-pgrow">0</span>%</b></label>
+          <input type="range" id="pgrow" min="0" max="30" value="0">
+          <div class="slidernote">Effective price still softens as share rises (elasticity).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subrow-2">
+      <div class="subpanel hi">
+        <div class="sublabel">Most impactful</div>
+        <div class="slider" style="margin:0">
+          <label>Blended price per crawl <b id="s-price-lbl">$0.010 &middot; blended range</b></label>
+          <input type="range" id="price" min="1" max="500" value="10">
+          <div class="slidernote">Spans $0.001&ndash;$0.50. Observed effective rates cluster $0.001&ndash;$0.05 (Cloudflare docs, TollBit, commentary). $0.50 is the one posted quote (a ceiling).</div>
+        </div>
+      </div>
+      <div class="subpanel hi">
+        <div class="sublabel">Most impactful</div>
+        <div class="slider" style="margin:0">
+          <label>Monetised-share growth/yr <b><span id="s-growth">40</span>%</b></label>
+          <input type="range" id="growth" min="5" max="150" value="40">
+          <div class="slidernote">Recent observed anchor: +45% QoQ AI-agent requests (DataDome, Q1&rarr;Q2 2026) &mdash; a short-run spike, not annualised. You set the long-run rate; caps at 40% of crawls.</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="assume" id="assume"></p>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">Coverage &amp; method</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+      <div style="min-width:0"><div class="bignum" style="font-size:clamp(26px,4vw,42px)"><span id="f-parsed">&mdash;</span></div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">domains with a readable robots.txt</div></div>
+      <div style="min-width:0"><div class="bignum" style="font-size:clamp(26px,4vw,42px)"><span id="f-topn">&mdash;</span></div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">Tranco frame scanned</div></div>
+      <div style="min-width:0"><div class="bignum" style="font-size:clamp(26px,4vw,42px)"><span id="f-gpt">&mdash;</span>%</div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">block GPTBot</div></div>
+      <div style="min-width:0"><div class="bignum" style="font-size:clamp(26px,4vw,42px)">$<span id="f-price">&mdash;</span></div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">highest observed price</div></div>
+    </div>
+    <p class="source" style="margin-top:20px">Coverage is of domains that serve a readable robots.txt, not the raw list &mdash; unreachable domains are censused separately. Headline figures are free to cite with attribution. <a href="/methodology">Full methodology &rarr;</a></p>
+    <div class="cta-row">
+      <a class="btn" href="/check">Check any domain &mdash; free</a>
+      <a class="ghost" href="https://app.crawlpriceindex.com/dashboard.html#account">Get the Terminal &mdash; &euro;49/mo</a>
+      <a class="ghost" href="https://app.crawlpriceindex.com">Free dashboard</a>
+    </div>
+  </section>
+
+  <section class="panel wide" id="weekly">
+    <div class="ix"><span class="lead-in">The Weekly Crawl &mdash; free</span></div>
+    <p style="max-width:56ch;color:var(--dim);margin:8px 0 16px">One email a week: which domains changed their AI-crawler policy, the block-rate shifts, and the observed crawl prices. Free &mdash; and you get an instant data sample (the top-100 domains&rsquo; full rows) the moment you sign up.</p>
+    <form id="subform" onsubmit="return cpiSub(event)" style="display:flex;gap:10px;flex-wrap:wrap;max-width:480px">
+      <input id="subemail" type="email" required autocomplete="email" placeholder="you@company.com" style="flex:1;min-width:220px;padding:12px 14px;border:1px solid var(--line);background:#fff;color:var(--fg);font-size:14px;border-radius:2px">
+      <button class="btn" type="submit">Get the weekly email</button>
+    </form>
+    <p id="submsg" style="font-size:12.5px;color:var(--dim);margin-top:10px;min-height:1em"></p>
+  </section>
+
+</div></div>
+
+<footer><div class="wrap">
+  THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web &middot; edition of <span id="asof-foot">&mdash;</span> &middot; <a href="/methodology">methodology</a> &middot; <a href="/index.json">data feed</a>
+</div></footer>
+
+<script id="data" type="application/json">{"asof":"18 Aug 2026, 23:26 UTC","robots_parsed":27975,"tranco_top_n":50000,"observed_price":"0.50","block_gpt":15.2,"pub_multiple":5.1,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"11","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":14.8},{"bot":"GPTBot","rate":15.2},{"bot":"Bytespider","rate":14.2},{"bot":"ClaudeBot","rate":13.4},{"bot":"Google-Extended","rate":12.2},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":3}],"history":[{"date":"8 Aug","rates":{"GPTBot":15.3,"ClaudeBot":13.4,"CCBot":14.9,"Google-Extended":12.3}},{"date":"9 Aug","rates":{"GPTBot":15.3,"ClaudeBot":13.4,"CCBot":14.9,"Google-Extended":12.3}},{"date":"15 Aug","rates":{"GPTBot":15.4,"ClaudeBot":13.6,"CCBot":15.1,"Google-Extended":12.4}},{"date":"16 Aug","rates":{"GPTBot":15.2,"ClaudeBot":13.4,"CCBot":14.8,"Google-Extended":12.2}},{"date":"17 Aug","rates":{"GPTBot":15.2,"ClaudeBot":13.4,"CCBot":14.8,"Google-Extended":12.2}}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
+<script>
+function cpiSub(e){e.preventDefault();var m=document.getElementById('submsg');var em=(document.getElementById('subemail').value||'').trim();if(!em){return false;}m.style.color='var(--dim)';m.textContent='Signing you up…';fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})}).then(function(r){return r.json();}).then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You’re in — check your inbox for your free sample.';document.getElementById('subemail').value='';}).catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});return false;}
+var D = {};
+try { D = JSON.parse(document.getElementById('data').textContent || '{}'); } catch(e){ D = {}; }
+function $(s){ return document.querySelector(s); }
+function $$(s){ return document.querySelectorAll(s); }
+function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+
+set('asof-eyebrow', D.asof||'\u2014'); set('asof-foot', D.asof||'\u2014');
+set('lede-topn', (D.tranco_top_n||50000).toLocaleString());
+set('obs-price', D.observed_price!=null?D.observed_price:'\u2014');
+set('f-price', D.observed_price!=null?D.observed_price:'\u2014');
+$$('.calc-price').forEach(function(e){ e.textContent=(D.observed_price||0.5).toFixed(2); });
+set('obs-domain', (D.ticker&&D.ticker[0]&&D.ticker[0][0])||'stackoverflow.com');
+set('f-parsed', (D.robots_parsed||0).toLocaleString());
+set('f-topn', (D.tranco_top_n||50000).toLocaleString());
+set('f-gpt', D.block_gpt!=null?D.block_gpt:'\u2014');
+
+(function(){
+  var rows = D.block_rows||[]; if(!rows.length) return;
+  var max = Math.max.apply(null, rows.map(function(r){return r.rate;}));
+  $('#rates').innerHTML = rows.map(function(r){
+    return '<div class="brow2"><span class="nm">'+r.bot+'</span><span class="brk"><span data-w="'+Math.round(r.rate/max*100)+'"></span></span><span class="pc">'+r.rate+'%</span></div>';
+  }).join('');
+  requestAnimationFrame(function(){ $$('.brk>span').forEach(function(s){ s.style.width=s.dataset.w+'%'; }); });
+})();
+
+(function(){
+  var p = D.posture||[];
+  $('#posture').innerHTML = p.map(function(c){
+    return '<div class="postcell'+(c.hi?' hi':'')+'"><div class="pn">'+c.n+'</div><div class="pt">'+c.t+'</div><div class="pd">'+c.d+'</div></div>';
+  }).join('');
+  var t = D.ticker||[];
+  $('#board').innerHTML = t.map(function(x){
+    return '<div class="ti"><span class="tg '+x[1]+'">'+x[1]+'</span><b>'+x[0]+'</b> \u00b7 '+x[2]+'</div>';
+  }).join('');
+})();
+
+(function(){
+  var hist = D.history;
+  var svg = document.getElementById('trend');
+  var focus = ['GPTBot','ClaudeBot','CCBot','Google-Extended'];
+  var colors = {GPTBot:'#1C5D4A', ClaudeBot:'#8A6A1F', CCBot:'#1D4E6F', 'Google-Extended':'#A33A2A'};
+  if(!hist || hist.length<2){
+    svg.innerHTML = '<text x="400" y="130" text-anchor="middle" fill="#5F5B54" font-family="Archivo" font-size="14">Trend builds with each edition.</text>';
+    return;
+  }
+  var W=800,H=260,pad=40;
+  var series = focus.map(function(f){
+    return hist.map(function(h,i){
+      if(i===0) return 0;
+      var prev=hist[i-1].rates[f]||0, cur=h.rates[f]||0;
+      return prev? ((cur-prev)/prev*100) : 0;
+    });
+  });
+  var allv=[]; series.forEach(function(a){ a.forEach(function(v){ allv.push(v); }); });
+  var maxv=Math.max(2, Math.ceil(Math.max.apply(null,allv))); var minv=Math.min(0, Math.floor(Math.min.apply(null,allv)));
+  function x(i){ return pad + i*(W-2*pad)/(hist.length-1); }
+  function y(v){ return H-pad - ((v-minv)/(maxv-minv))*(H-2*pad); }
+  var g='';
+  for(var gv=minv; gv<=maxv; gv+=Math.max(1,Math.round((maxv-minv)/4))){
+    g+='<line x1="'+pad+'" y1="'+y(gv)+'" x2="'+(W-pad)+'" y2="'+y(gv)+'" stroke="'+(gv===0?'#B8B0A2':'#E7E1D7')+'" stroke-width="'+(gv===0?1.5:1)+'"/><text x="'+(pad-6)+'" y="'+(y(gv)+4)+'" text-anchor="end" fill="#5F5B54" font-size="11" font-family="Archivo">'+(gv>0?'+':'')+gv+'%</text>';
+  }
+  focus.forEach(function(f,fi){
+    var pts=series[fi].map(function(v,i){ return x(i)+','+y(v); }).join(' ');
+    g+='<polyline points="'+pts+'" fill="none" stroke="'+colors[f]+'" stroke-width="2.5" stroke-linejoin="round"/>';
+    series[fi].forEach(function(v,i){ g+='<circle class="tpt" data-f="'+f+'" data-d="'+hist[i].date+'" data-v="'+v.toFixed(1)+'" data-lvl="'+(hist[i].rates[f]||0)+'" cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="'+colors[f]+'" style="cursor:pointer"/>'; });
+  });
+  hist.forEach(function(h,i){ g+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle" fill="#5F5B54" font-size="11" font-family="Archivo">'+h.date+'</text>'; });
+  g+='<text x="'+pad+'" y="16" font-size="10.5" fill="#5F5B54" font-family="Archivo" letter-spacing="0.08em">CHANGE IN BLOCK RATE VS PREVIOUS EDITION</text>';
+  svg.innerHTML=g;
+  document.getElementById('trend-legend').innerHTML = focus.map(function(f){ return '<span><b style="background:'+colors[f]+'"></b>'+f+'</span>'; }).join('');
+  // tooltip
+  var tip=document.getElementById('trend-tip');
+  svg.querySelectorAll('.tpt').forEach(function(c){
+    c.addEventListener('mouseenter', function(e){
+      tip.style.display='block';
+      tip.innerHTML='<b>'+c.dataset.f+'</b> &middot; '+c.dataset.d+'<br>'+c.dataset.lvl+'% blocked ('+(c.dataset.v>=0?'+':'')+c.dataset.v+'% vs prev)';
+    });
+    c.addEventListener('mousemove', function(e){
+      var r=svg.getBoundingClientRect();
+      tip.style.left=(e.clientX - r.left + 12)+'px'; tip.style.top=(e.clientY - r.top - 10)+'px';
+    });
+    c.addEventListener('mouseleave', function(){ tip.style.display='none'; });
+  });
+})();
+
+(function(){
+  var vol=$('#vol'), price=$('#price'), start=$('#start'), growth=$('#growth'), pgrow=$('#pgrow');
+  var YEARS=[2026,2027,2028,2029,2030,2031,2032];
+  var CEILING=0.40, ELASTICITY=0.3; // share caps at 40% of crawls; price softens as share rises
+  // defensible reference markets (2026), reviewer-corrected
+  var LADDER=[
+    {v:4.4e9, label:'AI training-data ~$4.4B'},
+    {v:8e9,   label:'Stock photo/video ~$8B'},
+    {v:12e9,  label:'Financial analytics ~$12B'},
+    {v:30e9,  label:'Financial data services ~$30B'},
+    {v:42e9,  label:'Financial market data & news ~$42B'},
+    {v:120e9, label:'Video streaming ~$120B'},
+    {v:662e9, label:'Digital advertising ~$662B'}
+  ];
+  function fmt(n){
+    if(n>=1e12) return '$'+(n/1e12).toFixed(2)+'T';
+    if(n>=1e9)  return '$'+(n/1e9).toFixed(1)+'B';
+    if(n>=1e6)  return '$'+(n/1e6).toFixed(0)+'M';
+    if(n>=1e3)  return '$'+(n/1e3).toFixed(0)+'k';
+    return '$'+Math.round(n);
+  }
+  // price slider 1..500 -> $0.001 .. $0.50 (log-ish: value/1000)
+  function priceOf(){ return (+price.value)/1000; }
+  function priceLabel(pC){
+    if(pC>=0.45) return '$'+pC.toFixed(3)+' &middot; the one posted quote (ceiling)';
+    if(pC<=0.05) return '$'+pC.toFixed(3)+' &middot; blended range (observed)';
+    return '$'+pC.toFixed(3)+' &middot; above blended range';
+  }
+  function startOf(){ return (+start.value)/1000; } // slider 1..50 -> 0.1%..5%
+  function pickRefs(peak){
+    var d=LADDER.map(function(r){ return {r:r, d:Math.abs(Math.log10(r.v)-Math.log10(peak||1))}; });
+    d.sort(function(a,b){ return a.d-b.d; });
+    var chosen=d.slice(0,3).map(function(o){return o.r;});
+    chosen.sort(function(a,b){ return a.v-b.v; });
+    return chosen;
+  }
+  function series(){
+    var vB=+vol.value, pC=priceOf(), s0=startOf(), gr=(+growth.value)/100, pg=(+pgrow.value)/100;
+    var crawlsYr = vB*1e9*365;
+    return YEARS.map(function(_,i){
+      var share = Math.min(s0*Math.pow(1+gr,i), CEILING);
+      var shareRatio = s0>0 ? share/s0 : 1;
+      var priceDrag = 1/Math.pow(shareRatio, ELASTICITY);      // elasticity: price softens as share climbs
+      var effPrice = pC*Math.pow(1+pg,i)*priceDrag;
+      return crawlsYr*share*effPrice;
+    });
+  }
+  var lastVals=[];
+  function draw(vals){
+    lastVals=vals;
+    var svg=document.getElementById('proj'); var W=800,H=300,pl=64,pr=170,pt=18,pb=34;
+    var peak=Math.max.apply(null,vals);
+    var refs=pickRefs(peak);
+    var max=Math.max(peak, Math.max.apply(null,refs.map(function(r){return r.v;})))*1.15||1;
+    function x(i){ return pl+i*(W-pl-pr)/(YEARS.length-1); }
+    function y(v){ return H-pb-(v/max)*(H-pt-pb); }
+    var g='';
+    for(var k=0;k<=4;k++){ var gv=max*k/4; g+='<line x1="'+pl+'" y1="'+y(gv)+'" x2="'+(W-pr)+'" y2="'+y(gv)+'" stroke="#E7E1D7"/><text x="'+(pl-8)+'" y="'+(y(gv)+4)+'" text-anchor="end" font-size="11" fill="#5F5B54" font-family="Archivo">'+fmt(gv)+'</text>'; }
+    var lastY=-999;
+    refs.forEach(function(r){
+      var yy=y(r.v);
+      g+='<line x1="'+pl+'" y1="'+yy+'" x2="'+(W-pr)+'" y2="'+yy+'" stroke="#8A6A1F" stroke-width="1" stroke-dasharray="4 3" opacity="0.65"/>';
+      if(Math.abs(yy-lastY)>14){ g+='<text x="'+(W-pr+8)+'" y="'+(yy+4)+'" font-size="11" fill="#8A6A1F" font-family="Archivo">'+r.label+'</text>'; lastY=yy; }
+    });
+    var line=vals.map(function(v,i){ return x(i)+','+y(v); }).join(' ');
+    g+='<polyline points="'+x(0)+','+y(0)+' '+line+' '+x(YEARS.length-1)+','+y(0)+'" fill="#1C5D4A" opacity="0.08"/>';
+    g+='<polyline points="'+line+'" fill="none" stroke="#1C5D4A" stroke-width="2.5" stroke-linejoin="round"/>';
+    vals.forEach(function(v,i){ g+='<circle class="ppt" data-yr="'+YEARS[i]+'" data-v="'+v+'" cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="#1C5D4A" style="cursor:pointer"/>';
+      if(i===0||i===vals.length-1){ g+='<text x="'+x(i)+'" y="'+(y(v)-10)+'" text-anchor="'+(i===0?'start':'end')+'" font-size="12" font-weight="600" fill="#14181D" font-family="Archivo">'+fmt(v)+'</text>'; } });
+    YEARS.forEach(function(yr,i){ g+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11" fill="#5F5B54" font-family="Archivo">'+yr+'</text>'; });
+    g+='<text x="'+pl+'" y="'+(pt-4)+'" font-size="10.5" fill="#5F5B54" font-family="Archivo" letter-spacing="0.08em">ILLUSTRATIVE ANNUAL VALUE (USD) &middot; dashed = reference markets</text>';
+    svg.innerHTML=g;
+    var tip=document.getElementById('proj-tip');
+    svg.querySelectorAll('.ppt').forEach(function(c){
+      c.addEventListener('mouseenter', function(){ tip.style.display='block'; tip.innerHTML='<b>'+c.dataset.yr+'</b><br>'+fmt(+c.dataset.v)+' illustrative'; });
+      c.addEventListener('mousemove', function(e){ var rr=svg.getBoundingClientRect(); tip.style.left=(e.clientX-rr.left+12)+'px'; tip.style.top=(e.clientY-rr.top-10)+'px'; });
+      c.addEventListener('mouseleave', function(){ tip.style.display='none'; });
+    });
+  }
+  function calc(){
+    set('s-vol',+vol.value);
+    document.getElementById('s-price-lbl').innerHTML=priceLabel(priceOf());
+    set('s-start',(startOf()*100).toFixed(1));
+    set('s-growth',+growth.value); set('s-pgrow',+pgrow.value);
+    var vals=series(); draw(vals);
+    var base=vals[0], endVal=vals[vals.length-1];
+    set('calc-out', fmt(endVal));
+    var cagr=(base>0 && isFinite(endVal/base))?(Math.pow(endVal/base,1/6)-1)*100:NaN;
+    set('calc-cagr', isFinite(cagr)?Math.round(cagr):'\u2014');
+    $('#assume').innerHTML='<b>How this is computed:</b> '+(+vol.value)+'B crawls/day \u00d7 365 \u00d7 monetised share ('+(startOf()*100).toFixed(1)+'% today, growing '+(+growth.value)+'%/yr, capped at 40% of crawls) \u00d7 blended price ($'+priceOf().toFixed(3)+', '+(+pgrow.value)+'% nominal growth, softened by elasticity as share rises). No base case, no forecast \u2014 a range explorer. The $0.50 observed quote is a ceiling, not a market rate; prices default to the $0.001\u2013$0.05 blended range Cloudflare and others document. Growth anchors to a short-run +45% QoQ observation (DataDome), not annualised. Reference markets are 2026 estimates; the closest real analog is specialised data/news syndication (~$2\u20138B).';
+  }
+  // presets: [vol, price(1..500=$/1000), start(1..50=0.1%..5%), growth%, pgrow%]
+  var PRESETS={
+    low:     {vol:50, price:1,  start:5,  growth:20, pgrow:0, note:'Conservative: $0.001 blended, 0.5% monetised today, 20%/yr growth \u2014 a niche (~$0.2B). An assumption set, not a forecast.'},
+    mid:     {vol:50, price:5,  start:10, growth:40, pgrow:2, note:'Middle: $0.005 blended, 1% monetised today, 40%/yr growth \u2014 stock-photo / data-syndication scale (~$4B). An assumption set, not a forecast.'},
+    high:    {vol:80, price:10, start:10, growth:70, pgrow:5, note:'Aggressive: $0.01 blended, 1% today, 70%/yr growth \u2014 approaches music-streaming scale (~$20B+). An assumption set, not a forecast.'},
+    ceiling: {vol:50, price:500,start:10, growth:30, pgrow:0, note:'$0.50 ceiling: the one posted quote applied broadly. Shown to demonstrate why a list quote overstates a blended market \u2014 not a realistic scenario.'}
+  };
+  function apply(name){ var P=PRESETS[name]; if(!P) return;
+    vol.value=P.vol; price.value=P.price; start.value=P.start; growth.value=P.growth; pgrow.value=P.pgrow;
+    document.getElementById('preset-note').textContent=P.note; calc();
+  }
+  document.querySelectorAll('.preset').forEach(function(b){ b.addEventListener('click', function(){ apply(b.dataset.s); }); });
+  [vol,price,start,growth,pgrow].forEach(function(el){ el.addEventListener('input', function(){ document.getElementById('preset-note').textContent='You set these values \u2014 an assumption set, not a forecast.'; calc(); }); });
+  apply('mid');
+})();
+</script>
+</body>
+</html>

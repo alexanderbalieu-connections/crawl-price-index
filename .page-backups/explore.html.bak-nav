@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore — The Crawl Price Index</title>
+<meta name="description" content="Explore this week's AI-crawler policy data: block rates by crawler, the observed price, and ccTLD extremes. Free headline tier.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<style>
+/* dashboard-only layout; palette + type inherited from theme.css */
+.dash-wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.dash-hero{padding:44px 0 22px;border-bottom:1px solid var(--line)}
+.dash-eyebrow{font-family:var(--sans);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--signal);font-weight:600}
+.dash-hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.4vw,46px);line-height:1.08;letter-spacing:-.015em;margin:.3em 0 .25em}
+.dash-hero h1 em{font-style:italic;color:var(--signal)}
+.dash-sub{color:var(--dim);max-width:60ch;font-size:16.5px}
+.asof{font-family:var(--sans);font-size:13px;color:var(--dim);margin-top:14px}
+
+.controls{display:flex;gap:10px;flex-wrap:wrap;padding:22px 0;border-bottom:1px solid var(--line);align-items:center}
+.controls label{font-size:12.5px;color:var(--dim);margin-right:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg button{font-family:var(--sans);font-size:13.5px;padding:8px 14px;background:#fff;border:0;border-right:1px solid var(--line);cursor:pointer;color:var(--fg)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--signal);color:#fff}
+.search{flex:1;min-width:220px;display:flex;position:relative}
+.search input{flex:1;font-family:var(--sans);font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:3px;background:#fff}
+.search input:focus{outline:none;border-color:var(--signal);box-shadow:0 0 0 3px rgba(28,93,74,.12)}
+
+.grid{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;padding:26px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:3px;box-shadow:var(--lift);padding:22px}
+.card h2{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 4px;border:0;padding:0}
+.card .hint{font-size:12.5px;color:var(--dim);margin-bottom:16px}
+
+/* bar chart */
+.bars{display:flex;flex-direction:column;gap:9px}
+.brow{display:grid;grid-template-columns:150px 1fr 46px;gap:12px;align-items:center;font-size:13.5px;cursor:default}
+.brow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:14px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.fill{height:100%;background:var(--signal);width:0;transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.brow .pc{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+.brow.dim{opacity:.4}
+
+/* price */
+.price-num{font-family:var(--serif);font-size:56px;line-height:.9;letter-spacing:-.03em;color:var(--signal)}
+.price-unit{font-size:14px;color:var(--dim)}
+.price-src{font-size:13px;color:var(--dim);margin-top:12px;line-height:1.5}
+.divider{border:0;border-top:1px solid var(--line);margin:20px 0}
+.stat{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0}
+.stat .k{font-size:13px;color:var(--dim)}
+.stat .v{font-family:var(--serif);font-size:20px}
+
+/* ccTLD */
+.cty{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line)}
+.cty:last-child{border-bottom:0}
+.cty .c{font-family:var(--serif);font-size:17px}
+.cty .n{font-size:12px;color:var(--dim);margin-left:8px}
+.cty .p{font-variant-numeric:tabular-nums;color:var(--signal);font-weight:600}
+
+/* gated teaser */
+.gate{margin-top:2px;padding:18px 20px;border:1px dashed var(--line);border-radius:3px;background:var(--sand)}
+.gate .lk{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:600}
+.gate p{margin:8px 0 14px;font-size:14px;color:var(--fg)}
+.gate a{display:inline-block;background:var(--signal);color:#fff;font-family:var(--sans);font-size:13.5px;font-weight:500;padding:10px 18px;border-radius:2px;text-decoration:none}
+.gate a:hover{background:#14483A}
+.searchresult{padding:16px 0 4px;font-size:14.5px;color:var(--fg)}
+.searchresult b{color:var(--signal)}
+
+@media (max-width:820px){.grid{grid-template-columns:1fr}.dash-wrap{padding:0 18px}.brow{grid-template-columns:120px 1fr 42px}}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/explore" aria-current="page">Explore</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" href="/#access">Subscribe</a>
+  </nav>
+</div></div>
+
+<div class="dash-hero"><div class="dash-wrap">
+  <p class="dash-eyebrow">Free tool · headline tier</p>
+  <h1>Explore what the web charges <em>AI</em></h1>
+  <p class="dash-sub">This week's headline figures, live from the latest edition. Filter the crawlers, read the one observed price, see the ccTLD extremes. Per-domain detail is in the Terminal.</p>
+  <p class="asof" id="asof">Loading this week's edition…</p>
+</div></div>
+
+<div class="dash-wrap">
+  <div class="controls">
+    <label>Show:</label>
+    <div class="seg" role="group" aria-label="Filter crawlers">
+      <button data-filter="all" aria-pressed="true">All 18</button>
+      <button data-filter="training">Training bots</button>
+      <button data-filter="search">Search/answer</button>
+    </div>
+    <div class="search">
+      <input id="dom" type="search" placeholder="Check a domain (e.g. nytimes.com)…" autocomplete="off">
+    </div>
+  </div>
+  <div class="searchresult" id="sresult" hidden></div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Robots.txt block rates</h2>
+      <div class="hint" id="brhint">Share of the scanned top 50,000 that disallow each crawler.</div>
+      <div class="bars" id="bars"></div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>The observed price</h2>
+        <div class="hint">The only machine-readable per-crawl price on the measurable web.</div>
+        <div><span class="price-num" id="price">—</span> <span class="price-unit">/ crawl</span></div>
+        <div class="price-src" id="pricesrc"></div>
+        <hr class="divider">
+        <div class="stat"><span class="k">Coverage (reachable)</span><span class="v" id="cov">—</span></div>
+        <div class="stat"><span class="k">Distinct wall types seen</span><span class="v" id="sig">—</span></div>
+      </div>
+
+      <div class="card" style="margin-top:22px">
+        <h2>ccTLD extremes</h2>
+        <div class="hint">Share of each ccTLD group's sites blocking at least one AI crawler. A suffix is not a country.</div>
+        <div id="cty"></div>
+        <div style="margin-top:12px"><a class="lnk" href="/world" style="font-size:13.5px;color:var(--signal)">All ccTLD editions →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate" id="gate" style="margin-bottom:40px">
+    <div class="lk">🔒 In the Terminal</div>
+    <p id="gatetext">Every domain × every crawler, every ccTLD group, the full price and wall-behaviour record, and week-over-week history — with JSON/CSV API.</p>
+    <a href="/#access">Unlock the Terminal — €79/mo →</a>
+  </div>
+</div>
+
+<script>
+const TRAINING = ["GPTBot","CCBot","Bytespider","ClaudeBot","Google-Extended","Amazonbot","meta-externalagent","Applebot-Extended","anthropic-ai","cohere-ai","Diffbot","Timpibot","AI2Bot"];
+const SEARCH = ["OAI-SearchBot","ChatGPT-User","Claude-Web","PerplexityBot","Perplexity-User"];
+
+let DATA = null, filter = "all";
+
+async function load(){
+  try{
+    const r = await fetch("/index.json", {cache:"no-store"});
+    DATA = await r.json();
+    render();
+  }catch(e){
+    document.getElementById("asof").textContent = "Couldn't load this week's edition. Refresh to try again.";
+  }
+}
+
+function render(){
+  const d = DATA;
+  const asof = (d.generated_utc||"").slice(0,10);
+  document.getElementById("asof").textContent = "Edition of " + asof + " · coverage " +
+    (d.coverage.robots_parsed).toLocaleString() + " of the Tranco top " + (d.coverage.tranco_top_n).toLocaleString() + " · at least weekly";
+
+  // bars
+  const rates = d.block_rates && d.block_rates.pct || d.block_rates_top2000 || {};
+  const entries = Object.entries(rates);
+  const max = Math.max(...entries.map(([,v])=>v));
+  const inFilter = b => filter==="all" || (filter==="training"?TRAINING:SEARCH).includes(b);
+  document.getElementById("brhint").textContent =
+    filter==="all" ? "Share of the top 2,000 that disallow each crawler, in robots.txt."
+    : filter==="training" ? "Training & data-collection crawlers only."
+    : "Search and answer crawlers only — the ones that send traffic back.";
+  document.getElementById("bars").innerHTML = entries.map(([b,v])=>
+    '<div class="brow'+(inFilter(b)?'':' dim')+'"><span class="nm">'+b+'</span>'+
+    '<span class="track"><span class="fill" data-w="'+Math.round(v/max*100)+'"></span></span>'+
+    '<span class="pc">'+v+'%</span></div>').join("");
+  requestAnimationFrame(()=>document.querySelectorAll(".fill").forEach(f=>f.style.width=f.dataset.w+"%"));
+
+  // price
+  const praw = (d.observed_prices_headline&&d.observed_prices_headline[0]&&d.observed_prices_headline[0].raw)||"";
+  const pm = praw.match(/([\d.]+)/);
+  document.getElementById("price").textContent = pm ? "$"+pm[1] : "—";
+  document.getElementById("pricesrc").innerHTML = praw
+    ? praw.split(":")[0]+" quotes this to ClaudeBot via Cloudflare pay-per-crawl — the only posted price we observe."
+    : "No machine-readable price observed this week.";
+
+  document.getElementById("cov").textContent = (d.coverage.robots_parsed).toLocaleString();
+  document.getElementById("sig").textContent = d.signal_classes_observed || "—";
+
+  // country
+  const ch = d.cctld_headline || d.country_headline||{};
+  const row = (o,label)=> o? '<div class="cty"><span><span class="c">'+o.cctld||o.country+'</span><span class="n">n='+o.n+'</span></span><span class="p">'+o.any_ai_block_pct+'%</span></div>':'';
+  document.getElementById("cty").innerHTML = row(ch.most_blocking,"most") + row(ch.least_blocking,"least");
+}
+
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true");
+  filter = b.dataset.filter; render();
+}));
+
+// domain search → gated teaser (per-domain data is paid)
+const dom = document.getElementById("dom"), sres = document.getElementById("sresult");
+let t;
+dom.addEventListener("input",()=>{
+  clearTimeout(t);
+  const q = dom.value.trim().toLowerCase().replace(/^https?:\/\//,"").replace(/\/.*$/,"");
+  if(q.length<3){ sres.hidden=true; return; }
+  t = setTimeout(()=>{
+    sres.hidden=false;
+    sres.innerHTML = 'Per-domain policy for <b>'+q+'</b> — who it blocks, any price, and its history — is part of the Terminal. '+
+      '<a href="/check" style="color:var(--signal)">Try the free single-domain check →</a>';
+  },250);
+});
+
+load();
+</script>
+</body>
+</html>

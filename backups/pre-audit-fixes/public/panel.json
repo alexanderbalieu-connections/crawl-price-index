@@ -1,0 +1,268 @@
+{
+ "generated": "2026-08-17",
+ "size": 64,
+ "selection": "Identity-matrix panel. Spine = fixed continuity set. Signal = domains the honest wide probe flagged as showing payment/blocking behaviour (auto-promoted, demoted after 8 silent weeks). Audit = rotating random sample from the full scan, so AI-only walls invisible to honest probing are still sampled and their prevalence measured. The identity matrix uses impersonated user agents and is deliberately capped; the honest wide probe covers thousands of domains and never impersonates.",
+ "tiers": {
+  "spine": 49,
+  "signal": 0,
+  "audit": 15
+ },
+ "domains": [
+  {
+   "domain": "www.nytimes.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.theguardian.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.reuters.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "apnews.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.wired.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.theatlantic.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.economist.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.ft.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.businessinsider.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.forbes.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "time.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "fortune.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.theverge.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "techcrunch.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "arstechnica.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.cnet.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.zdnet.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.tomshardware.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.pcgamer.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.polygon.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.spiegel.de",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.hardwareluxx.de",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.heise.de",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.golem.de",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.lemonde.fr",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.lefigaro.fr",
+   "tier": "spine"
+  },
+  {
+   "domain": "elpais.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.corriere.it",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.telegraph.co.uk",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.independent.co.uk",
+   "tier": "spine"
+  },
+  {
+   "domain": "pressgazette.co.uk",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.howtogeek.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.makeuseof.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.androidpolice.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.xda-developers.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.slashgear.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "screenrant.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.thespruce.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.seriouseats.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.investopedia.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.healthline.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.webmd.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.digitaltrends.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "stackoverflow.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.reddit.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "medium.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "dev.to",
+   "tier": "spine"
+  },
+  {
+   "domain": "www.digiday.com",
+   "tier": "spine"
+  },
+  {
+   "domain": "niemanlab.org",
+   "tier": "spine"
+  },
+  {
+   "domain": "rubyforge.org",
+   "tier": "audit"
+  },
+  {
+   "domain": "max.porn",
+   "tier": "audit"
+  },
+  {
+   "domain": "rolex.com",
+   "tier": "audit"
+  },
+  {
+   "domain": "uga.edu",
+   "tier": "audit"
+  },
+  {
+   "domain": "vpnjantit.com",
+   "tier": "audit"
+  },
+  {
+   "domain": "moai-prod-samsung.com",
+   "tier": "audit"
+  },
+  {
+   "domain": "emqxcloud.com",
+   "tier": "audit"
+  },
+  {
+   "domain": "unisender.ru",
+   "tier": "audit"
+  },
+  {
+   "domain": "nat.gov.tw",
+   "tier": "audit"
+  },
+  {
+   "domain": "unibet.co.uk",
+   "tier": "audit"
+  },
+  {
+   "domain": "janitorprecisiontrio.com",
+   "tier": "audit"
+  },
+  {
+   "domain": "brasildefato.com.br",
+   "tier": "audit"
+  },
+  {
+   "domain": "palmonas.com",
+   "tier": "audit"
+  },
+  {
+   "domain": "airee.ru",
+   "tier": "audit"
+  },
+  {
+   "domain": "insight.com",
+   "tier": "audit"
+  }
+ ]
+}

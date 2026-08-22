@@ -1,0 +1,850 @@
+{
+ "generated_utc": "2026-08-22T12:25:28.695Z",
+ "frame": "tranco-top-1m.csv",
+ "sampled": 1809,
+ "readable": 1150,
+ "counts": {
+  "content_signal": 53,
+  "content_signal_default": 39,
+  "content_signal_edited": 14,
+  "rsl_license": 4,
+  "tdm": 7,
+  "link_license": 0
+ },
+ "rows": [
+  {
+   "rank": 50,
+   "domain": "cloudflare.com",
+   "band": "1-100",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=yes, search=yes, ai-input=yes",
+   "cs": {
+    "ai-train": "yes",
+    "search": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 81,
+   "domain": "medium.com",
+   "band": "1-100",
+   "status": 200,
+   "readable": true,
+   "rslLicense": "https://medium.com/license.xml"
+  },
+  {
+   "rank": 87,
+   "domain": "sciencedirect.com",
+   "band": "1-100",
+   "status": 403,
+   "readable": false,
+   "tdmReservation": "1",
+   "tdmPolicy": "https://www.elsevier.com/tdm/tdmrep-policy.json"
+  },
+  {
+   "rank": 99,
+   "domain": "launchpad.net",
+   "band": "1-100",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=no, search=yes, ai-input=no",
+   "cs": {
+    "ai-train": "no",
+    "search": "yes",
+    "ai-input": "no"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 91,
+   "domain": "theguardian.com",
+   "band": "1-100",
+   "status": 200,
+   "readable": true,
+   "rslLicense": "https://theguardian.com/license.xml"
+  },
+  {
+   "rank": 133,
+   "domain": "linktr.ee",
+   "band": "101-500",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=no, search=yes",
+   "cs": {
+    "ai-train": "no",
+    "search": "yes"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 117,
+   "domain": "weibo.com",
+   "band": "101-500",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes, ai-input=yes, ai-train=no",
+   "cs": {
+    "search": "yes",
+    "ai-input": "yes",
+    "ai-train": "no"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 193,
+   "domain": "sentry.io",
+   "band": "101-500",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes, ai-input=yes, ai-train=yes",
+   "cs": {
+    "search": "yes",
+    "ai-input": "yes",
+    "ai-train": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 303,
+   "domain": "nvidia.com",
+   "band": "101-500",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=yes, search=yes, ai-input=yes",
+   "cs": {
+    "ai-train": "yes",
+    "search": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 327,
+   "domain": "theatlantic.com",
+   "band": "101-500",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes, ai-input=no, ai-train=no",
+   "cs": {
+    "search": "yes",
+    "ai-input": "no",
+    "ai-train": "no"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 377,
+   "domain": "patreon.com",
+   "band": "101-500",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 517,
+   "domain": "jhu.edu",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 526,
+   "domain": "si.edu",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 536,
+   "domain": "ssrn.com",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "tdmReservation": "1",
+   "tdmPolicy": "https://www.elsevier.com/tdm/tdmrep-policy.json"
+  },
+  {
+   "rank": 560,
+   "domain": "laravel.com",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=no, search=yes, ai-input=yes",
+   "cs": {
+    "ai-train": "no",
+    "search": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 556,
+   "domain": "cookielaw.org",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 591,
+   "domain": "guardian.co.uk",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "rslLicense": "https://theguardian.com/license.xml"
+  },
+  {
+   "rank": 675,
+   "domain": "hostinger.com",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes, ai-input=yes, ai-train=yes",
+   "cs": {
+    "search": "yes",
+    "ai-input": "yes",
+    "ai-train": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 749,
+   "domain": "cell.com",
+   "band": "501-1000",
+   "status": 200,
+   "readable": true,
+   "tdmReservation": "1",
+   "tdmPolicy": "https://www.elsevier.com/tdm/tdmrep-policy.json"
+  },
+  {
+   "rank": 1449,
+   "domain": "blender.org",
+   "band": "1001-5000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 2289,
+   "domain": "drugs.com",
+   "band": "1001-5000",
+   "status": 200,
+   "readable": true,
+   "rslLicense": "https://www.drugs.com/license.xml"
+  },
+  {
+   "rank": 2387,
+   "domain": "nap.edu",
+   "band": "1001-5000",
+   "status": 200,
+   "readable": true,
+   "tdmReservation": "1"
+  },
+  {
+   "rank": 2877,
+   "domain": "bbcgoodfood.com",
+   "band": "1001-5000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes, ai-train=no",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 3087,
+   "domain": "kqed.org",
+   "band": "1001-5000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 4487,
+   "domain": "torrentfreak.com",
+   "band": "1001-5000",
+   "status": 200,
+   "readable": true,
+   "tdmReservation": "1",
+   "tdmPolicy": "https://torrentfreak.com/ai-training-data-mining-policy/"
+  },
+  {
+   "rank": 5171,
+   "domain": "harpers.org",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 5341,
+   "domain": "montana.edu",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 5698,
+   "domain": "oasis-open.org",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 5885,
+   "domain": "loudecho.ai",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 6021,
+   "domain": "humanitix.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 6123,
+   "domain": "wrike.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=no, search=yes, ai-input=yes",
+   "cs": {
+    "ai-train": "no",
+    "search": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 6514,
+   "domain": "razorpay.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=yes, search=yes, ai-input=yes",
+   "cs": {
+    "ai-train": "yes",
+    "search": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 6905,
+   "domain": "metafilter.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 6701,
+   "domain": "bepress.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": false,
+   "tdmReservation": "1",
+   "tdmPolicy": "https://www.elsevier.com/tdm/tdmrep-policy.json"
+  },
+  {
+   "rank": 7517,
+   "domain": "storeboard.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 8945,
+   "domain": "cervantesvirtual.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 9047,
+   "domain": "aspeninstitute.org",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 9421,
+   "domain": "hermanmiller.com",
+   "band": "5001-10000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 10885,
+   "domain": "socialblade.com",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 11925,
+   "domain": "brighttalk.com",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 14681,
+   "domain": "frankfurt.de",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 14785,
+   "domain": "estrepublicain.fr",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "tdmReservation": "1",
+   "tdmPolicy": "https://www.estrepublicain.fr/tdm-policy/tdm-policy.json"
+  },
+  {
+   "rank": 15669,
+   "domain": "slowfood.com",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 16657,
+   "domain": "udea.edu.co",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 16501,
+   "domain": "democraticunderground.com",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 17021,
+   "domain": "nctm.org",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 21649,
+   "domain": "map24.com",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 21701,
+   "domain": "foodiesfeed.com",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 23313,
+   "domain": "alchemyx.online",
+   "band": "10001-25000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 25088,
+   "domain": "hacklinktime.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 25436,
+   "domain": "worldcosplay.net",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 25262,
+   "domain": "cloudflarestatus.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=yes, search=yes, ai-input=yes",
+   "cs": {
+    "ai-train": "yes",
+    "search": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 26654,
+   "domain": "knfilters.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 27350,
+   "domain": "childrensplace.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "ai-train=no, search=yes, ai-input=yes",
+   "cs": {
+    "ai-train": "no",
+    "search": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 31004,
+   "domain": "solarpowerworldonline.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 33005,
+   "domain": "hacklinkuzmani.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 34049,
+   "domain": "bitgo.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes, ai-input=yes, ai-train=no",
+   "cs": {
+    "search": "yes",
+    "ai-input": "yes",
+    "ai-train": "no"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 34571,
+   "domain": "kemendagri.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 37877,
+   "domain": "dexerto.media",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes, ai-train=yes, ai-input=yes",
+   "cs": {
+    "search": "yes",
+    "ai-train": "yes",
+    "ai-input": "yes"
+   },
+   "csDefault": false
+  },
+  {
+   "rank": 38312,
+   "domain": "wpmoose.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 41792,
+   "domain": "stabroeknews.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 42749,
+   "domain": "lyricsondemand.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 43271,
+   "domain": "fotbal.cz",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  },
+  {
+   "rank": 46838,
+   "domain": "mouthshut.com",
+   "band": "25001-50000",
+   "status": 200,
+   "readable": true,
+   "csRaw": "search=yes,ai-train=no,use=reference",
+   "cs": {
+    "search": "yes",
+    "ai-train": "no",
+    "use": "reference"
+   },
+   "csDefault": true
+  }
+ ]
+}

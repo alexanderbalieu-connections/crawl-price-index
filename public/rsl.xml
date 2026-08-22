@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rsl xmlns="https://rslstandard.org/rsl">
   <content url="/">
-    <!-- Search and user-triggered agents: free with attribution.
-         These crawlers cite us; citation is the point of the free tier. -->
+    <!-- Search, indexing and answer-use: free, with attribution.
+         These uses cite us, and citation is our distribution. Field values
+         are RSL 1.0 usage classes: search, ai-index, ai-input. -->
     <license>
       <permits type="usage">search</permits>
-      <permits type="usage">ai-summarize</permits>
+      <permits type="usage">ai-index</permits>
+      <permits type="usage">ai-input</permits>
       <payment type="attribution"/>
     </license>
-    <!-- AI training: index-linked price, always 2x the highest observed
-         pay-per-crawl quote in our own dataset. Current: 2 x USD 0.50. -->
+    <!-- Training: priced. The rate is index-linked — twice the highest
+         per-crawl price observed anywhere in our own dataset, which is
+         currently USD 0.50 (stackoverflow.com). It is a reserve price set by
+         our own benchmark, not a claim about the market clearing rate;
+         documented rates elsewhere run far lower. -->
     <license>
-      <permits type="usage">train-ai</permits>
-      <payment type="per-crawl">
+      <permits type="usage">ai-train</permits>
+      <payment type="training">
         <amount currency="USD">1.00</amount>
         <custom>https://crawlpriceindex.com/#access</custom>
       </payment>
     </license>
   </content>
-  <!-- The Crawl Price Index prices its own crawls with its own benchmark:
-       the first index-linked crawl price. Humans read free. Machines that
-       cite us read free. Machines that train on us pay the index rate, or
-       license the full dataset via the Terminal API (EUR 79/mo). -->
+  <!-- Humans read free. Machines that cite us read free. Machines that train
+       on us pay the index rate, or license the full per-domain dataset
+       through the Terminal. Prices: https://crawlpriceindex.com/#access -->
 </rsl>

@@ -1,0 +1,13 @@
+# Security contact for The Crawl Price Index
+# https://crawlpriceindex.com/.well-known/security.txt
+
+Contact: mailto:hello@crawlpriceindex.com
+Expires: 2027-08-11T00:00:00.000Z
+Preferred-Languages: en, fr, nl
+Canonical: https://crawlpriceindex.com/.well-known/security.txt
+Policy: https://crawlpriceindex.com/security.html
+
+# We welcome good-faith vulnerability reports. Please give us 90 days before
+# public disclosure. Do not access data belonging to others, degrade the
+# service, or run automated scans that generate significant load. We have no
+# bug bounty budget, but we will credit you in the changelog if you wish.

@@ -1,0 +1,83 @@
+{
+  "name": "The Crawl Price Index",
+  "description": "Living observatory of the crawl economy. Free headline tier — full dataset requires subscription.",
+  "generated_utc": "2026-08-17T23:26:13.299Z",
+  "cadence": "weekly",
+  "coverage": {
+    "tranco_top_n": 50000,
+    "robots_parsed": 27975
+  },
+  "block_rates_top2000": {
+    "GPTBot": 15.2,
+    "CCBot": 14.8,
+    "Bytespider": 14.2,
+    "ClaudeBot": 13.4,
+    "Google-Extended": 12.2,
+    "meta-externalagent": 11.9,
+    "Amazonbot": 11.9,
+    "Applebot-Extended": 11.5,
+    "anthropic-ai": 5.6,
+    "PerplexityBot": 5,
+    "cohere-ai": 4.9,
+    "Diffbot": 4.9,
+    "ChatGPT-User": 4.7,
+    "Claude-Web": 4.4,
+    "Timpibot": 3.5,
+    "OAI-SearchBot": 3,
+    "AI2Bot": 2.5,
+    "Perplexity-User": 2
+  },
+  "observed_prices_headline": [
+    {
+      "raw": "stackoverflow.com: USD 0.5"
+    }
+  ],
+  "signal_classes_observed": 6,
+  "country_headline": {
+    "most_blocking": {
+      "country": "Norway",
+      "any_ai_block_pct": 37,
+      "n": 54
+    },
+    "least_blocking": {
+      "country": "China",
+      "any_ai_block_pct": 4,
+      "n": 149
+    }
+  },
+  "enforcement_headline": {
+    "declared_blocks_enforced_pct": 46.2,
+    "panel_checks": 118
+  },
+  "tdmrep_headline": {
+    "adoption_pct": 2.45,
+    "domains_probed": 2000
+  },
+  "methodology_version": "2026-08-10.1",
+  "freshness": {
+    "sweep_at": "2026-08-17T23:26:13.723Z",
+    "rows_with_reading": 28011,
+    "rows_without_reading": 22026,
+    "note": "observed=no means the domain did not yield a robots.txt reading in this sweep. Rates are computed over rows_with_reading only."
+  },
+  "evidence_summary": {
+    "crawler_identity": "CrawlPriceIndexBot/1.0, self-identified, requests cryptographically signed (RFC 9421 / Web Bot Auth). Public key directory: https://crawlpriceindex.com/.well-known/http-message-signatures-directory",
+    "observed": [
+      "robots stances",
+      "quoted prices",
+      "payment signals"
+    ],
+    "derived": [
+      "block rates",
+      "country editions",
+      "trends"
+    ],
+    "inferred": [
+      "suggested price bands (checker only)"
+    ],
+    "full_model": "https://api.crawlpriceindex.com/v1/methodology"
+  },
+  "full_dataset": "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
+  "terms": "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",
+  "license": "Headline figures CC-BY-4.0. Full dataset is licensed single-subscriber, redistribution prohibited."
+}

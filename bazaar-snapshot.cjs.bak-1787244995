@@ -1,0 +1,270 @@
+#!/usr/bin/env node
+/**
+ * x402 BAZAAR SNAPSHOT  (node bazaar-snapshot.cjs)
+ * =========================================================================
+ * Weekly capture of the Coinbase x402 "Bazaar" discovery registry — the
+ * opt-in universe of priced machine-payable endpoints. Coinbase serves it as
+ * a LIVE snapshot only; nobody publishes it as a time series. This script
+ * turns it into one.
+ *
+ * The entire point is the longitudinal record: a week not captured cannot be
+ * backfilled. So this is pure collection — it builds an asset, it is not a
+ * product, and it must never break the Sunday edition. It exits 0 on partial
+ * results and only signals failure it if got nothing at all.
+ *
+ * Writes:
+ *   bazaar/<date>.json.gz          full raw snapshot (every resource, faithfully)
+ *   bazaar/<date>-summary.json     derived weekly summary
+ *   bazaar-index.json              the growing time series (one row per week)
+ *
+ * Raw is stored verbatim and gzipped so future analysis can recompute anything
+ * (e.g. exact price normalisation with asset decimals) from ground truth. The
+ * summary makes no risky unit conversions: amounts are reported AS RETURNED and
+ * labelled raw, because the API may express them in atomic or human units and
+ * that is not worth guessing at capture time.
+ *
+ * Env (optional):
+ *   X402_BAZAAR_URL   override the discovery endpoint
+ *   X402_BAZAAR_AUTH  Authorization header value if the endpoint requires one
+ *   BAZAAR_MAX_PAGES  safety cap (default 2000 pages = 200k resources)
+ *
+ * Pure Node (global fetch + AbortSignal.timeout, Node 18+). No dependencies.
+ */
+const fs = require("fs");
+const zlib = require("zlib");
+const path = require("path");
+
+const URL_BASE = process.env.X402_BAZAAR_URL ||
+  "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources";
+const MAX_PAGES = parseInt(process.env.BAZAAR_MAX_PAGES || "2000", 10);
+const LIMIT = 100;
+const TIMEOUT_MS = 20000;
+const DATE = new Date().toISOString().slice(0, 10);
+
+const headers = { Accept: "application/json" };
+if (process.env.X402_BAZAAR_AUTH) headers.Authorization = process.env.X402_BAZAAR_AUTH;
+
+function hostOf(r) {
+  const raw = (r && (r.resource?.url || r.resource || r.url)) || "";
+  try { return new URL(raw).hostname.toLowerCase(); } catch { return ""; }
+}
+const DEMO = /localhost|127\.0\.0\.1|example\.|ngrok|vercel\.app|\.repl\.|\bdemo\b|\btest\b|hello|tutorial|x402\.org|x402\.gitbook/;
+const isDemo = h => !h || DEMO.test(h);
+function accOf(r) { return (r && r.accepts && r.accepts[0]) || {}; }
+function priceOf(r) { const a = accOf(r); return a.amount ?? a.maxAmountRequired ?? (r && r.price != null ? String(r.price) : null); }
+function typeOf(r) {
+  const url = (r && (r.resource?.url || r.resource || r.url)) || "";
+  const mime = (r && r.resource && r.resource.mimeType) || "";
+  const s = (hostOf(r) + " " + url + " " + mime + " " + JSON.stringify((r && r.accepts) || "")).toLowerCase();
+  if (/\/mcp(\W|$)|(^|\W)mcp(\W|$)/.test(s)) return "mcp";
+  if (/\/api(\W|$)|(^|\W)api\./.test(s)) return "api";
+  return "content";
+}
+
+async function getPage(offset) {
+  const u = URL_BASE + (URL_BASE.includes("?") ? "&" : "?") + `limit=${LIMIT}&offset=${offset}`;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(u, { headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
+      if (res.status === 429) { await new Promise(r => setTimeout(r, 8000)); continue; }
+      if (!res.ok) return { error: `HTTP ${res.status}` };
+      const j = await res.json();
+      const items = j.resources || j.items || j.data || (Array.isArray(j) ? j : []);
+      return { items };
+    } catch (e) {
+      if (attempt === 1) return { error: e.name === "TimeoutError" ? "timeout" : (e.message || String(e)) };
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  return { error: "unreachable" };
+}
+
+function median(nums) {
+  if (!nums.length) return null;
+  const s = nums.slice().sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+// ---- registrable-domain reduction, for matching Bazaar hosts to the frame --
+// Tranco lists registrable domains ("bbc.co.uk", "nytimes.com"), so reduce a
+// probed host the same way. Small multi-label-suffix list covers the common
+// ccTLD second levels; everything else falls back to the last two labels. Not
+// a full public-suffix list — good enough for a weekly intersection count, and
+// the limitation is stated in the summary.
+const MULTI_SUFFIX = new Set([
+  "co.uk","org.uk","gov.uk","ac.uk","com.au","net.au","org.au","co.jp","co.nz",
+  "co.za","com.br","com.cn","com.tr","co.in","co.kr","com.mx","com.sg","com.hk",
+]);
+function registrable(host) {
+  host = String(host || "").toLowerCase().replace(/^www\./, "").replace(/:\d+$/, "");
+  const p = host.split(".").filter(Boolean);
+  if (p.length <= 2) return host;
+  const last2 = p.slice(-2).join(".");
+  if (MULTI_SUFFIX.has(last2) && p.length >= 3) return p.slice(-3).join(".");
+  return last2;
+}
+
+// ---- load the current 50k frame (latest edition), domain -> rank -----------
+function loadFrame() {
+  try {
+    if (fs.existsSync("editions")) {
+      const f = fs.readdirSync("editions").filter(x => /^\d{4}-\d{2}-\d{2}\.csv\.gz$/.test(x)).sort().pop();
+      if (f) {
+        const lines = zlib.gunzipSync(fs.readFileSync(path.join("editions", f))).toString("utf8").trim().split("\n");
+        const rank = new Map();
+        for (let i = 1; i < lines.length; i++) {
+          const c = lines[i].split(",");
+          if (c.length < 2) continue;
+          rank.set(registrable(c[1]), +c[0]);
+        }
+        return { rank, source: f.slice(0, 10), size: rank.size };
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+(async () => {
+  console.log(`bazaar-snapshot ${DATE} — ${URL_BASE}`);
+  const all = [];
+  let offset = 0, pages = 0, hadError = null;
+  while (pages < MAX_PAGES) {
+    const { items, error } = await getPage(offset);
+    if (error) { hadError = error; break; }
+    all.push(...items);
+    pages++;
+    if (pages % 10 === 0) process.stdout.write(`  ${all.length} resources...\r`);
+    if (items.length < LIMIT) break;
+    offset += LIMIT;
+  }
+
+  if (!all.length) {
+    console.error(`  no resources captured${hadError ? " (" + hadError + ")" : ""}.`);
+    if (hadError && /HTTP 40[13]/.test(hadError))
+      console.error("  the endpoint likely needs CDP credentials — set X402_BAZAAR_AUTH,\n  or update X402_BAZAAR_URL from docs.cdp.coinbase.com.");
+    process.exit(1);   // the ONLY failure case: got literally nothing
+  }
+  if (hadError) console.log(`  stopped early after ${all.length} resources (${hadError}) — saving what we have.`);
+
+  // ---- persist raw, faithfully -------------------------------------------
+  fs.mkdirSync("bazaar", { recursive: true });
+  const rawPath = path.join("bazaar", `${DATE}.json.gz`);
+  fs.writeFileSync(rawPath, zlib.gzipSync(Buffer.from(JSON.stringify(all))));
+
+  // ---- derive the weekly summary (no risky unit conversions) -------------
+  const real = all.filter(r => !isDemo(hostOf(r)));
+  const priced = all.filter(priceOf);
+  const realPriced = real.filter(priceOf);
+  const count = (arr, keyFn) => arr.reduce((m, r) => { const k = keyFn(r) || "unknown"; m[k] = (m[k] || 0) + 1; return m; }, {});
+  const byType = count(realPriced, typeOf);
+  const byNetwork = count(realPriced, r => accOf(r).network);
+  const byScheme = count(realPriced, r => accOf(r).scheme);
+  const byAsset = count(realPriced, r => accOf(r).asset);
+  const priceByAsset = {};
+  for (const r of realPriced) {
+    const a = accOf(r).asset || "unknown";
+    const v = Number(priceOf(r));
+    if (!Number.isFinite(v)) continue;
+    (priceByAsset[a] ||= []).push(v);
+  }
+  const priceStats = {};
+  for (const [a, vs] of Object.entries(priceByAsset))
+    priceStats[a] = { n: vs.length, min: Math.min(...vs), median: median(vs), max: Math.max(...vs) };
+
+  // ---- diff against the most recent prior snapshot -----------------------
+  let vsPrior = null;
+  const priors = fs.existsSync("bazaar")
+    ? fs.readdirSync("bazaar").filter(f => /^\d{4}-\d{2}-\d{2}\.json\.gz$/.test(f) && f.slice(0, 10) !== DATE).sort()
+    : [];
+  if (priors.length) {
+    const pf = priors[priors.length - 1];
+    try {
+      const prev = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join("bazaar", pf))).toString("utf8"));
+      const key = r => (r && (r.resource?.url || r.resource || r.url)) || JSON.stringify(r);
+      const prevSet = new Set(prev.map(key));
+      const curSet = new Set(all.map(key));
+      let added = 0; curSet.forEach(k => { if (!prevSet.has(k)) added++; });
+      let removed = 0; prevSet.forEach(k => { if (!curSet.has(k)) removed++; });
+      vsPrior = { prior_date: pf.slice(0, 10), prior_total: prev.length, added, removed, net: added - removed };
+    } catch (e) { vsPrior = { error: "could not read prior snapshot" }; }
+  }
+
+  // ---- intersection with the 50k frame -----------------------------------
+  // The whole point of this line: how much of the mainstream web CPI already
+  // measures has actually entered the priced-machine-access economy. Ties the
+  // Bazaar (a parallel population) back to the scan instead of floating beside it.
+  let intersection = null;
+  const frame = loadFrame();
+  if (frame) {
+    const contentReal = realPriced.filter(r => typeOf(r) === "content");
+    const hits = [];
+    const seenDom = new Set();
+    for (const r of realPriced) {
+      const reg = registrable(hostOf(r));
+      if (frame.rank.has(reg) && !seenDom.has(reg)) {
+        seenDom.add(reg);
+        hits.push({ domain: reg, rank: frame.rank.get(reg), type: typeOf(r), price_raw: priceOf(r), asset: accOf(r).asset || null });
+      }
+    }
+    hits.sort((a, b) => a.rank - b.rank);
+    const contentHits = hits.filter(h => h.type === "content");
+    intersection = {
+      frame_source: frame.source,
+      frame_size: frame.size,
+      bazaar_real_priced: realPriced.length,
+      bazaar_content: contentReal.length,
+      in_frame_total: hits.length,          // distinct frame domains with ANY priced Bazaar endpoint
+      in_frame_content: contentHits.length, // ...restricted to content-type
+      examples: hits.slice(0, 25),
+      note: "Match is registrable-domain membership in the latest edition's 50k frame (host reduced with a small ccTLD suffix list, not a full public-suffix list). 'in_frame' counts distinct frame domains that expose at least one priced Bazaar endpoint.",
+    };
+  }
+
+  const capped = pages >= MAX_PAGES;
+  const summary = {
+    date: DATE,
+    generated_utc: new Date().toISOString(),
+    endpoint: URL_BASE,
+    total: all.length,
+    priced: priced.length,
+    real_domain: real.length,
+    real_priced: realPriced.length,
+    by_type: byType,
+    by_network: byNetwork,
+    by_scheme: byScheme,
+    by_asset: byAsset,
+    price_stats_raw_units: priceStats,
+    price_note: "Amounts are AS RETURNED by the API (may be atomic or human units); normalise with asset decimals at analysis time from the raw archive.",
+    intersection,
+    vs_prior: vsPrior,
+    capped: capped || !!hadError,
+    capped_note: capped ? `hit page cap ${MAX_PAGES}; real total may be higher` : (hadError ? `stopped early: ${hadError}` : undefined),
+  };
+  fs.writeFileSync(path.join("bazaar", `${DATE}-summary.json`), JSON.stringify(summary, null, 2));
+
+  // ---- append to the time series (dedup by date) -------------------------
+  let series = [];
+  if (fs.existsSync("bazaar-index.json")) { try { series = JSON.parse(fs.readFileSync("bazaar-index.json", "utf8")); } catch {} }
+  series = series.filter(s => s.date !== DATE);
+  const slim = (({ date, total, priced, real_priced, by_type, price_stats_raw_units, intersection, vs_prior, capped }) =>
+    ({ date, total, priced, real_priced, by_type, price_stats_raw_units,
+       in_frame: intersection ? { total: intersection.in_frame_total, content: intersection.in_frame_content, frame_size: intersection.frame_size } : null,
+       vs_prior, capped }))(summary);
+  series.push(slim);
+  series.sort((a, b) => a.date.localeCompare(b.date));
+  fs.writeFileSync("bazaar-index.json", JSON.stringify(series, null, 2));
+
+  // ---- report ------------------------------------------------------------
+  console.log(`  captured ${all.length} resources${capped ? " (CAPPED — real total may be higher)" : ""}`);
+  console.log(`  real + priced: ${realPriced.length}  |  content ${byType.content || 0} · api ${byType.api || 0} · mcp ${byType.mcp || 0}`);
+  if (intersection)
+    console.log(`  in your 50k frame: ${intersection.in_frame_total} domains priced (${intersection.in_frame_content} content) — the mainstream web that has actually joined`);
+  else
+    console.log(`  (no editions/ frame found — intersection skipped)`);
+  if (vsPrior && vsPrior.net != null)
+    console.log(`  vs ${vsPrior.prior_date}: +${vsPrior.added} new, -${vsPrior.removed} gone, net ${vsPrior.net >= 0 ? "+" : ""}${vsPrior.net}`);
+  else console.log(`  (first snapshot — the time series starts here)`);
+  console.log(`  wrote bazaar/${DATE}.json.gz, bazaar/${DATE}-summary.json, bazaar-index.json`);
+  process.exit(0);
+})();

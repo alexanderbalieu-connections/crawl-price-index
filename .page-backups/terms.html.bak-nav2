@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms &amp; Data Licence — The Crawl Price Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;font-size:17px;line-height:1.65}
+  .sub{color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:13px}
+  h2{font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);margin:34px 0 12px}
+  p{margin-bottom:14px;max-width:64ch}
+  a{color:var(--signal)}
+  footer{padding:40px 0 70px;color:var(--dim);font-family:"Spline Sans Mono",monospace;font-size:12px;margin-top:30px;border-top:1px solid var(--line)}
+</style>
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology">Methodology</a>
+    <a class="lnk signin" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="ghost" href="https://app.crawlpriceindex.com">Free dashboard</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Get the Terminal</a>
+  </nav>
+</div></div>
+<div class="page-open"><div class="wrap">
+  <h1>Terms of Service &amp; Data Licence</h1>
+  <div class="sub">Last updated: 8 August 2026</div>
+</div></div>
+
+<div class="wrap"><div class="panels">
+<section class="panel">
+  <div class="ix"><span class="lead-in">What we provide</span></div>
+<p>The Crawl Price Index ("the Service") publishes measurements of how the web responds to AI crawlers — block rates, observed pay-per-crawl prices, paywall signals, per-ccTLD-group breakdowns, and their movement over time. Headline figures are published freely. The full dataset, per-ccTLD-group editions, API access, and trend history ("the Dataset") are provided to paying subscribers ("Terminal") under the licence below.</p>
+
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">Free tier &amp; citation</span></div>
+<p>Headline figures shown on the public site are licensed <span class="mono">CC-BY-4.0</span>: free to quote and republish with attribution to "The Crawl Price Index (crawlpriceindex.com)". We encourage citation.</p>
+
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">The Terminal data licence</span></div>
+<p>Subscription to Terminal grants you a <b>single-subscriber, non-exclusive, non-transferable licence</b> to access and use the Dataset for your own internal business or editorial purposes.</p>
+<div class="note"><b>Redistribution is prohibited.</b> You may not resell, republish, sublicense, or redistribute the Dataset (in whole or substantial part) to any third party, nor share your API key or access credentials. Each subscriber's data is watermarked and traceable; a leaked or redistributed copy can be attributed to the account it originated from, and will result in immediate termination without refund and may give rise to a claim for damages.</p></div>
+<p>You may publish limited quotations and derived insights from the Dataset with attribution (e.g. citing a figure in an article), provided you do not reproduce the Dataset itself or a substantial extract of it.</p>
+
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">API keys &amp; fair use</span></div>
+<p>Your API key is personal to your subscription and rate-limited. Automated bulk mirroring, scraping designed to reconstruct the full Dataset for redistribution, or sharing a key across organisations is a breach of this licence and may trigger rate-limiting, suspension, or termination.</p>
+
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">Billing</span></div>
+<p>Terminal is billed monthly via Stripe. VAT is handled by our payment provider as merchant of record where applicable. You may cancel at any time; access continues until the end of the paid period and your key is deactivated on lapse.</p>
+<p>Subscription pricing may change with at least 30 days&rsquo; notice by email before your next renewal. <b>Founding subscribers keep their sign-up rate for at least 24 months</b> from the date they first subscribe; any change after that period applies only from the next renewal following notice. We never change the price of a billing period you have already paid. A one-off Snapshot purchase is final and grants a single machine-readable download of the current edition, not ongoing access; its price may be credited toward a subsequent Terminal subscription.</p>
+
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">Accuracy &amp; no warranty</span></div>
+<p>Measurements reflect what public <span class="mono">robots.txt</span> files and crawler-facing HTTP responses disclosed at scan time. <span class="mono">robots.txt</span> figures record stated preferences, which sites may or may not enforce. Observed prices change without notice. The Service is provided "as is", without warranty of accuracy, completeness, or fitness for a particular purpose. It is not legal, financial, or licensing advice.</p>
+
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">Liability</span></div>
+<p>To the maximum extent permitted by law, our liability arising from your use of the Service is limited to the amount you paid in the preceding three months.</p>
+
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">Changes &amp; contact</span></div>
+<p>We may update these terms; material changes will be dated here. Questions, licensing enquiries, or bulk/enterprise access: <span class="mono">hello@crawlpriceindex.com</span>.</p></section>
+</div></div>
+<footer><div class="wrap">THE CRAWL PRICE INDEX · terms v1 · <a href="/methodology.html">methodology</a> · <a href="/">← index</a></div></footer>
+</body>
+</html>

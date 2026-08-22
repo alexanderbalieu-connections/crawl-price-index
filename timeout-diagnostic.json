@@ -1,0 +1,2049 @@
+{
+ "probed_utc": "2026-08-20T23:06:32.561Z",
+ "n": 337,
+ "rows": [
+  {
+   "d": "youtube.com",
+   "rank": 8,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "github.com",
+   "rank": 30,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "azure.com",
+   "rank": 27,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "youtu.be",
+   "rank": 47,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "vimeo.com",
+   "rank": 80,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "windows.com",
+   "rank": 83,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nic.ru",
+   "rank": 93,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "unity3d.com",
+   "rank": 128,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "dropbox.com",
+   "rank": 140,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "sciencedirect.com",
+   "rank": 214,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "fandom.com",
+   "rank": 488,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 679
+  },
+  {
+   "d": "wixsite.com",
+   "rank": 260,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "calendly.com",
+   "rank": 375,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "time.com",
+   "rank": 533,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "npr.org",
+   "rank": 478,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "mcafee.com",
+   "rank": 503,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "jotform.com",
+   "rank": 614,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "samsungapps.com",
+   "rank": 591,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "uber.com",
+   "rank": 686,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "box.com",
+   "rank": 700,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "samsungapps.com",
+   "rank": 591,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "bild.de",
+   "rank": 765,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "livejournal.com",
+   "rank": 785,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "theverge.com",
+   "rank": 807,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "npr.org",
+   "rank": 478,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "pornhub.com",
+   "rank": 854,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "mcafee.com",
+   "rank": 503,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "figma.com",
+   "rank": 868,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "youku.com",
+   "rank": 893,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "smartthings.com",
+   "rank": 918,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "economist.com",
+   "rank": 1159,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 425
+  },
+  {
+   "d": "logitech.com",
+   "rank": 2059,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cloudflarestorage.com",
+   "rank": 2051,
+   "verdict": "slow",
+   "status": 522,
+   "ms": 19823
+  },
+  {
+   "d": "faphouse.com",
+   "rank": 991,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "onesignal.com",
+   "rank": 998,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "opera-api.com",
+   "rank": 961,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "opera-api.com",
+   "rank": 961,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "asurascans.com",
+   "rank": 1353,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "therapservices.net",
+   "rank": 1552,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "redbus.in",
+   "rank": 1556,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "acrobat.com",
+   "rank": 1925,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "wunderground.com",
+   "rank": 2124,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cloudflarestorage.com",
+   "rank": 2051,
+   "verdict": "slow",
+   "status": 522,
+   "ms": 19406
+  },
+  {
+   "d": "useinsider.com",
+   "rank": 2286,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "unity.com",
+   "rank": 2422,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "hbomax.com",
+   "rank": 2355,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "traveloka.com",
+   "rank": 2391,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "saby.ru",
+   "rank": 2823,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "redbus.in",
+   "rank": 1556,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "gog.com",
+   "rank": 3160,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "freshdesk.com",
+   "rank": 3191,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "independent.ie",
+   "rank": 4191,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 543
+  },
+  {
+   "d": "aol.de",
+   "rank": 3819,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cyberark.com",
+   "rank": 3943,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "gulfnews.com",
+   "rank": 4090,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cat.com",
+   "rank": 4283,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "xhwide.com",
+   "rank": 4557,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "iq.com",
+   "rank": 4563,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tomsguide.com",
+   "rank": 4755,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "compass.com",
+   "rank": 4889,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "emirates.com",
+   "rank": 5235,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nbcsports.com",
+   "rank": 5489,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "telia.com",
+   "rank": 5522,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "bandsintown.com",
+   "rank": 6386,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 683
+  },
+  {
+   "d": "cat.com",
+   "rank": 4283,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "skechers.com",
+   "rank": 5555,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "thriftbooks.com",
+   "rank": 5857,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "anlian.co",
+   "rank": 6107,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "flirtify.com",
+   "rank": 8356,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "veloxzone.com.br",
+   "rank": 6205,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "thenationalnews.com",
+   "rank": 6647,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "claro.com.ar",
+   "rank": 7118,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "emirates.com",
+   "rank": 5235,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "oem.com.mx",
+   "rank": 7358,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "anlian.co",
+   "rank": 6107,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "veloxzone.com.br",
+   "rank": 6205,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "icc-cricket.com",
+   "rank": 8117,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "newsit.gr",
+   "rank": 8383,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ifit.com",
+   "rank": 8411,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "flexport.com",
+   "rank": 8445,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "daisonet.com",
+   "rank": 8552,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "volkskrant.nl",
+   "rank": 8923,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "flashscore.ro",
+   "rank": 9117,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "xdate.ch",
+   "rank": 9653,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "usabilla.com",
+   "rank": 9751,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "financialpost.com",
+   "rank": 10457,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "windowsazure.com",
+   "rank": 10488,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "klerk.ru",
+   "rank": 11056,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "infinitepay.io",
+   "rank": 11287,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "uem.mz",
+   "rank": 11458,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "adg.de",
+   "rank": 11852,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ecmwf.int",
+   "rank": 12056,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cathaypacific.com",
+   "rank": 12649,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "pagesperso-orange.fr",
+   "rank": 12857,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "androidpolice.com",
+   "rank": 12889,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "pagesperso-orange.fr",
+   "rank": 12857,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nowtv.com",
+   "rank": 13054,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "premiumtimesng.com",
+   "rank": 13090,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "pandora.net",
+   "rank": 13788,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "okiloveyoupleasedonttouchme.net",
+   "rank": 14284,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tribuneindia.com",
+   "rank": 13852,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "afp.ai",
+   "rank": 14021,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cathaypacific.com",
+   "rank": 12649,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "berliner-zeitung.de",
+   "rank": 14523,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ricardo.ch",
+   "rank": 14924,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "hscdn.com",
+   "rank": 14885,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "langame.ru",
+   "rank": 15121,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "servicenowservices.com",
+   "rank": 15349,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "halfords.com",
+   "rank": 15448,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "servicenowservices.com",
+   "rank": 15349,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "dwell.com",
+   "rank": 15916,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nmas.com.mx",
+   "rank": 16055,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "saatchiart.com",
+   "rank": 16185,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "hscdn.com",
+   "rank": 14885,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "gocarrot.com",
+   "rank": 16521,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "vidkern.shop",
+   "rank": 16621,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "is.co.za",
+   "rank": 17808,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "lanebryant.com",
+   "rank": 16882,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "gcu.edu",
+   "rank": 16955,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "azerion.com",
+   "rank": 17189,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "sweepquest.info",
+   "rank": 18419,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "abac.com",
+   "rank": 17204,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "paris.cl",
+   "rank": 17321,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "afranet.ir",
+   "rank": 17407,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tubantia.nl",
+   "rank": 17658,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "clasohlson.com",
+   "rank": 17755,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "empireonline.com",
+   "rank": 17787,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "vidkern.shop",
+   "rank": 16621,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "streamyard.com",
+   "rank": 18256,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "abac.com",
+   "rank": 17204,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "webglobe.cz",
+   "rank": 18588,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "eamobile.com",
+   "rank": 18699,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "mentimeter.com",
+   "rank": 19019,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "enamad.ir",
+   "rank": 19017,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "crucial.com.au",
+   "rank": 19180,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "jk.gov.in",
+   "rank": 19294,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "javhdhello.com",
+   "rank": 19416,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "eamobile.com",
+   "rank": 18699,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "butterflymx.com",
+   "rank": 19457,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "bmwusa.com",
+   "rank": 19427,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nttpc.ne.jp",
+   "rank": 19555,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "vijaysales.com",
+   "rank": 19846,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "enamad.ir",
+   "rank": 19017,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "macrium.com",
+   "rank": 19923,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "jk.gov.in",
+   "rank": 19294,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "moviepilot.de",
+   "rank": 20420,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "society6.com",
+   "rank": 20652,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "wakacje.pl",
+   "rank": 20754,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nios.ac.in",
+   "rank": 20717,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "genesys.com",
+   "rank": 20955,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "siamsport.co.th",
+   "rank": 21056,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "decathlon.pt",
+   "rank": 21419,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 360
+  },
+  {
+   "d": "elgiganten.se",
+   "rank": 21153,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "whiskergalaxy.com",
+   "rank": 21179,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nttpc.ne.jp",
+   "rank": 19555,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "opifors.com",
+   "rank": 21300,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "whiskergalaxy.com",
+   "rank": 21179,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "bmwusa.com",
+   "rank": 19427,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "opifors.com",
+   "rank": 21300,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "seranking.com",
+   "rank": 21520,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "wakacje.pl",
+   "rank": 20754,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nios.ac.in",
+   "rank": 20717,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "wallpaper.com",
+   "rank": 21821,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "asterdex.com",
+   "rank": 21910,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "gofastchat.com",
+   "rank": 21953,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "hostlove.com",
+   "rank": 21923,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "wlink.com.np",
+   "rank": 22182,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tmdcloud.com",
+   "rank": 23334,
+   "verdict": "slow",
+   "status": 522,
+   "ms": 19648
+  },
+  {
+   "d": "lifeomic.com",
+   "rank": 23821,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "lidl-hellas.gr",
+   "rank": 22419,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "xhnews.life",
+   "rank": 22453,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "gaikai.com",
+   "rank": 22574,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "myquickcloud.com",
+   "rank": 22689,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "gaikai.com",
+   "rank": 22574,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tiscali.co.uk",
+   "rank": 23024,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "hostlove.com",
+   "rank": 21923,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "glamourmagazine.co.uk",
+   "rank": 23688,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "onrocket.site",
+   "rank": 26022,
+   "verdict": "slow",
+   "status": 522,
+   "ms": 19987
+  },
+  {
+   "d": "ttnet.com.tr",
+   "rank": 25753,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 375
+  },
+  {
+   "d": "tts-group.co.uk",
+   "rank": 24253,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tmdcloud.com",
+   "rank": 23334,
+   "verdict": "slow",
+   "status": 522,
+   "ms": 19585
+  },
+  {
+   "d": "ixwebhosting.com",
+   "rank": 24621,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "neustar.biz",
+   "rank": 24736,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "harrypotter.com",
+   "rank": 24986,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "asustor.com",
+   "rank": 25454,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "greentreeone.com",
+   "rank": 25555,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tiscali.co.uk",
+   "rank": 23024,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "disneystore.com",
+   "rank": 25685,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cp24.com",
+   "rank": 25786,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "sexmesri.com",
+   "rank": 27752,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nnov.ru",
+   "rank": 25852,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "benjaminmoore.com",
+   "rank": 25986,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "neustar.biz",
+   "rank": 24736,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ikcosales.ir",
+   "rank": 26088,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "yummly.com",
+   "rank": 26081,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "urentbike.ru",
+   "rank": 26455,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cn.ru",
+   "rank": 27218,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "honeybook.com",
+   "rank": 26684,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "limoodns.com",
+   "rank": 29525,
+   "verdict": "slow",
+   "status": 522,
+   "ms": 19694
+  },
+  {
+   "d": "awi.de",
+   "rank": 27120,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "linetogel91.com",
+   "rank": 27719,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "sportscasting.com",
+   "rank": 27886,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "host-telecom.com",
+   "rank": 28054,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tabletmag.com",
+   "rank": 28386,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "bayut.com",
+   "rank": 28454,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "yummly.com",
+   "rank": 26081,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "salaryexpert.com",
+   "rank": 28850,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "forever21.com",
+   "rank": 29288,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "limoodns.com",
+   "rank": 29525,
+   "verdict": "slow",
+   "status": 522,
+   "ms": 19417
+  },
+  {
+   "d": "cortexbid.com",
+   "rank": 29649,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "toysrus.com",
+   "rank": 30087,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "france.fr",
+   "rank": 30254,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nintendo.de",
+   "rank": 30448,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "severen.com",
+   "rank": 30692,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "idealhome.co.uk",
+   "rank": 31286,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "sportytrader.com",
+   "rank": 31819,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "roughcountry.com",
+   "rank": 33354,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 210
+  },
+  {
+   "d": "diariodesevilla.es",
+   "rank": 31889,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "childrensplace.com",
+   "rank": 32319,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "applitrack.com",
+   "rank": 32415,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "severen.com",
+   "rank": 30692,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "webglobe.sk",
+   "rank": 32754,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "photophoto.cn",
+   "rank": 32779,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "vogue.es",
+   "rank": 33084,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "docin.com",
+   "rank": 33115,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nnm-club.info",
+   "rank": 33091,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "photophoto.cn",
+   "rank": 32779,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "telekom.ru",
+   "rank": 35385,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "univ-paris13.fr",
+   "rank": 33622,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "planetadelibros.com",
+   "rank": 33684,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "biglion.ru",
+   "rank": 33789,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "docin.com",
+   "rank": 33115,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "kmail-lists.com",
+   "rank": 34452,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "thejc.com",
+   "rank": 34788,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "jarir.com",
+   "rank": 34822,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nnm-club.info",
+   "rank": 33091,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "sextvx.com",
+   "rank": 35653,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "eccouncil.org",
+   "rank": 35822,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "mst.link",
+   "rank": 36184,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "voi.id",
+   "rank": 36288,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "on-running.com",
+   "rank": 36388,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "as39202.net",
+   "rank": 36406,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cheapflights.com",
+   "rank": 36487,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "insperity.com",
+   "rank": 38154,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 114
+  },
+  {
+   "d": "as39202.net",
+   "rank": 36406,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "downloadhiro.app",
+   "rank": 36688,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "mediamarkt.nl",
+   "rank": 36885,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "brighteon.com",
+   "rank": 37456,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cosmosgroup.ru",
+   "rank": 37485,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "contabeis.com.br",
+   "rank": 37549,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "motel-one.com",
+   "rank": 37653,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "servustv.com",
+   "rank": 37886,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "alkimi-onboarding.com",
+   "rank": 37926,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "respond.io",
+   "rank": 38220,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "shopmyexchange.com",
+   "rank": 38351,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "alkimi-onboarding.com",
+   "rank": 37926,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "dealercenter.net",
+   "rank": 38571,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "bakerhughes.com",
+   "rank": 38654,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "corewellhealth.org",
+   "rank": 38989,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "matrimonio.com",
+   "rank": 39122,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "rnz.de",
+   "rank": 39188,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ohpolly.com",
+   "rank": 39388,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "netcom.no",
+   "rank": 39519,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "animevietsub.site",
+   "rank": 39755,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "lcsc.com",
+   "rank": 39921,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "dealercenter.net",
+   "rank": 38571,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "yorkpress.co.uk",
+   "rank": 40119,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "uprrp.edu",
+   "rank": 40212,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "visitabudhabi.ae",
+   "rank": 40256,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "corriereobjects.it",
+   "rank": 40328,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "makemytrip.global",
+   "rank": 40348,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "bergfreunde.de",
+   "rank": 40553,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "xhlive.cam",
+   "rank": 40686,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "corriereobjects.it",
+   "rank": 40328,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "hyundaicard.com",
+   "rank": 41841,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "muzmart.com",
+   "rank": 40855,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "e3dc.com",
+   "rank": 41121,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "jetbrains.com.cn",
+   "rank": 41284,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "uprrp.edu",
+   "rank": 40212,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "strip-chat.app",
+   "rank": 41655,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "convex.ru",
+   "rank": 41658,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "aqi.in",
+   "rank": 41721,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tvguide.co.uk",
+   "rank": 41789,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cy-isp.net",
+   "rank": 43019,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "makemytrip.global",
+   "rank": 40348,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tracker810.xyz",
+   "rank": 42452,
+   "verdict": "slow",
+   "status": 404,
+   "ms": 24583
+  },
+  {
+   "d": "ecitic.com",
+   "rank": 41915,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "muzmart.com",
+   "rank": 40855,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "etuovi.com",
+   "rank": 42120,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "hannaandersson.com",
+   "rank": 42187,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "zameen.com",
+   "rank": 42255,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "chwjhb.com",
+   "rank": 45783,
+   "verdict": "recovered",
+   "status": 200,
+   "ms": 5462
+  },
+  {
+   "d": "chwjhb.com",
+   "rank": 45783,
+   "verdict": "recovered",
+   "status": 200,
+   "ms": 3532
+  },
+  {
+   "d": "ontraport.com",
+   "rank": 42421,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "racingbazar.hu",
+   "rank": 43619,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 130
+  },
+  {
+   "d": "ecitic.com",
+   "rank": 41915,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "convex.ru",
+   "rank": 41658,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "jpcycles.com",
+   "rank": 42718,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "rsk.co",
+   "rank": 42950,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "xhmoon5.com",
+   "rank": 43119,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "careerplug.com",
+   "rank": 43186,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "zipow.com",
+   "rank": 43327,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "allwebgames.com",
+   "rank": 46052,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "notino.de",
+   "rank": 45986,
+   "verdict": "walled",
+   "status": 403,
+   "ms": 272
+  },
+  {
+   "d": "esafety.gov.au",
+   "rank": 43493,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "opentor.net",
+   "rank": 44537,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "savemyexams.com",
+   "rank": 44887,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "raymondjames.com",
+   "rank": 44953,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cash.ch",
+   "rank": 45051,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "opentor.net",
+   "rank": 44537,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "eviivo.com",
+   "rank": 45819,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "zipow.com",
+   "rank": 43327,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ifortuna.cz",
+   "rank": 45886,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "a-star.edu.sg",
+   "rank": 46117,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "tracker810.xyz",
+   "rank": 42452,
+   "verdict": "slow",
+   "status": 404,
+   "ms": 31409
+  },
+  {
+   "d": "pop-hannover.net",
+   "rank": 46327,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "esafety.gov.au",
+   "rank": 43493,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "raymondjames.com",
+   "rank": 44953,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "rvlife.com",
+   "rank": 47252,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ellitoral.com",
+   "rank": 47453,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "vosgesmatin.fr",
+   "rank": 47552,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "nyheter24.se",
+   "rank": 47651,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "logitravel.com",
+   "rank": 48052,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ncnet.ru",
+   "rank": 48104,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "daniweb.com",
+   "rank": 48250,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "pop-hannover.net",
+   "rank": 46327,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "shoecarnival.com",
+   "rank": 48283,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "backmarket.co.uk",
+   "rank": 48353,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "pushpay.com",
+   "rank": 48418,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ufyct.com",
+   "rank": 48532,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "linda.nl",
+   "rank": 48753,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "drivespark.com",
+   "rank": 48785,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "ncnet.ru",
+   "rank": 48104,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "enikos.gr",
+   "rank": 49184,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "eint.cz",
+   "rank": 49218,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "custojusto.pt",
+   "rank": 49716,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  },
+  {
+   "d": "cyfrowypolsat.pl",
+   "rank": 49885,
+   "verdict": "confirmed_dead",
+   "pass": 1
+  }
+ ]
+}

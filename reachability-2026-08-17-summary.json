@@ -1,0 +1,36 @@
+{
+ "edition": "2026-08-17",
+ "generated_utc": "2026-08-21T06:05:07.275Z",
+ "domains": 50000,
+ "reachability": {
+  "alive": 40272,
+  "dead_dns": 6318,
+  "timeout": 3046,
+  "other": 91,
+  "reset": 104,
+  "refused": 118,
+  "tls_error": 51
+ },
+ "homepage": {
+  "disallowed_by_robots": 1286,
+  "ok": 22984,
+  "http_error": 1713,
+  "bot_walled": 4902,
+  "thin_or_js_shell": 3422,
+  "not_html": 301,
+  "other": 21,
+  "dead_dns": 15,
+  "reset": 11,
+  "tls_error": 5,
+  "timeout": 2,
+  "refused": 5
+ },
+ "evidence": {
+  "has_ads_txt": 9637,
+  "platform": 7515,
+  "has_feed": 4498,
+  "schema_any": 10326,
+  "adult_self": 484,
+  "bot_walled": 4902
+ }
+}

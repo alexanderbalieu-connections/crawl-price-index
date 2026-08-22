@@ -18,6 +18,17 @@ try { corrections = JSON.parse(fs.readFileSync("corrections.json", "utf8")); } c
 const gen = d.generated_utc || new Date().toISOString();
 const ageDays = ((Date.now() - Date.parse(gen)) / 86400000);
 const enf = d.enforcement || null;
+// The 18 tracked crawlers, by name. Counting the columns of a dataset row
+// counts metadata columns too, which is how this page came to claim 20.
+const TRACKED = ["GPTBot","OAI-SearchBot","ChatGPT-User","ClaudeBot","Claude-Web","anthropic-ai",
+  "PerplexityBot","Perplexity-User","Google-Extended","CCBot","Bytespider","Amazonbot",
+  "Applebot-Extended","meta-externalagent","cohere-ai","AI2Bot","Timpibot","Diffbot"];
+function crawlerCount() {
+  if (!rows.length) return TRACKED.length;
+  const keys = Object.keys(rows[0]);
+  const n = TRACKED.filter(c => keys.indexOf(c) >= 0).length;
+  return n || TRACKED.length;
+}
 const MAST = (cur) => `<div class="masthead"><div class="wrap">
   <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
   <nav>
@@ -58,7 +69,7 @@ const status = HEAD("Status &amp; coverage", "Live coverage, freshness and known
     <div class="cell"><div class="n g">${Number(cov.robots_parsed || 0).toLocaleString()}</div><div class="k">domains parsed this edition</div></div>
     <div class="cell"><div class="n">${Number(cov.tranco_top_n || 0).toLocaleString()}</div><div class="k">Tranco frame</div></div>
     <div class="cell"><div class="n">${rows.length.toLocaleString()}</div><div class="k">per-domain rows published</div></div>
-    <div class="cell"><div class="n">${Object.keys(d.country_editions || {}).length}</div><div class="k">country editions</div></div>
+    <div class="cell"><div class="n">${Object.keys(d.cctld_editions || d.country_editions || {}).length}</div><div class="k">ccTLD editions</div></div>
   </div>
   <table>
     <tr><th>Item</th><th>Value</th></tr>
@@ -66,24 +77,34 @@ const status = HEAD("Status &amp; coverage", "Live coverage, freshness and known
     <tr><td>Age</td><td class="mono ${fresh ? "ok" : "warn"}">${ageDays.toFixed(1)} days ${fresh ? "(within the weekly cycle)" : "(older than one cycle — a sweep may be in progress)"}</td></tr>
     <tr><td>Methodology version</td><td class="mono">${d.methodology_version || "unversioned"}</td></tr>
     <tr><td>History span</td><td class="mono">${hist && hist.history_span ? hist.history_span.first + " → " + hist.history_span.latest + " (" + hist.history_span.points + " points)" : "—"}</td></tr>
-    <tr><td>Crawlers tracked</td><td class="mono">${rows.length ? Object.keys(rows[0]).filter(k => k !== "rank" && k !== "domain").length : "—"}</td></tr>
+    <tr><td>Crawlers tracked</td><td class="mono">${crawlerCount()}</td></tr>
     <tr><td>Publisher panel</td><td class="mono">${cov.publisher_panel || "—"} domains</td></tr>
     <tr><td>Cadence</td><td>Weekly full sweep, automated</td></tr>
   </table>
 
-  <h2>Enforcement sample — read this before quoting it</h2>
-  ${enf ? `<p>Current edition: <b class="mono">${enf.enforced_pct}%</b> of declared blocks were actually enforced, across <b class="mono">${enf.n}</b> checks on the publisher panel.</p>` : "<p>Not computed in this edition.</p>"}
+  <h2>Probe-panel responses — counts only, and why there is no percentage here</h2>
+  ${enf ? `<p>On the probe panel this edition, an identified crawler made <b class="mono">${enf.n}</b> requests to domains whose robots.txt we had already read.
+  Where robots.txt declared a block, the server answered with a refusal (4xx or 5xx) <b class="mono">${enf.declared_enforced}</b> times and served the page <b class="mono">${enf.declared_not_enforced}</b> times.
+  Where robots.txt declared no block, the server refused anyway <b class="mono">${enf.undeclared_blocked}</b> times.</p>` : "<p>No probe observations in this edition.</p>"}
   <div class="box">
-    <b>This figure moves between runs, and you should know why.</b> It is measured on a small panel (tens of checks, not thousands), and the denominator changes with how many panel domains responded to an identified crawler in that sweep. We have observed it between 50% and 62% on consecutive editions. Treat it as directional evidence that a substantial minority of declared AI blocks are not enforced — consistent with independent findings of roughly 40% — and always quote it with its n and date. It is not a precise population estimate, and we will not present it as one.
+    <b>These are counts, not a rate, and we will not turn them into one.</b>
+    robots.txt is an advisory instruction to crawlers, not a server-side access control. A site that disallows a crawler in robots.txt
+    and still serves a page to it is behaving exactly as the protocol expects — it has not "failed to enforce" anything, because there is
+    nothing there to enforce. Treating the ratio of these counts as an enforcement rate would measure a thing that does not exist.
+    <br><br>
+    These observations also come from one vantage point, one identified crawler, and a panel of a few dozen domains chosen for interest
+    rather than at random. They tell you a behaviour exists and roughly where. They cannot tell you how common it is, and they say nothing
+    at all about whether any <em>other</em> crawler honours any site's directives — we have no crawler-side logs and no way to observe that.
   </div>
 
   <h2>What we know is imperfect</h2>
   <ul>
-    <li><b>Declaration is not enforcement.</b> Headline block rates measure what sites publish, not what they do.</li>
+    <li><b>Declaration is not behaviour.</b> Block rates measure what sites publish in robots.txt, not what any crawler does.</li>
+    <li><b>We cannot see compliance.</b> We have no crawler-side logs. Nothing here shows whether a named crawler obeyed a directive.</li>
     <li><b>One vantage point.</b> We crawl from a single network; sites that vary by geography or ASN may look different elsewhere.</li>
     <li><b>Prices are sparse.</b> Very few sites quote a machine-readable price. We report the count rather than smoothing it.</li>
     <li><b>Not every domain answers.</b> Rates are always computed against domains parsed, never the nominal frame.</li>
-    <li><b>ccTLD is a proxy</b> for country, not a measure of publisher nationality or audience.</li>
+    <li><b>ccTLD is a domain suffix</b>, not a country. It is not operator location, ownership, audience or hosting, and generic suffixes (.com, .org, .io) carry no geography at all.</li>
   </ul>
 
   <h2>Corrections</h2>
@@ -114,5 +135,5 @@ const changelog = HEAD("Changelog", "Dated record of what changed in the Crawl P
   </article>`).join("\n") : "<p>No entries yet.</p>") + FOOT;
 fs.writeFileSync("public/changelog.html", changelog);
 
-console.log("status.html  → " + Number(cov.robots_parsed || 0).toLocaleString() + " parsed, " + ageDays.toFixed(1) + " days old, " + (enf ? enf.enforced_pct + "% enforced (n=" + enf.n + ")" : "no enforcement figure"));
+console.log("status.html  → " + Number(cov.robots_parsed || 0).toLocaleString() + " parsed, " + ageDays.toFixed(1) + " days old, " + (enf ? enf.n + " probe observations (counts only)" : "no probe observations"));
 console.log("changelog.html → " + entries.length + " entries");

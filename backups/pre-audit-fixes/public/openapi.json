@@ -1,0 +1,119 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Crawl Price Index API",
+    "version": "1.0.0",
+    "description": "An independent weekly observatory of what the web charges AI to read it. Free endpoints need no key. The full per-domain dataset is gated: subscribe at https://crawlpriceindex.com/#access, or pay per weekly edition in USDC via the x402 offer returned by GET /v1/dataset.\n\nEvidence policy: every signal we publish is labelled observed, derived or inferred. See GET /v1/methodology.",
+    "contact": { "name": "The Crawl Price Index", "email": "hello@crawlpriceindex.com", "url": "https://crawlpriceindex.com" },
+    "license": { "name": "Single-subscriber licence; redistribution prohibited", "url": "https://crawlpriceindex.com/terms.html" }
+  },
+  "servers": [{ "url": "https://api.crawlpriceindex.com" }],
+  "tags": [
+    { "name": "public", "description": "No authentication required" },
+    { "name": "dataset", "description": "Gated by subscription key or a redeemed crawl pass" },
+    { "name": "free tier", "description": "Newsletter, data sample and change alerts" }
+  ],
+  "paths": {
+    "/health": {
+      "get": { "tags": ["public"], "summary": "Liveness check", "responses": { "200": { "description": "Service is up", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" } } } } } } } }
+    },
+    "/v1/check": {
+      "get": {
+        "tags": ["public"],
+        "summary": "AI-crawler policy for one domain",
+        "description": "Returns the per-crawler stance recorded for a domain in the current weekly edition, its Tranco rank, and its percentile against every parsed domain. Pass domain=context to retrieve coverage and freshness without a lookup.",
+        "parameters": [{ "name": "domain", "in": "query", "required": true, "schema": { "type": "string" }, "example": "www.nytimes.com" }],
+        "responses": {
+          "200": { "description": "Lookup result (found true or false)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CheckResult" } } } },
+          "400": { "description": "Malformed domain" },
+          "503": { "description": "Index not yet published" }
+        }
+      }
+    },
+    "/v1/methodology": {
+      "get": { "tags": ["public"], "summary": "Machine-readable provenance model", "description": "How every signal is obtained and whether it is observed, derived or inferred; what we explicitly do not measure; the corrections policy; and the pinned methodology version.", "responses": { "200": { "description": "Evidence model", "content": { "application/json": { "schema": { "type": "object" } } } } } }
+    },
+    "/v1/dataset": {
+      "get": {
+        "tags": ["dataset"],
+        "summary": "The full per-domain dataset",
+        "description": "Every parsed domain's stance for every tracked crawler, plus aggregates, payment signals, country editions and (for subscribers) accumulating weekly history. Responses are watermarked to the requesting customer. Without a key the endpoint returns HTTP 402 with a machine-payable x402 offer.",
+        "parameters": [
+          { "name": "key", "in": "query", "schema": { "type": "string" }, "description": "Subscription key or redeemed crawl pass. May also be sent as Authorization: Bearer." },
+          { "name": "format", "in": "query", "schema": { "type": "string", "enum": ["json", "csv"] }, "description": "Defaults to JSON." }
+        ],
+        "responses": {
+          "200": { "description": "Dataset", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Dataset" } }, "text/csv": { "schema": { "type": "string" } } } },
+          "401": { "description": "Unknown key" },
+          "402": { "description": "Payment required — body carries an x402 offer", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PaymentOffer" } } } },
+          "429": { "description": "Monthly rate limit reached" }
+        }
+      }
+    },
+    "/v1/status": {
+      "get": { "tags": ["dataset"], "summary": "Key status and usage", "parameters": [{ "name": "key", "in": "query", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Status, usage this month, limit" }, "401": { "description": "Unknown key" } } }
+    },
+    "/v1/redeem": {
+      "get": {
+        "tags": ["dataset"],
+        "summary": "Redeem an on-chain payment for a crawl pass",
+        "description": "Verifies a USDC transfer on Base against the amount and recipient in the x402 offer, then issues a seven-day snapshot pass. Each transaction can be redeemed once.",
+        "parameters": [{ "name": "tx", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Transaction hash" }],
+        "responses": { "200": { "description": "Pass issued (or previously issued)" }, "400": { "description": "Malformed hash" }, "402": { "description": "Insufficient payment" }, "404": { "description": "Transaction not found or unmined" } }
+      }
+    },
+    "/v1/subscribe": {
+      "post": { "tags": ["free tier"], "summary": "Join The Weekly Crawl and get a free data sample", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email"], "properties": { "email": { "type": "string", "format": "email" } } } } } }, "responses": { "200": { "description": "Confirmation email sent" }, "400": { "description": "Invalid email" } } }
+    },
+    "/v1/watch": {
+      "post": { "tags": ["free tier"], "summary": "Get alerted when a domain's AI-crawler access changes", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email", "domain"], "properties": { "email": { "type": "string", "format": "email" }, "domain": { "type": "string" } } } } } }, "responses": { "200": { "description": "Confirmation email sent" }, "400": { "description": "Invalid email or domain" } } }
+    },
+    "/v1/recover": {
+      "post": { "tags": ["dataset"], "summary": "Re-send a subscriber's API key to the email on file", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email"], "properties": { "email": { "type": "string", "format": "email" } } } } } }, "responses": { "200": { "description": "Always the same response, whether or not the address is a subscriber" } } }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CheckResult": {
+        "type": "object",
+        "properties": {
+          "found": { "type": "boolean" },
+          "domain": { "type": "string" },
+          "rank": { "type": ["integer", "null"], "description": "Tranco rank" },
+          "stances": { "type": "object", "additionalProperties": { "type": "string", "enum": ["b", "a", "p", "u", "n"] }, "description": "Per crawler: b blocked, a allowed, p partial, u unlisted, n no robots.txt. Evidence type: observed." },
+          "blocked_count": { "type": "integer" },
+          "percentile": { "type": ["number", "null"], "description": "Share of parsed domains blocking fewer crawlers. Evidence type: derived." },
+          "context": { "type": "object", "properties": { "generated_utc": { "type": "string" }, "tranco_top_n": { "type": "integer" }, "robots_parsed": { "type": "integer" }, "bots": { "type": "array", "items": { "type": "string" } } } }
+        }
+      },
+      "Dataset": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "generated_utc": { "type": "string", "format": "date-time" },
+          "methodology_version": { "type": "string" },
+          "coverage": { "type": "object", "properties": { "tranco_top_n": { "type": "integer" }, "robots_parsed": { "type": "integer" }, "publisher_panel": { "type": "integer" } } },
+          "block_rates": { "type": "object", "description": "Per crawler: blocked count and rate_pct. Evidence type: derived." },
+          "per_domain": { "type": "array", "items": { "type": "object" }, "description": "One row per parsed domain, with a stance per tracked crawler. Evidence type: observed." },
+          "country_editions": { "type": "object", "description": "Evidence type: derived. ccTLD is a proxy for country." },
+          "enforcement": { "type": "object", "description": "Declared blocks versus enforced blocks on the publisher panel. Small n — quote with its denominator." },
+          "trends": { "type": "object", "description": "Week-over-week movement. Subscriber tier only; withheld from per-crawl passes." },
+          "evidence": { "type": "object", "description": "The provenance model for every signal class." },
+          "corrections": { "type": "array", "items": { "type": "object" } },
+          "_license": { "type": "object", "description": "Per-customer watermark: issued_to, key_fingerprint, terms, served." }
+        }
+      },
+      "PaymentOffer": {
+        "type": "object",
+        "properties": {
+          "x402Version": { "type": "integer" },
+          "accepts": { "type": "array", "items": { "type": "object", "properties": { "scheme": { "type": "string" }, "network": { "type": "string" }, "asset": { "type": "string" }, "maxAmountRequired": { "type": "string" }, "payTo": { "type": "string" }, "resource": { "type": "string" } } } }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apiKey": { "type": "apiKey", "in": "query", "name": "key" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  }
+}

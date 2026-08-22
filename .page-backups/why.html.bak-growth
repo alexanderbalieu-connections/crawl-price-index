@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why it matters — The Crawl Price Index</title>
+<meta name="description" content="AI reading the web is becoming a priced transaction. The Crawl Price Index is the independent record of who charges, who blocks, and what it costs — week over week.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23FBFAF8%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%231C5D4A%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav class="navmid">
+    <a class="lnk on" aria-current="page" href="/why">Why it matters</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
+  </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
+</div></div>
+
+<div class="page-open"><div class="wrap">
+  <p class="eyebrow">Why it matters</p>
+  <h1>The web just started <em>charging</em> AI to read it.</h1>
+  <p class="lede">For thirty years the web was free to crawl. That is ending — not gradually, but on a date. The prices and refusals are set machine-to-machine, in headers no one reads. This is the record of them.</p>
+</div></div>
+
+<div class="wrap"><div class="panels">
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">The shift</span></div>
+    <h2>Reading the web is becoming a transaction, not a right.</h2>
+    <p>From 15 September 2026, Cloudflare blocks AI crawlers by default across much of the web and offers publishers a pay-per-crawl toll in the same dashboard. TollBit already runs a bot paywall on thousands of publisher sites. Major outlets have signed private licensing deals with AI companies; others return a payment demand to any crawler that knocks.</p>
+    <p>None of this is speculative, and none of it is visible the way markets normally are. There is no ticker. A price quoted to an AI crawler appears for an instant in an HTTP response and is gone. A publisher's policy can change overnight and nobody outside that publisher would know.</p>
+  </section>
+
+  <section class="panel wide" id="evidence-shift">
+    <div class="ix"><span class="lead-in">The shift, in public numbers</span></div>
+    <h2>Software is becoming the web&rsquo;s main reader &mdash; and nobody agrees by how much.</h2>
+    <div class="evsplit">
+      <div>
+        <p>Three infrastructure companies measured the same question in overlapping periods and produced answers <b>twenty points apart</b>. All three sell bot mitigation, which is worth knowing when reading them.</p>
+        <p>We show the spread rather than pick a headline. The direction is consistent across all of them; the level is not settled, and anyone quoting a single figure as fact is overstating what is known.</p>
+      </div>
+      <div>
+        <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Automated share of web traffic</div>
+      <div class="evrow"><span class="evk">Cloudflare<small>network-wide, Jul 2026</small></span><span class="evb"><span class="" style="width:57%"></span></span><span class="evv">~57%</span></div>
+      <div class="evrow"><span class="evk">Thales / Imperva<small>protected estate, FY2025</small></span><span class="evb"><span class="" style="width:53%"></span></span><span class="evv">53%</span></div>
+      <div class="evrow"><span class="evk">Fastly<small>6.5T req/mo, Apr&ndash;Jul 2025</small></span><span class="evb"><span class="alt" style="width:37%"></span></span><span class="evv">37%</span></div>
+        <div class="evnote">Sources: <a href="https://www.cloudflare.com/press/press-releases/2026/cloudflare-introduces-precursor-one-click-behavioral-defense-against-modern-bots/" rel="noopener">Cloudflare</a> (13 Jul 2026) &middot; <a href="https://cpl.thalesgroup.com/about-us/newsroom/ai-driven-bot-attacks-surged-according-to-bad-bot-report" rel="noopener">Thales/Imperva Bad Bot Report 2026</a> &middot; <a href="https://www.fastly.com/press/press-releases/new-fastly-threat-research-reveals-ai-crawlers-make-up-almost-80-of-ai-bot" rel="noopener">Fastly</a>. Different networks, different customer bases, different definitions of &ldquo;bot&rdquo;.</div>
+      </div>
+    </div>
+    <div class="evcaution"><b>One caveat we think matters.</b> In September 2025 Cloudflare wrote that it expected bot traffic to exceed human traffic <em>&ldquo;by the end of 2029&rdquo;</em>. In July 2026 it reported that this had already happened. Either the shift accelerated by three years in nine months, or the measurement basis changed. We cite the figure and the contradiction together.</div>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The thesis</span></div>
+    <h2>What we think is happening &mdash; and what would prove us wrong.</h2>
+    <p>Everything else on this site is measurement. This section is an argument, and it is labelled as one. We state it openly because a dataset without a hypothesis is just a spreadsheet, and because stating it lets you hold the data against it every week.</p>
+
+    <p class="pull">Software is becoming the web&rsquo;s primary reader &mdash; and the first reader that can be <em>charged at the door</em>.</p>
+
+    <p>Three things follow from that, and each is testable rather than rhetorical. First, if machines are becoming the audience that matters, publishers should start distinguishing between kinds of machine &mdash; not just blocking &ldquo;bots&rdquo;, but treating a crawler that trains a model differently from one that sends a reader. Second, if access becomes a transaction, some form of machine-payable pricing has to appear and be denominated in something a machine can settle. Third, if payment becomes normal, declared policy and enforced access should begin to diverge, because charging requires actually stopping people at the gate rather than politely asking them not to enter.</p>
+
+    <h3 style="margin-top:22px">What we can already measure</h3>
+    <ul id="thesis-ev">
+      <li>Loading this week&rsquo;s figures&hellip;</li>
+    </ul>
+    <p class="source" style="margin-top:6px">Live from the current edition. Every figure states its denominator; none of them is a forecast.</p>
+
+    <h3 style="margin-top:22px">What we do <em>not</em> claim</h3>
+    <p>We do not claim to know that this continues, how fast, or how far. We hold roughly five weekly editions &mdash; enough to observe movement between editions, nowhere near enough to assert a trend, and we do not assert one anywhere on this site. We also cannot see money changing hands: a registry of advertised prices is a record of what sellers ask, not of what anyone paid. Nobody outside the payment rails can see the second thing, including us.</p>
+
+    <h3 style="margin-top:22px">What would falsify it</h3>
+    <p>The thesis fails if, over successive editions, the training-versus-traffic distinction flattens toward parity; if declared blocking drifts down rather than up as the tooling gets easier; if the machine-payment registry stops growing or stays confined to developer APIs and never reaches sites people read; or if the divergence between what sites declare and what they enforce closes rather than widens. Each of those is visible in the weekly data. If they happen, this page changes &mdash; and the archive that showed it will still be here.</p>
+  </section>
+
+  <section class="panel wide" id="evidence-ratio">
+    <div class="ix"><span class="lead-in">The economics, in public numbers</span></div>
+    <h2>How many pages a platform takes, per visitor it sends back.</h2>
+    <div class="evsplit">
+      <div>
+        <p>This is the number that turns a technical question into an economic one. Search crawling was a trade: index my pages, send me readers. For AI crawling the exchange rate has moved by orders of magnitude.</p>
+        <p>The second series matters as much as the first. Restricted to <b>news and publications</b>, the same ratios fall by one to two orders of magnitude &mdash; still lopsided, nothing like the headline. Both are shown because quoting only the larger one would be exactly the kind of thing this index exists to avoid.</p>
+        <p style="margin-bottom:0">And a reader who arrives via an AI answer mostly does not click through: Pew measured <b>8%</b> click-through on searches showing an AI summary against <b>15%</b> without, with <b>1%</b> clicking a link inside the summary.</p>
+      </div>
+      <div>
+        <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Pages crawled per visitor referred &middot; log scale</div>
+      <div class="evrow"><span class="evk">Anthropic<small>all industries</small></span><span class="evb"><span class="warn" style="width:100%"></span></span><span class="evv">38,065:1</span></div>
+      <div class="evrow"><span class="evk">Anthropic<small>news &amp; publications</small></span><span class="evb"><span class="alt" style="width:66%"></span></span><span class="evv">2,500:1</span></div>
+      <div class="evrow"><span class="evk">OpenAI<small>all industries</small></span><span class="evb"><span class="warn" style="width:68%"></span></span><span class="evv">1,091:1</span></div>
+      <div class="evrow"><span class="evk">OpenAI<small>news &amp; publications</small></span><span class="evb"><span class="alt" style="width:47%"></span></span><span class="evv">152:1</span></div>
+      <div class="evrow"><span class="evk">Perplexity<small>all industries</small></span><span class="evb"><span class="warn" style="width:50%"></span></span><span class="evv">195:1</span></div>
+      <div class="evrow"><span class="evk">Perplexity<small>news &amp; publications</small></span><span class="evb"><span class="alt" style="width:35%"></span></span><span class="evv">32.7:1</span></div>
+      <div class="evrow"><span class="evk">Google<small>all industries</small></span><span class="evb"><span class="" style="width:14%"></span></span><span class="evv">5:1</span></div>
+      <div class="evrow"><span class="evk">DuckDuckGo<small>all industries</small></span><span class="evb"><span class="" style="width:4%"></span></span><span class="evv">0.3:1</span></div>
+        <div class="evnote">Source: Cloudflare, <a href="https://blog.cloudflare.com/crawlers-click-ai-bots-training/" rel="noopener">&ldquo;The crawl-to-click gap&rdquo;</a> (29 Aug 2025, data Jan&ndash;Jul 2025) and <a href="https://blog.cloudflare.com/ai-crawler-traffic-by-purpose-and-industry/" rel="noopener">by purpose and industry</a> (28 Aug 2025). Bars are log-scaled for legibility; read the figures, not the lengths. <b>Cloudflare&rsquo;s own caveat:</b> referrals from native apps carry no <code>Referer</code> header, so these ratios overstate the gap by an unknown amount. Pew: <a href="https://www.pewresearch.org/short-reads/2025/07/22/google-users-are-less-likely-to-click-on-links-when-an-ai-summary-appears-in-the-results/" rel="noopener">AI summaries and click-through</a> (22 Jul 2025).</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel wide" id="evidence-against">
+    <div class="ix"><span class="lead-in">Evidence against</span></div>
+    <h2>The parts of this thesis the public data does <em>not</em> support.</h2>
+    <p>If we only published what agreed with us, none of the rest of this site would be worth reading. Three things cut the other way, and the weakest leg is the one the whole idea depends on.</p>
+    <ul>
+      <li><b>Machine-to-machine payment is barely real yet.</b> Analysis of the x402 rail found roughly <b>half of transactions were artificial</b> &mdash; self-dealing and wash trading &mdash; with genuine daily volume around <b>$28,000</b>. Visa, a year into its agent-payments programme, reported agent-initiated transactions in the <b>hundreds</b>. The plumbing is being laid; almost nothing is flowing through it. <span style="color:var(--dim)">(<a href="https://www.chainalysis.com/blog/x402-agentic-payments-adoption/" rel="noopener">Chainalysis</a>, Jun 2026; <a href="https://www.coindesk.com/markets/2026/03/11/coinbase-backed-ai-payments-protocol-wants-to-fix-micropayment-but-demand-is-just-not-there-yet" rel="noopener">Artemis via CoinDesk</a>, Mar 2026; <a href="https://investor.visa.com/news/news-details/2025/Visa-and-Partners-Complete-Secure-AI-Transactions-Setting-the-Stage-for-Mainstream-Adoption-in-2026/default.aspx" rel="noopener">Visa</a>, Dec 2025)</span></li>
+      <li><b>Blocking is a minority behaviour outside news.</b> Only <b>10.6%</b> of the top million sites fully block GPTBot, and as of mid-2025 only <b>14%</b> of the top ten thousand domains carried any AI-crawler directive at all. The high numbers you read about are a news-sector story, not a web-wide one. <span style="color:var(--dim)">(<a href="https://arxiv.org/pdf/2510.09031" rel="noopener">Bouchaud &amp; Ramaciotti</a>, arXiv 2025; <a href="https://blog.cloudflare.com/from-googlebot-to-gptbot-whos-crawling-your-site-in-2025/" rel="noopener">Cloudflare</a>, Jun 2025)</span></li>
+      <li><b>Licensing revenue is real but small, and growing slower than the business it is meant to replace.</b> Reddit&rsquo;s entire data-licensing line &mdash; with the largest AI buyers as customers &mdash; was <b>$43M in Q2 2026</b>, about <b>5%</b> of revenue, growing 24% while the company overall grew 61%. That is the clearest audited price signal in this market, and it is not yet paying anyone&rsquo;s rent. <span style="color:var(--dim)">(<a href="https://www.sec.gov/Archives/edgar/data/1713445/000171344526000098/earningspressreleaseq226.htm" rel="noopener">Reddit Q2 2026, SEC filing</a>)</span></li>
+    </ul>
+    <p class="evnote" style="border-top:0;padding-top:0;margin-top:16px">Not every crawler is growing either: Bytespider fell <b>85%</b> year over year to May 2025, and training-bot volume on one publisher network <em>declined</em> 15% across the second half of 2025 even as retrieval and search bots grew. The category is expanding; individual crawlers are volatile, and some are shrinking.</p>
+  </section>
+
+
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">The gap</span></div>
+    <p class="pull">Every new market needs a neutral price of record. This one <em>doesn't have one yet.</em></p>
+    <p>Oil had no reference price until Platts began publishing assessments; fertiliser had none until Argus did. The reference publisher takes money from no participant — which is exactly what lets everyone cite it. The crawl economy is at that pre-reference moment now: real transactions, no independent record.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">What becomes answerable</span></div>
+    <h2>Questions that had no data behind them, now do.</h2>
+    <ul class="q-list">
+      <li><span class="q">Is my sector walling up faster than the rest of the web?</span><span class="a">Block rates by crawler and by country, re-read weekly across the top 50,000 domains.</span></li>
+      <li><span class="q">Which publishers have actually started charging — and how much?</span><span class="a">Every observed machine-readable price, and every payment wall that quotes no price, recorded with the date it appeared.</span></li>
+      <li><span class="q">Did this domain change its AI policy the week that deal was announced?</span><span class="a">A dated history that cannot be back-filled — the one thing a competitor who starts later can never reconstruct.</span></li>
+      <li><span class="q">Is a licensing deal visible on the wire, or only in the press release?</span><span class="a">Identity-conditional access — sites that serve one AI crawler and refuse another — measured directly.</span></li>
+      <li><span class="q">How much of the web is one toggle away from charging?</span><span class="a">The share of domains already behind a CDN that can switch on pay-per-crawl in a single setting.</span></li>
+    </ul>
+    <p class="source">A reporter finds the story; an analyst finds the trend line; a publisher finds out where they stand; an AI team finds out what access will cost. The data is the same — the questions are yours.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">The legal backdrop</span></div>
+    <h2>The signal we measure is now the one the law looks at.</h2>
+    <p>Whether a site lets AI read it has moved from a technical courtesy to a compliance question, and recent rulings made the machine-readable signal — the thing this index records — the legally operative one.</p>
+    <ul class="q-list">
+      <li><span class="q">EU: a machine-readable opt-out is the one that counts.</span><span class="a">Under Article 4 of the <a href="https://eur-lex.europa.eu/eli/dir/2019/790/oj" rel="noopener">EU Copyright Directive (2019/790)</a>, commercial text-and-data mining is permitted unless rights are reserved by machine-readable means. In <em>Kneschke v. LAION</em> (10 Dec 2025) the Hamburg Higher Regional Court held a natural-language reservation insufficient: the opt-out must be machine-readable — robots.txt, X-Robots-Tag, or the TDM Reservation Protocol. Precisely what this index reads each week.</span></li>
+      <li><span class="q">EU AI Act: training-data transparency is in force.</span><span class="a">Since 2 August 2025, providers of general-purpose AI models must document training data and comply with EU copyright law, including honouring these reservations. The 2026 Digital Omnibus adjusted some high-risk deadlines; the transparency obligations were not among them.</span></li>
+      <li><span class="q">A pending EU referral may set the standard web-wide.</span><span class="a">The Court of Justice of the EU is considering case C-250/25 (<em>Like Company v. Google</em>), which may clarify what counts as a valid machine-readable reservation for AI training.</span></li>
+      <li><span class="q">US: the market-defining case is still open.</span><span class="a"><em>The New York Times v. OpenAI &amp; Microsoft</em> (S.D.N.Y., 1:23-cv-11195) — core copyright claims survived dismissal; the most-watched test of whether training on copyrighted text is fair use.</span></li>
+    </ul>
+    <p class="source">We state these as dated facts and link the primary sources. We do not predict how any case or rule will resolve — an observatory records the signal; it does not forecast the verdict.</p>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">What this is</span></div>
+    <h2>An independent observatory, not a participant.</h2>
+    <p>The Crawl Price Index reads the machine-readable policy of the top 50,000 domains every week and records what it finds: who blocks which AI crawlers, who charges, what the price is, and what changed since last week. It takes no money from anyone it measures and brokers no deals — the discipline that lets a price index be cited by the market it observes.</p>
+    <p>Headline figures are free to cite with attribution. The full per-domain record, the country editions, and the accumulating history are the subscription. The method is <a href="/methodology">documented in full</a>, the crawler is cryptographically identifiable, and every edition is dated and reproducible.</p>
+  </section>
+
+  <section class="panel close">
+    <p class="pull">The market is being built now. The record starts now too.</p>
+    <div class="cta-row">
+      <a class="btn" href="/check">Check any domain — free</a>
+      <a class="ghost" href="/sample">Get the weekly email</a>
+      <a class="ghost" href="https://app.crawlpriceindex.com/dashboard.html#account">See subscription</a>
+    </div>
+    <p class="source" style="margin-top:18px">The Crawl Price Index · independent observatory of the machine-readable web · <a href="/methodology">how we measure</a></p>
+  </section>
+
+</div></div>
+<script id="thesis-ev-loader">
+// The thesis is held against live data, so it cannot quietly go stale.
+(function(){
+  var el = document.getElementById("thesis-ev");
+  if (!el) return;
+  fetch("/index.json", {cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+    var out = [], n = function(x){ return Number(x).toLocaleString(); };
+    var A = d.asymmetry_headline, R = d.reachability_headline, B = d.bazaar_headline, C = d.changes_headline;
+    if (A) out.push("<li><b>Publishers do distinguish between kinds of machine.</b> " + n(A.blocks_training_role_only) +
+      " domains block a training-role crawler while blocking no search-role crawler; " + n(A.blocks_search_role_only) +
+      " do the reverse &mdash; a ratio of " + A.ratio + " to 1, among " + n(A.denominator) +
+      " domains serving a readable robots.txt.</li>");
+    if (B) out.push("<li><b>Machine-payable pricing exists and is denominated for machines.</b> " + n(B.endpoints_real_priced) +
+      " endpoints advertise a price in a public machine-payment registry across " + n(B.distinct_pay_to_addresses) +
+      " distinct pay-to addresses, median ask $" + B.median_advertised_usd + ". Advertised acceptance, not observed transactions.</li>");
+    if (B && B.in_frame_domains != null) out.push("<li><b>It has barely reached the web people read.</b> Of the 50,000 ranked domains we scan, " +
+      n(B.in_frame_domains) + " advertise a machine price" + (B.in_frame_content != null ? " &mdash; " + n(B.in_frame_content) + " of them serving content" : "") +
+      ". The registry is still overwhelmingly developer APIs and tools.</li>");
+    if (R) out.push("<li><b>Declared policy and enforced access already differ.</b> " + n(R.bot_walled) +
+      " domains in the frame serve a robots.txt and then refuse an identified crawler at the homepage (403/429).</li>");
+    if (C) out.push("<li><b>Policy is not settled.</b> Between the two most recent editions, " + n(C.more_restrictive) +
+      " domain&times;crawler states moved toward restriction and " + n(C.less_restrictive) + " away from it, with " +
+      n(C.moved_off_a_block) + " moving off an explicit block. One comparison, not a trend.</li>");
+    el.innerHTML = out.length ? out.join("") : "<li>This week&rsquo;s figures are not available right now.</li>";
+  }).catch(function(){ el.innerHTML = "<li>This week&rsquo;s figures are not available right now.</li>"; });
+})();
+</script>
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now.<br>The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
+
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'why')">
+        <input id="fsub-why" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-why"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script>
+</body>
+</html>
+

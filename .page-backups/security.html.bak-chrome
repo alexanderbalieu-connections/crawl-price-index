@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security &amp; disclosure — The Crawl Price Index</title>
+<meta name="description" content="How to report a vulnerability in the Crawl Price Index, what we commit to, and how the service is secured.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23FBFAF8%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%231C5D4A%27/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;font-size:17px;line-height:1.6}
+  a{color:var(--signal)}
+  h2{font-size:22px;font-weight:500;color:var(--bright);margin:36px 0 10px}
+  pre{background:#0f1214;border:1px solid var(--line);padding:14px;overflow:auto;font-family:"Spline Sans Mono",monospace;font-size:12.5px}
+  ul{padding-left:22px} li{margin-bottom:7px}
+  footer{margin-top:52px;padding:22px 0 60px;border-top:1px solid var(--line);font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
+</style>
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav class="navmid">
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+  </nav>
+  <div class="navend">
+    <a class="lnk signin" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
+</div></div>
+<div class="page-open"><div class="wrap">
+  <h1>Security &amp; disclosure</h1>
+  <p style="margin:0;max-width:620px">If you have found a vulnerability, we want to hear from you before anyone else does.</p>
+</div></div>
+<div class="wrap"><div class="panels">
+<section class="panel">
+  <div class="ix"><span class="lead-in">Reporting</span></div>
+  <h2>Reporting</h2>
+<p>Email <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> with enough detail to reproduce the issue. Machine-readable contact: <a href="/.well-known/security.txt">/.well-known/security.txt</a>.</p>
+</section>
+<section class="panel">
+  <div class="ix"><span class="lead-in">What we commit to</span></div>
+  <h2>What we commit to</h2>
+<ul>
+  <li>Acknowledge your report within 3 working days.</li>
+  <li>Tell you our assessment and intended fix within 10 working days.</li>
+  <li>Credit you in the <a href="/changelog.html">changelog</a> if you would like to be named.</li>
+  <li>Never pursue legal action against good-faith research that follows the guidance below.</li>
+</ul>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">What we ask</span></div>
+  <h2>What we ask</h2>
+<ul>
+  <li>Give us 90 days before public disclosure.</li>
+  <li>Do not access, modify or exfiltrate data belonging to other people.</li>
+  <li>Do not degrade the service — no denial-of-service, no high-volume automated scanning.</li>
+  <li>Do not use social engineering or physical attacks.</li>
+  <li>We are a one-person operation with no bug bounty budget. We can offer credit and gratitude, not cash.</li>
+</ul>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">How the service is secured</span></div>
+  <h2>How the service is secured</h2>
+<ul>
+  <li>All secrets (payment keys, signing keys, list secrets, admin tokens) are stored encrypted in Cloudflare and are never committed to source control.</li>
+  <li>Paid data is gated on a per-customer key, rate-limited monthly, and watermarked per customer so any leak is traceable.</li>
+  <li>Subscription and alert links are HMAC-signed, so they cannot be forged or enumerated.</li>
+  <li>Stripe webhooks are signature-verified with replay protection. Blockchain payments are verified on-chain, and each transaction can be redeemed only once.</li>
+  <li>Our own crawler signs every outbound request (RFC 9421 / Web Bot Auth), so sites can verify that traffic claiming to be ours is ours. Public key directory: <a href="/.well-known/http-message-signatures-directory">here</a>.</li>
+  <li>We store no page content from crawled sites, and no payment card data at any point.</li>
+</ul>
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Known limitations</span></div>
+  <h2>Known limitations</h2>
+<p>This is a small, independent operation. We do not currently offer SSO, audit-log export, an uptime SLA or a signed DPA beyond our processors' standard terms. If you need those, email us and say so — it tells us what to build next.</p>
+</section>
+</div></div>
+<footer>
+THE CRAWL PRICE INDEX · <a href="/privacy.html">privacy</a> · <a href="/terms.html">terms</a> · <a href="/methodology.html">methodology</a> &middot; <a href="/about">about</a> · <a href="/">index</a>
+</footer>
+</div>
+</body>
+</html>

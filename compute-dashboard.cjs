@@ -150,14 +150,20 @@ const cotreat_matrix = same.map((row, a) => row.map((v, b) =>
   bothExplicit[a][b] ? +(v / bothExplicit[a][b] * 100).toFixed(1) : null));
 
 // ---- rank bands ----------------------------------------------------------
+// Denominator is the PARSED subset of the band, matching every other rate on the
+// dashboard and matching any_ai.by_band. Using the whole band here (as an earlier
+// version did) roughly halves the top-100 figures, because only 53 of the top 100
+// domains serve a readable robots.txt at all — and it put two different
+// denominators on the same Segments page.
 const rank_bands = BANDS.map(([lo, hi]) => {
-  const rows = cur.rows.filter(r => r.rank >= lo && r.rank <= hi);
+  const all = cur.rows.filter(r => r.rank >= lo && r.rank <= hi);
+  const rows = all.filter(r => r.st.some(s => s !== "no_robots"));
   const per = {};
   C.forEach((c, ci) => {
     let b = 0; for (const r of rows) if (r.st[ci] === "blocked") b++;
     per[c] = rows.length ? +(b / rows.length * 100).toFixed(2) : null;
   });
-  return { band: `${lo}-${hi}`, n: rows.length, blocked_pct: per };
+  return { band: `${lo}-${hi}`, n: rows.length, n_total: all.length, blocked_pct: per };
 });
 
 // ---- ccTLD (min-n) -------------------------------------------------------
@@ -218,8 +224,22 @@ if (prev) {
     }
   }
   items.sort((x, y) => x.rank - y.rank);
+  // The public dashboard.json ships a SAMPLE only: every row for the
+  // 5 highest-ranked domains that changed. The full feed is in the gated
+  // per-domain payload, which is where the dashboard's own table reads it from
+  // anyway — the full copy here was downloaded by everyone and rendered to
+  // nobody. Keeping the totals intact means every headline figure still works.
+  const sampleDomains = [];
+  for (const it of items) {
+    if (sampleDomains.length >= 5) break;
+    if (!sampleDomains.includes(it.domain)) sampleDomains.push(it.domain);
+  }
+  const sampleItems = items.filter(it => sampleDomains.includes(it.domain));
   changes = {
-    available: true, interval: `${prevDate} -> ${curDate}`, items, transitions: trans,
+    available: true, interval: `${prevDate} -> ${curDate}`,
+    items: sampleItems, items_sample: true,
+    items_total: items.length, items_domains_total: changed_domains.size,
+    transitions: trans,
     total_changes: total, changed_domains: changed_domains.size,
     capped_at: CHANGE_FEED_CAP, frame_churn: { entered, left },
     availability: { cells: availability_cells, domains: availability_domains.size,
@@ -543,6 +563,39 @@ const roles = {
 };
 
 // ---- assemble ------------------------------------------------------------
+/* ---- frame reachability (weekly sweep; may lag the robots edition by one) --
+   Produced by sweep-reachability.cjs. The dashboard uses the LATEST completed
+   sweep so a long-running sweep never blocks the edition publish. */
+function loadReachability() {
+  try {
+    const f = fs.readdirSync(".").filter(x => /^reachability-.*-summary\.json$/.test(x)).sort().pop();
+    if (!f) return null;
+    const j = JSON.parse(fs.readFileSync(f, "utf8"));
+    const r = j.reachability || {}, h = j.homepage || {};
+    const n = j.domains || 0;
+    if (!n) return null;
+    const alive = r.alive || 0;
+    const dead = (r.dead_dns || 0);
+    const timeout = (r.timeout || 0);
+    const other = n - alive - dead - timeout;
+    return {
+      edition: j.edition, generated: j.generated_utc, domains: n,
+      states: {
+        alive, dead_dns: dead, timeout,
+        tls_or_other: Math.max(0, other),
+        bot_walled: h.bot_walled || 0,        // subset of alive
+        disallowed: h.disallowed_by_robots || 0,
+      },
+      pct: {
+        alive: +(alive / n * 100).toFixed(1),
+        dead_dns: +(dead / n * 100).toFixed(1),
+        timeout: +(timeout / n * 100).toFixed(1),
+      },
+      note: "Reachability of the frame itself: alive means the host answered an honest crawler at robots.txt or homepage. timeout means no response within 8s (hard ceiling 22s); diagnostic re-probing (n=337) found 93.8% of timeouts remain unreachable under a 25s window with retry. Measured weekly; may lag the robots edition by one sweep.",
+    };
+  } catch (e) { return null; }
+}
+
 const out = {
   generated_utc: new Date().toISOString(),
   edition: curDate,
@@ -575,6 +628,7 @@ const out = {
   wire,
   trend: buildTrend(),
   history_aggregate: fs.existsSync("history-index.json") ? JSON.parse(fs.readFileSync("history-index.json", "utf8")) : null,
+  reachability: loadReachability(),
 };
 fs.mkdirSync("app/data", { recursive: true });
 fs.writeFileSync("app/data/dashboard.json", JSON.stringify(out));
@@ -586,4 +640,5 @@ console.log(`  tld rows (n>=${MIN_TLD_N}): ${tld.length} | changes: ${changes.av
 console.log(`  policy layer: ${fmtn(policy_layer.ladder.ai_aware)} AI-aware domains (${policy_layer.ladder.ai_aware_pct_frame}% of frame, ${policy_layer.ladder.ai_aware_pct_parsed}% of parsed)`);
 console.log(`  archetypes: ${fmtn(archetypes.distinct_parsed)} distinct signatures` +
   (dominant ? ` | dominant template ${fmtn(dominant.n)} domains = ${dominant.pct_of_all_blocked_cells}% of all blocked cells` : ""));
+if (out.reachability) console.log(`  reachability: ${out.reachability.pct.alive}% alive, ${out.reachability.pct.dead_dns}% dns-dead, ${out.reachability.pct.timeout}% timeout (sweep ${out.reachability.edition})`);
 console.log(`  role split: ${fmtn(asymmetry.vs_search.a)} training-only vs ${fmtn(asymmetry.vs_search.b)} search-only (${asymmetry.vs_search.ratio}:1)`);

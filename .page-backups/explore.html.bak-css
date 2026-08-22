@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore — The Crawl Price Index</title>
+<meta name="description" content="Explore this week's AI-crawler policy data: block rates by crawler, the training-versus-traffic asymmetry, and a census of which ranked domains are still alive. Free headline tier.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<style>
+/* dashboard-only layout; palette + type inherited from theme.css */
+.dash-wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.dash-hero{padding:44px 0 22px;border-bottom:1px solid var(--line)}
+.dash-eyebrow{font-family:var(--sans);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--signal);font-weight:600}
+.dash-hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.4vw,46px);line-height:1.08;letter-spacing:-.015em;margin:.3em 0 .25em}
+.dash-hero h1 em{font-style:italic;color:var(--signal)}
+.dash-sub{color:var(--dim);max-width:none;font-size:16.5px}
+
+/* sits at the end of the row at its own size, rather than flexing to fill
+   whatever the segmented control leaves over */
+.lookup-link{margin-left:auto;font-size:13.5px;color:var(--signal);text-decoration:none;white-space:nowrap;border-bottom:1px solid rgba(28,93,74,.35);padding-bottom:1px}
+.lookup-link:hover{border-bottom-color:var(--signal)}
+
+/* start, not stretch: the bar card was growing to match the taller column */
+
+/* display:block matters — .track is blockified by the grid, .fill is not,
+   and an inline span ignores width, so every bar rendered at 0px */
+
+
+
+
+@media (max-width:820px){.dash-wrap{padding:0 18px}}
+
+/* ---- dashboard preview ---- */
+.dash-preview{padding:10px 0 44px}
+.dpk{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.dpkl{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--signal);font-weight:600}
+.dpk h2{font-family:var(--serif);font-weight:400;font-size:26px;margin:0 0 4px;border:0;padding:0}
+.dpk p{margin:0;font-size:13.5px;color:var(--dim);max-width:62ch}
+.dped{font-family:'Spline Sans Mono',ui-monospace,monospace;font-size:11.5px;color:var(--dim);white-space:nowrap}
+
+/* the shell borrows the dashboard's own chrome so the preview reads as the
+   product rather than as a marketing mock-up of it */
+.dpshell{margin-top:18px;border:1px solid var(--line);border-radius:4px;background:#fff;box-shadow:var(--lift);overflow:hidden}
+.dptabs{display:flex;overflow-x:auto;background:var(--sand);border-bottom:1px solid var(--line);scrollbar-width:thin}
+.dptabs button{flex:0 0 auto;font-family:var(--sans);font-size:12.5px;padding:11px 15px;background:transparent;border:0;border-right:1px solid var(--line);cursor:pointer;color:var(--dim);white-space:nowrap;position:relative}
+.dptabs button:hover{color:var(--fg)}
+.dptabs button[aria-selected=true]{background:#fff;color:var(--fg);font-weight:600;box-shadow:inset 0 -2px 0 var(--signal)}
+.dptabs button .lk{margin-left:6px;font-size:10px;color:var(--amber)}
+.dpbody{padding:20px 22px 22px;min-height:330px}
+.dph{font-family:var(--serif);font-size:19px;margin:0 0 3px}
+.dpsub{font-size:12.5px;color:var(--dim);margin:0 0 15px;line-height:1.5}
+.dpfoot{font-size:11.5px;color:var(--dim);line-height:1.5;margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
+
+/* rows and bars inside the preview */
+.dpr{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:7px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.dpr:last-of-type{border-bottom:0}
+.dpr .kk{font-size:13px;color:var(--fg);min-width:0}
+.dpr .kk small{display:block;font-size:11px;color:var(--dim)}
+.dpr .vv{font-family:'Spline Sans Mono',ui-monospace,monospace;font-size:13px;font-weight:600;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dpr .t{grid-column:1/-1;height:10px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.dpr .t>i{display:block;height:100%;background:var(--signal);min-width:2px}
+.dpr .t>i.a{background:var(--amber)}
+.dpr .t>i.b{background:var(--blue)}
+.dpgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:760px){.dpgrid{grid-template-columns:1fr}}
+.dpnum{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:16px}
+.dpnum div{min-width:0}
+.dpnum b{display:block;font-family:var(--serif);font-size:30px;font-weight:400;line-height:1}
+.dpnum span{font-size:11.5px;color:var(--dim)}
+
+/* the per-domain table: real rows, then masked ones */
+.dptw{overflow-x:auto;border:1px solid var(--line);border-radius:3px}
+.dpt{border-collapse:collapse;font-size:12px;width:100%;min-width:640px}
+.dpt th{text-align:left;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:8px 7px;border-bottom:1px solid var(--line);background:var(--sand);white-space:nowrap}
+.dpt td{padding:7px;border-bottom:1px solid var(--line);white-space:nowrap}
+.dpt tr:last-child td{border-bottom:0}
+.dpt .dm{font-family:'Spline Sans Mono',ui-monospace,monospace}
+.dpt .rk{color:var(--dim);font-variant-numeric:tabular-nums}
+.cell{display:inline-block;width:15px;height:15px;border-radius:2px;border:1px solid rgba(0,0,0,.12)}
+.cellrow{display:inline-flex;gap:2px}
+.dpt tr.mask td{color:var(--dim)}
+.dpt tr.mask .dm,.dpt tr.mask .rk{letter-spacing:.12em;color:#B8B0A2}
+.maskcell{display:inline-block;width:15px;height:15px;border-radius:2px;background:repeating-linear-gradient(45deg,#EFEAE1,#EFEAE1 3px,#E4DED3 3px,#E4DED3 6px);border:1px solid var(--line)}
+.dpkey{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:10px;font-size:11.5px;color:var(--dim)}
+.dpkey span{display:inline-flex;align-items:center;gap:5px}
+.dpkey i{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
+.dplock{margin-top:12px;padding:12px 14px;border:1px dashed var(--line);border-radius:3px;background:var(--sand);font-size:12.5px;color:var(--fg);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.dplock b{font-family:'Spline Sans Mono',ui-monospace,monospace}
+.dplock a{color:var(--signal);font-weight:600;text-decoration:none;white-space:nowrap}
+.dplock a:hover{text-decoration:underline}
+
+.dpcta{margin-top:20px;padding:18px 20px;border:1px solid var(--line);border-radius:4px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.dpcta > div:first-child{font-size:13.5px;color:var(--dim);max-width:60ch;line-height:1.55}
+.dpbtns{display:flex;gap:10px;flex-wrap:wrap}
+.dpcta .ghostbox{display:inline-block;font-size:13.5px;padding:10px 16px;border:1px solid var(--line);border-radius:2px;text-decoration:none;color:var(--fg);background:#fff}
+.dpcta .ghostbox:hover{border-color:var(--signal);color:var(--signal)}
+
+/* filter buttons inside a preview tab */
+.dpseg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.dpseg button{font-family:var(--sans);font-size:12px;padding:6px 12px;background:#fff;border:0;border-right:1px solid var(--line);cursor:pointer;color:var(--dim);white-space:nowrap}
+.dpseg button:last-child{border-right:0}
+.dpseg button:hover{color:var(--fg)}
+.dpseg button[aria-pressed=true]{background:var(--signal);color:#fff;font-weight:500}
+.herolink{display:inline-block;margin:16px 0 0}
+.dash-preview{padding:22px 0 44px}
+
+/* the suffix spread on the edition cuts — two rows, most and least blocking */
+.sfxrow{display:grid;grid-template-columns:74px 1fr 54px 62px;gap:10px;align-items:center;font-size:13px;padding:5px 0}
+.sfxk{font-family:var(--mono,ui-monospace,Menlo,monospace);font-weight:600}
+.sfxb{height:9px;background:rgba(0,0,0,.07);border-radius:2px;overflow:hidden}
+.sfxb span{display:block;height:100%;background:var(--signal)}
+.sfxv{text-align:right;font-weight:600}
+.sfxn{text-align:right;font-size:11.5px;color:var(--dim)}
+.sfxc{font-size:11.5px;color:var(--dim);margin-top:8px;line-height:1.5}
+@media(max-width:700px){.sfxrow{grid-template-columns:64px 1fr 48px 54px}}
+</style>
+</head>
+<body>
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav class="navmid">
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk on" aria-current="page" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
+  </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
+</div></div>
+
+<div class="dash-hero" id="preview-first"><div class="dash-wrap">
+  <p class="dash-eyebrow">Free preview &middot; this week&rsquo;s edition</p>
+  <h1>Look inside the <em>dashboard</em></h1>
+  <p class="dash-sub">This is the real thing, carrying this week&rsquo;s real numbers &mdash; the same panels a subscriber opens. Eight tabs, all clickable. Every figure below was measured; the per-domain rows are masked rather than invented, because we do not publish numbers we did not take.</p>
+  <a class="lookup-link herolink" href="/check">Check a single domain &mdash; free &rarr;</a>
+</div></div>
+
+<div class="dash-wrap">
+  <section class="dash-preview" id="preview">
+    <div class="dpk">
+      <div class="dpkl">The dashboard</div>
+      <div class="dped" id="dp-edition">&mdash;</div>
+    </div>
+
+    <div class="dpshell">
+      <div class="dptabs" id="dp-tabs" role="tablist"></div>
+      <div class="dpbody" id="dp-body"></div>
+    </div>
+
+    <div class="dpcta">
+      <div>
+        <b>Everything above is in the free edition.</b> What &euro;49 a month adds is the per-domain layer: all
+        <span id="dp-total">50,000</span> rows, every crawler column, the week-over-week diff, and the CSV.
+      </div>
+      <div class="dpbtns">
+        <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+        <a class="ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+
+
+<script id="dash-preview-js">
+/* The dashboard preview. Reads /explore-preview.json, rebuilt every edition by
+   build-explore-preview.cjs, so this panel can never quietly drift a week
+   behind the page around it. Real measurements only — the gated per-domain
+   layer is masked, never fabricated. */
+(function(){
+  var P = null, cur = "overview", crawlerFilter = "all";
+  var n = function(x){ return Number(x).toLocaleString(); };
+  var esc = function(x){ return String(x).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); };
+  var pct = function(a,b){ return b ? (a/b*100).toFixed(1) : "0.0"; };
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var interval = function(raw){
+    var p = String(raw||"").split(/\s*->\s*/).map(function(x){
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(x.trim());
+      return m ? (+m[3]) + " " + MON[+m[2]-1] : x;
+    });
+    return p.length === 2 ? p[0] + " &rarr; " + p[1] : esc(raw);
+  };
+  var STATE = { blocked:"#A33A2A", partial:"#8A6A1F", allowed:"#1C5D4A", unlisted:"#B8B0A2", no_robots:"#DCD6CB" };
+  var LABEL = { blocked:"Blocked", partial:"Partial", allowed:"Allowed", unlisted:"No instruction", no_robots:"No robots.txt" };
+
+  function row(k, v, w, tone, note){
+    return '<div class="dpr"><span class="kk">' + k + (note?'<small>'+note+'</small>':'') + '</span>' +
+      '<span class="vv">' + v + '</span>' +
+      (w == null ? '' : '<span class="t"><i class="' + (tone||'') + '" style="width:' + Math.max(0,Math.min(100,w)).toFixed(1) + '%"></i></span>') +
+      '</div>';
+  }
+  function head(h, sub){ return '<div class="dph">' + h + '</div><p class="dpsub">' + sub + '</p>'; }
+  function foot(t){ return '<div class="dpfoot">' + t + '</div>'; }
+
+  var VIEWS = {
+    overview: function(){
+      var o = P.overview, A = o.asymmetry, C = o.changes, R = o.reachability;
+      return head("This edition", "The headline state of the frame, and what moved since the last edition.") +
+        '<div class="dpnum">' +
+          '<div><b>' + n(o.parsed) + '</b><span>serving a readable robots.txt</span></div>' +
+          '<div><b>' + n(o.frame) + '</b><span>domains in the ranked frame</span></div>' +
+          '<div><b>' + A.ratio + ':1</b><span>training blocked over search</span></div>' +
+          '<div><b>' + n(C.total) + '</b><span>policy edits this interval</span></div>' +
+        '</div>' +
+        '<div class="dpgrid"><div>' +
+          row("Moved toward restriction", n(C.more_restrictive), 100, "a") +
+          row("Moved away from restriction", n(C.less_restrictive), C.less_restrictive/C.more_restrictive*100, "b") +
+        '</div><div>' +
+          row("Answered our crawler", n(R.alive) + " &middot; " + pct(R.alive,R.frame) + "%", R.alive/R.frame*100) +
+          row("Served robots.txt, then refused the homepage", n(R.bot_walled), R.bot_walled/R.frame*100, "a") +
+        '</div></div>' +
+        foot("Same figures the free edition opens with. " + interval(C.interval) + ".");
+    },
+
+    crawlers: function(){
+      // roles come from the feed, so this can never drift from the dataset the
+      // way the page's two hardcoded name lists used to
+      var all = P.crawlers.slice().sort(function(a,b){ return b.blocked_pct - a.blocked_pct; });
+      var count = function(r){ return all.filter(function(c){ return c.role === r; }).length; };
+      var FILTERS = [
+        { id:"all", label:"All " + all.length },
+        { id:"training", label:"Training (" + count("training") + ")" },
+        { id:"search", label:"Search (" + count("search") + ")" },
+        { id:"user-initiated", label:"User-initiated (" + count("user-initiated") + ")" }
+      ].filter(function(f){ return f.id === "all" || count(f.id); });
+      var cs = crawlerFilter === "all" ? all : all.filter(function(c){ return c.role === crawlerFilter; });
+      var mx = Math.max.apply(null, cs.map(function(c){ return c.blocked_pct; }).concat([1]));
+      var TONE = { training:"a", search:"b", "user-initiated":"" };
+      return head("Crawlers", "All " + all.length + " tracked crawlers, with the vendor and role tags the dataset carries. Filter by what a crawler is <em>for</em>.") +
+        '<div class="dpseg" role="group" aria-label="Filter crawlers">' + FILTERS.map(function(f){
+          return '<button data-cf="' + f.id + '" aria-pressed="' + (f.id === crawlerFilter) + '">' + f.label + '</button>';
+        }).join("") + '</div>' +
+        cs.map(function(c){
+          return row(esc(c.name) + ' <span style="color:var(--dim);font-size:11.5px">&middot; ' + esc(c.vendor) + '</span>',
+            c.blocked_pct.toFixed(2) + "%", c.blocked_pct/mx*100, TONE[c.role] || "");
+        }).join("") +
+        foot("Showing " + cs.length + " of " + all.length + ". Amber is a training crawler, blue indexes for search, grey fetches because a person asked. Share of the " + n(P.parsed) + " domains serving a readable robots.txt.");
+    },
+
+    policy: function(){
+      var L = P.policy && P.policy.ladder;
+      if (!L) return head("Policy layer","Not in this edition.");
+      return head("Policy layer", "How many domains have an AI policy at all &mdash; the honest size of the layer everything else is measured against.") +
+        row("In the ranked frame", n(L.frame), 100, "") +
+        row("Serve a readable robots.txt", n(L.parsed), L.parsed/L.frame*100, "b", L.parsed_pct + "% of the frame") +
+        row("Name at least one tracked AI crawler", n(L.ai_aware), L.ai_aware/L.frame*100, "a", L.ai_aware_pct_parsed + "% of those that serve a file") +
+        '<div style="margin-top:14px">' +
+        (P.policy.rows||[]).slice(0,4).map(function(r){
+          return row(esc(r.name) + ' <span style="color:var(--dim);font-size:11.5px">named by ' + r.named_pct + '% of domains</span>',
+            (r.blocked_when_named_pct == null ? "&mdash;" : r.blocked_when_named_pct.toFixed(1) + "%"),
+            r.blocked_when_named_pct || 0, "a", "refused this often once a domain does name it");
+        }).join("") + '</div>' +
+        foot("<b>Blocked once named</b> removes the awareness gap: of the publishers who did address a crawler, how many said no. Showing 4 of " + P.policy.total_rows + " crawlers.");
+    },
+
+    changes: function(){
+      var C = P.changes;
+      return head("Policy changes", "Every domain&times;crawler cell that moved between the last two editions, with both values.") +
+        '<div class="dptw"><table class="dpt"><thead><tr><th>Domain</th><th>Rank</th><th>Crawler</th><th>Was</th><th>Now</th></tr></thead><tbody>' +
+        C.sample.map(function(c){
+          return '<tr><td class="dm">' + esc(c.domain) + '</td><td class="rk">' + n(c.rank) + '</td>' +
+            '<td>' + esc(c.crawler) + (c.also ? ' <span style="color:var(--dim)">+' + c.also + ' more</span>' : '') + '</td>' +
+            '<td><span class="cell" style="background:' + (STATE[c.prev]||"#eee") + '"></span> ' + esc(LABEL[c.prev]||c.prev) + '</td>' +
+            '<td><span class="cell" style="background:' + (STATE[c.cur]||"#eee") + '"></span> ' + esc(LABEL[c.cur]||c.cur) + '</td></tr>';
+        }).join("") + '</tbody></table></div>' +
+        foot(n(C.total) + " edits across " + n(C.domains) + " domains this interval (" + interval(C.interval) + "). Showing " + C.sample.length + " domains &mdash; one row each.");
+    },
+
+    segments: function(){
+      var S = P.segments, B = S.bands || [];
+      var mx = Math.max.apply(null, B.map(function(b){ return b.pct; }).concat([1]));
+      return head("Segments", "The same question asked of different slices of the frame. Popularity band first.") +
+        B.map(function(b){
+          return row("Rank " + esc(b.label) + ' <span style="color:var(--dim);font-size:11.5px">&middot; ' + n(b.n) + " of " + n(b.n_total) + " parsed</span>",
+            b.pct.toFixed(1) + "%", b.pct/mx*100, "a");
+        }).join("") +
+        (S.tld_most ? foot("Rate shown is <b>" + esc(S.band_metric) + "</b>, the most-blocked crawler. By domain suffix, <b>" + esc(S.tld_most.cctld) + "</b> blocks most (" + S.tld_most.any_ai_block_pct + "% of " + n(S.tld_most.n) + ") and <b>" + esc(S.tld_least.cctld) + "</b> least (" + S.tld_least.any_ai_block_pct + "%). <a href=\"/world\">A suffix is not a country</a>.") : "");
+    },
+
+    wire: function(){
+      var W = P.wire;
+      return head("Wire evidence", "What the door actually returns when an identified AI crawler knocks &mdash; measured on the wire, separately from what robots.txt declares.") +
+        (W.classes||[]).map(function(c){
+          return row(esc(c.k), n(c.n), null, "", esc(c.d));
+        }).join("") +
+        (W.prices && W.prices.length
+          ? '<div style="margin-top:12px;font-size:12.5px;color:var(--dim)">Posted price observed this edition: <b class="dm" style="color:var(--fg)">' + esc(W.prices[0]) + '</b></div>' : "") +
+        foot("A hand-probed exhibit set, not a population estimate &mdash; these counts describe the domains we probed, and are never folded into a block rate.");
+    },
+
+    bazaar: function(){
+      var B = P.bazaar;
+      if (!B) return head("The Bazaar","Not in this edition.");
+      var T = B.by_type || {}, tot = Object.keys(T).reduce(function(a,k){ return a + T[k]; }, 0) || 1;
+      var LBL = { api:"Developer APIs", content:"Content", mcp:"MCP tools" };
+      return head("The Bazaar", "A public registry of endpoints advertising a price a machine can pay directly. Advertised acceptance &mdash; never transactions or revenue.") +
+        '<div class="dpnum">' +
+          '<div><b>' + n(B.endpoints_real_priced) + '</b><span>priced endpoints</span></div>' +
+          '<div><b>$' + B.median_advertised_usd + '</b><span>median advertised ask</span></div>' +
+          '<div><b>' + n(B.in_frame_domains) + '</b><span>of our ranked domains taking part</span></div>' +
+        '</div>' +
+        Object.keys(T).sort(function(a,b){ return T[b]-T[a]; }).map(function(k){
+          return row(esc(LBL[k]||k), n(T[k]) + " &middot; " + pct(T[k],tot) + "%", T[k]/tot*100, k==="api"?"b":k==="mcp"?"a":"");
+        }).join("") +
+        foot(B.rail_share_pct + "% of it settles on a single rail, " + B.asset_usdc_share_pct + "% in one stablecoin.");
+    },
+
+    domains: function(){
+      var D = P.domains, cols = D.columns;
+      var th = '<tr><th>Domain</th><th>Rank</th><th>' + cols.length + ' crawler columns</th><th>Summary</th></tr>';
+      var real = D.sample_rows.map(function(r){
+        var cells = r.sig.split("").map(function(ch, i){
+          var st = P.legend[ch] || "unlisted";
+          return '<span class="cell" title="' + esc(cols[i]) + ': ' + esc(LABEL[st]||st) + '" style="background:' + (STATE[st]||"#eee") + '"></span>';
+        }).join("");
+        var sum = Object.keys(r.counts).map(function(k){ return r.counts[k] + " " + (LABEL[k]||k).toLowerCase(); }).join(", ");
+        return '<tr><td class="dm">' + esc(r.domain) + '</td><td class="rk">' + n(r.rank) + '</td>' +
+          '<td><span class="cellrow">' + cells + '</span></td><td style="color:var(--dim)">' + esc(sum) + '</td></tr>';
+      }).join("");
+      var maskCells = new Array(cols.length).fill('<span class="maskcell"></span>').join("");
+      var mask = new Array(4).fill(0).map(function(){
+        return '<tr class="mask"><td class="dm">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</td><td class="rk">&bull;&bull;&bull;</td>' +
+          '<td><span class="cellrow">' + maskCells + '</span></td><td>&bull;&bull;&bull;&bull;&bull;&bull;</td></tr>';
+      }).join("");
+      return head("Domains &mdash; the per-domain layer", "One row per domain, one column per crawler. This is the part &euro;49 unlocks.") +
+        '<div class="dptw"><table class="dpt"><thead>' + th + '</thead><tbody>' + real + mask + '</tbody></table></div>' +
+        '<div class="dpkey">' + Object.keys(LABEL).map(function(k){
+          return '<span><i style="background:' + STATE[k] + '"></i>' + LABEL[k] + '</span>';
+        }).join("") + '</div>' +
+        '<div class="dplock"><span>The rows above are real and current. <b>' + n(D.masked_rows) + '</b> more are behind the wall &mdash; masked here, not invented.</span>' +
+        '<a href="https://app.crawlpriceindex.com/dashboard.html#account">Unlock all ' + n(D.total_rows) + ' rows &rarr;</a></div>' +
+        foot("Hover a cell to see which crawler it is. The full table adds filtering, the week-over-week diff, and a CSV export of every row.");
+    }
+  };
+
+  // The "By domain suffix" card is a static section of the page, NOT part of
+  // the tabbed preview, so it must be painted on load — not inside a VIEWS
+  // function, which only runs when that tab is clicked. Quotes the same two
+  // figures as the segments footnote, so no new number enters the page.
+  function renderSuffixCut(){
+    var sfx = document.getElementById("v2-suffix");
+    var S = P && P.segments;
+    if (!sfx || !S || !S.tld_most || !S.tld_least) return;
+    var hi = S.tld_most, lo = S.tld_least;
+    var w = hi.any_ai_block_pct ? (lo.any_ai_block_pct / hi.any_ai_block_pct * 100).toFixed(1) : 0;
+    sfx.innerHTML =
+      '<div class="sfxrow"><span class="sfxk">' + esc(hi.cctld) + '</span>' +
+      '<span class="sfxb"><span style="width:100%"></span></span>' +
+      '<span class="sfxv">' + hi.any_ai_block_pct + '%</span>' +
+      '<span class="sfxn">n=' + n(hi.n) + '</span></div>' +
+      '<div class="sfxrow"><span class="sfxk">' + esc(lo.cctld) + '</span>' +
+      '<span class="sfxb"><span style="width:' + w + '%"></span></span>' +
+      '<span class="sfxv">' + lo.any_ai_block_pct + '%</span>' +
+      '<span class="sfxn">n=' + n(lo.n) + '</span></div>' +
+      '<p class="sfxc">Most and least blocking of the suffix groups published this edition &mdash; ' +
+      'share of each group&rsquo;s domains blocking at least one tracked crawler.</p>';
+  }
+
+  function paint(){
+    var el = document.getElementById("dp-body");
+    var v = VIEWS[cur];
+    el.innerHTML = v ? v() : "";
+    Array.prototype.forEach.call(document.querySelectorAll("#dp-tabs button"), function(b){
+      b.setAttribute("aria-selected", b.dataset.tab === cur ? "true" : "false");
+    });
+  }
+
+  fetch("/explore-preview.json", { cache:"no-store" }).then(function(r){ return r.json(); }).then(function(j){
+    P = j;
+    document.getElementById("dp-edition").textContent = "Edition of " + j.edition + " · rebuilt " + (j.generated_utc||"").slice(0,10);
+    var t = document.getElementById("dp-total"); if (t) t.textContent = n(j.domains.total_rows);
+    document.getElementById("dp-tabs").innerHTML = j.tabs.map(function(tb){
+      return '<button role="tab" data-tab="' + tb.id + '" aria-selected="' + (tb.id===cur) + '">' + esc(tb.title) +
+        (tb.access === "terminal" ? '<span class="lk">&euro;49</span>' : '') + '</button>';
+    }).join("");
+    // the crawler filter lives inside the tab body, which is re-rendered on
+    // every paint, so the listener is delegated to the body rather than bound
+    // to buttons that stop existing
+    document.getElementById("dp-body").addEventListener("click", function(e){
+      var f = e.target.closest("[data-cf]"); if (!f) return;
+      crawlerFilter = f.getAttribute("data-cf"); paint();
+    });
+    document.getElementById("dp-tabs").addEventListener("click", function(e){
+      var b = e.target.closest("button"); if (!b) return;
+      cur = b.dataset.tab; paint();
+    });
+    paint();
+    renderSuffixCut();
+  }).catch(function(){
+    document.getElementById("dp-body").innerHTML =
+      '<p class="dpsub">The preview could not load this edition. <a href="https://app.crawlpriceindex.com">Open the free edition instead &rarr;</a></p>';
+  });
+})();
+</script>
+<div class="wrap"><div class="panels" id="edition-cuts">
+
+  <section class="panel wide" id="cuts-head">
+    <div class="ix"><span class="lead-in">This edition</span></div>
+    <h2>What the data says this week.</h2>
+    <p class="lede" style="margin:0">The cuts below are the current edition, in full and free to cite with attribution. They are the same figures behind the dashboard above &mdash; what a subscription adds is the per-domain layer underneath them, not these.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">What changed this week</span></div>
+    <h2>Policy is not settled.</h2>
+    <div id="v2-changes"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">One edition-over-edition comparison, not a trend. Domains entering or leaving the frame are excluded, so frame churn is never counted as a policy change.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">Declared versus enforced</span></div>
+    <h2>What a site says and what its front door does.</h2>
+    <div id="v2-reach"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">A popularity ranking lists domains, not working websites. We census the frame itself so every rate we publish has an honest denominator &mdash; and we keep declared policy and enforced access as separate measurements.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">Who gets blocked</span></div>
+    <h2>Not all crawlers are treated alike.</h2>
+    <p style="margin-bottom:12px">Share of domains with a readable robots.txt that disallow each crawler. Training bots are walled harder than the search crawlers that send traffic back.</p>
+    <div id="rates"></div>
+  </section>
+
+  <section class="panel" id="cut-suffix">
+    <div class="ix"><span class="lead-in">By domain suffix</span></div>
+    <h2>The spread is wide. It is not a map.</h2>
+    <p style="margin-bottom:12px">Group the frame by domain ending and the block rates run from one extreme to the other. That spread is real and it is worth knowing &mdash; but a suffix is a registration choice, not a country, an owner, an audience or a place where a server sits.</p>
+    <div id="v2-suffix"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">Groups also differ in rank composition, so part of any gap between them is rank rather than policy. <a href="/world">All suffix groups, and why this is not a map &rarr;</a></p>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The wall is rising</span></div>
+    <h2>Block rates, every edition since the baseline.</h2>
+    <p>Each edition we record the declared block rate for every tracked crawler and archive it. The series is short &mdash; five editions &mdash; so this chart shows movement between editions, not a trend, and we do not describe it as one anywhere on this site. The archive is the part a later entrant cannot reconstruct: a week not measured is gone.</p>
+    <div style="position:relative">
+      <svg class="trend-svg" id="trend" viewBox="0 0 800 260" preserveAspectRatio="xMidYMid meet" aria-label="Block rate trend"></svg>
+      <div id="trend-tip" style="position:absolute;display:none;pointer-events:none;background:var(--fg);color:#fff;font-family:var(--sans);font-size:12px;padding:6px 9px;border-radius:3px;white-space:nowrap;z-index:20"></div>
+    </div>
+    <div class="trend-legend" id="trend-legend"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px;line-height:1.5">This plots the <em>change</em> in each edition's block rate versus the one before, so a point below zero means that edition's rate ticked down, not that blocking reversed. Small dips (like 16 Aug) reflect coverage variation &mdash; each scan reaches a slightly different set of domains, so the reachable sample shifts a little edition to edition. The underlying level has risen across the series.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">How the door answers</span></div>
+    <h2>Priced, gated, or blocked.</h2>
+    <p style="margin-bottom:4px">When an identified AI crawler knocks, the response falls into a few distinct behaviours &mdash; measured on the wire this edition.</p>
+    <div class="postgrid" id="posture"></div>
+    <div class="tick" id="board"></div>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The machine market</span></div>
+    <h2>Machines already pay each other. Almost none of it touches the web you read.</h2>
+    <p>Alongside the census we capture a public registry of endpoints advertising a price a machine can pay directly, settled in stablecoin. It is a real, working market &mdash; and it is almost entirely developer APIs and tools rather than the sites people visit.</p>
+    <div id="v2-bazaar" class="dvsplit"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">Advertised, opt-in acceptance in a public registry &mdash; never transactions, volume or revenue. This is a stablecoin rail, distinct from Cloudflare pay-per-crawl, though both return HTTP 402.</p>
+  </section>
+
+</div></div>
+
+<script id="data" type="application/json">{"asof":"17 Aug 2026, 23:26 UTC","robots_parsed":27975,"tranco_top_n":50000,"observed_price":"0.50","block_gpt":15.2,"pub_multiple":5.1,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"11","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":14.8},{"bot":"GPTBot","rate":15.2},{"bot":"Bytespider","rate":14.2},{"bot":"ClaudeBot","rate":13.4},{"bot":"Google-Extended","rate":12.2},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":3}],"history":[{"date":"8 Aug","rates":{"GPTBot":15.3,"ClaudeBot":13.4,"CCBot":14.9,"Google-Extended":12.3}},{"date":"9 Aug","rates":{"GPTBot":15.3,"ClaudeBot":13.4,"CCBot":14.9,"Google-Extended":12.3}},{"date":"15 Aug","rates":{"GPTBot":15.4,"ClaudeBot":13.6,"CCBot":15.1,"Google-Extended":12.4}},{"date":"16 Aug","rates":{"GPTBot":15.2,"ClaudeBot":13.4,"CCBot":14.8,"Google-Extended":12.2}},{"date":"17 Aug","rates":{"GPTBot":15.2,"ClaudeBot":13.4,"CCBot":14.8,"Google-Extended":12.2}}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
+<script>
+var D = {};
+try { D = JSON.parse(document.getElementById('data').textContent || '{}'); } catch(e){ D = {}; }
+function $(s){ return document.querySelector(s); }
+function $$(s){ return document.querySelectorAll(s); }
+function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+
+set('asof-eyebrow', D.asof||'\u2014'); set('asof-foot', D.asof||'\u2014');
+set('lede-topn', (D.tranco_top_n||50000).toLocaleString());
+set('obs-price', D.observed_price!=null?D.observed_price:'\u2014');
+$$('.calc-price').forEach(function(e){ e.textContent=(D.observed_price||0.5).toFixed(2); });
+set('obs-domain', (D.ticker&&D.ticker[0]&&D.ticker[0][0])||'stackoverflow.com');
+/* the Coverage & method panel was removed; its figures live in "What we
+   measure" and "This week" now, so these setters have nothing to fill. */
+
+(function(){
+  var rows = D.block_rows||[]; if(!rows.length || !$('#rates')) return;
+  var max = Math.max.apply(null, rows.map(function(r){return r.rate;}));
+  $('#rates').innerHTML = rows.map(function(r){
+    return '<div class="brow2"><span class="nm">'+r.bot+'</span><span class="brk"><span data-w="'+Math.round(r.rate/max*100)+'"></span></span><span class="pc">'+r.rate+'%</span></div>';
+  }).join('');
+  requestAnimationFrame(function(){ $$('.brk>span').forEach(function(s){ s.style.width=s.dataset.w+'%'; }); });
+})();
+
+(function(){
+  var p = D.posture||[];
+  if (!$('#posture') || !$('#board')) return;
+  $('#posture').innerHTML = p.map(function(c){
+    return '<div class="postcell'+(c.hi?' hi':'')+'"><div class="pn">'+c.n+'</div><div class="pt">'+c.t+'</div><div class="pd">'+c.d+'</div></div>';
+  }).join('');
+  var t = D.ticker||[];
+  $('#board').innerHTML = t.map(function(x){
+    return '<div class="ti"><span class="tg '+x[1]+'">'+x[1]+'</span><b>'+x[0]+'</b> \u00b7 '+x[2]+'</div>';
+  }).join('');
+})();
+
+(function(){
+  var hist = D.history;
+  var svg = document.getElementById('trend');
+  if (!svg) return;
+  var focus = ['GPTBot','ClaudeBot','CCBot','Google-Extended'];
+  var colors = {GPTBot:'#1C5D4A', ClaudeBot:'#8A6A1F', CCBot:'#1D4E6F', 'Google-Extended':'#A33A2A'};
+  if(!hist || hist.length<2){
+    svg.innerHTML = '<text x="400" y="130" text-anchor="middle" fill="#5F5B54" font-family="Archivo" font-size="14">Trend builds with each edition.</text>';
+    return;
+  }
+  var W=800,H=260,pad=40;
+  var series = focus.map(function(f){
+    return hist.map(function(h,i){
+      if(i===0) return 0;
+      var prev=hist[i-1].rates[f]||0, cur=h.rates[f]||0;
+      return prev? ((cur-prev)/prev*100) : 0;
+    });
+  });
+  var allv=[]; series.forEach(function(a){ a.forEach(function(v){ allv.push(v); }); });
+  var maxv=Math.max(2, Math.ceil(Math.max.apply(null,allv))); var minv=Math.min(0, Math.floor(Math.min.apply(null,allv)));
+  function x(i){ return pad + i*(W-2*pad)/(hist.length-1); }
+  function y(v){ return H-pad - ((v-minv)/(maxv-minv))*(H-2*pad); }
+  var g='';
+  for(var gv=minv; gv<=maxv; gv+=Math.max(1,Math.round((maxv-minv)/4))){
+    g+='<line x1="'+pad+'" y1="'+y(gv)+'" x2="'+(W-pad)+'" y2="'+y(gv)+'" stroke="'+(gv===0?'#B8B0A2':'#E7E1D7')+'" stroke-width="'+(gv===0?1.5:1)+'"/><text x="'+(pad-6)+'" y="'+(y(gv)+4)+'" text-anchor="end" fill="#5F5B54" font-size="11" font-family="Archivo">'+(gv>0?'+':'')+gv+'%</text>';
+  }
+  focus.forEach(function(f,fi){
+    var pts=series[fi].map(function(v,i){ return x(i)+','+y(v); }).join(' ');
+    g+='<polyline points="'+pts+'" fill="none" stroke="'+colors[f]+'" stroke-width="2.5" stroke-linejoin="round"/>';
+    series[fi].forEach(function(v,i){ g+='<circle class="tpt" data-f="'+f+'" data-d="'+hist[i].date+'" data-v="'+v.toFixed(1)+'" data-lvl="'+(hist[i].rates[f]||0)+'" cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="'+colors[f]+'" style="cursor:pointer"/>'; });
+  });
+  hist.forEach(function(h,i){ g+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle" fill="#5F5B54" font-size="11" font-family="Archivo">'+h.date+'</text>'; });
+  g+='<text x="'+pad+'" y="16" font-size="10.5" fill="#5F5B54" font-family="Archivo" letter-spacing="0.08em">CHANGE IN BLOCK RATE VS PREVIOUS EDITION</text>';
+  svg.innerHTML=g;
+  document.getElementById('trend-legend').innerHTML = focus.map(function(f){ return '<span><b style="background:'+colors[f]+'"></b>'+f+'</span>'; }).join('');
+  // tooltip
+  var tip=document.getElementById('trend-tip');
+  svg.querySelectorAll('.tpt').forEach(function(c){
+    c.addEventListener('mouseenter', function(e){
+      tip.style.display='block';
+      tip.innerHTML='<b>'+c.dataset.f+'</b> &middot; '+c.dataset.d+'<br>'+c.dataset.lvl+'% blocked ('+(c.dataset.v>=0?'+':'')+c.dataset.v+'% vs prev)';
+    });
+    c.addEventListener('mousemove', function(e){
+      var r=svg.getBoundingClientRect();
+      tip.style.left=(e.clientX - r.left + 12)+'px'; tip.style.top=(e.clientY - r.top - 10)+'px';
+    });
+    c.addEventListener('mouseleave', function(){ tip.style.display='none'; });
+  });
+})();
+
+
+</script>
+</script>
+<script id="v2-loader">
+// Homepage v2 sections read the published feed, so they refresh with each edition.
+(function(){
+  var n = function(x){ return Number(x).toLocaleString(); };
+  var row = function(label, value, note){
+    return '<div style="display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid var(--line)">' +
+      '<span style="min-width:0">' + label + (note ? '<br><span style="font-size:11.5px;color:var(--dim)">' + note + '</span>' : '') + '</span>' +
+      '<span style="font-family:var(--mono,ui-monospace,monospace);white-space:nowrap;font-weight:600">' + value + '</span></div>';
+  };
+  fetch("/index.json", {cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+    var set = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+    if (d.coverage) { set("v2-parsed", n(d.coverage.robots_parsed)); set("v2-frame", n(d.coverage.tranco_top_n)); }
+
+    var F = d.frame_provenance, fp = document.getElementById("v2-frameprov");
+    if (F && fp) fp.innerHTML = "Frame: <b>" + F.name + "</b> — a custom " + F.source + " list (" +
+      F.inputs.join(" + ") + "), deliberately excluding " + F.excluded_inputs.join(" and ") +
+      " so no non-commercial or share-alike source sits under a dataset we sell. " +
+      '<a href="' + F.permalink + '" rel="noopener">Permalink</a> · <a href="/methodology">method</a>.';
+
+    /* --- dv-render: the four homepage sections, drawn the way the dashboard
+       draws them. Every number is read from the feed above. ------------- */
+    var APP = "https://app.crawlpriceindex.com/dashboard.html";
+    var esc = function(x){ return String(x).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); };
+    // adaptive: keeps significant digits as the share gets small, so the
+    // participation figure (23 of 50,000) reads 0.046% and not 0.0%
+    var pctS = function(x, of){
+      if (!of) return "0";
+      var v = x / of * 100;
+      return v >= 1 ? v.toFixed(1) : v >= 0.1 ? v.toFixed(2) : v.toFixed(3);
+    };
+    var pct1 = pctS;
+
+    var head = function(title, hash, linkText){
+      return '<div class="dvh"><b>' + title + '</b>' +
+        (hash ? '<a href="' + APP + '#' + hash + '">' + linkText + ' &rarr;</a>' : '') + '</div>';
+    };
+    // one ladder row: label, value, and a bar on a scale the caller controls
+    var bar = function(o){
+      return '<div class="dvr' + (o.sub ? ' dvsub' : '') + '">' +
+        '<span class="dvk">' + o.k + (o.note ? '<small>' + o.note + '</small>' : '') + '</span>' +
+        '<span class="dvv">' + o.v + '</span>' +
+        '<span class="dvt"><i class="' + (o.tone || '') + '" style="width:' +
+          Math.max(0, Math.min(100, o.pct)).toFixed(2) + '%"></i></span></div>';
+    };
+    var stack = function(parts){
+      var tot = parts.reduce(function(x, p){ return x + p.n; }, 0) || 1;
+      return '<div class="dvstack">' + parts.map(function(p){
+          return '<i style="width:' + (p.n / tot * 100).toFixed(3) + '%;background:' + p.c + '"></i>';
+        }).join('') + '</div><div class="dvkey">' + parts.map(function(p){
+          return '<span><b style="background:' + p.c + '"></b>' + p.k +
+            ' <em>' + n(p.n) + '</em> <span style="color:var(--dim)">&middot; ' + pct1(p.n, tot) + '%</span></span>';
+        }).join('') + '</div>';
+    };
+
+    /* ---- 2. Training versus traffic ---------------------------------- */
+    // role and vendor labels, copied from compute-dashboard.cjs. Labels only:
+    // they describe a crawler's stated function, never a company's behaviour.
+    var META = {
+      "GPTBot":["OpenAI","training"], "OAI-SearchBot":["OpenAI","search"], "ChatGPT-User":["OpenAI","user-initiated"],
+      "ClaudeBot":["Anthropic","training"], "Claude-Web":["Anthropic","user-initiated"], "anthropic-ai":["Anthropic","training"],
+      "PerplexityBot":["Perplexity","search"], "Perplexity-User":["Perplexity","user-initiated"],
+      "Google-Extended":["Google","training"], "CCBot":["Common Crawl","training"],
+      "Bytespider":["ByteDance","training"], "Amazonbot":["Amazon","search"],
+      "Applebot-Extended":["Apple","training"], "meta-externalagent":["Meta","training"],
+      "cohere-ai":["Cohere","training"], "AI2Bot":["AI2","training"],
+      "Timpibot":["Timpi","training"], "Diffbot":["Diffbot","training"]
+    };
+    var median = function(xs){
+      if (!xs.length) return 0;
+      var v = xs.slice().sort(function(p, q){ return p - q; }), m = v.length >> 1;
+      return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+    };
+
+
+    /* --- 03 This week: the headline figures, said in words first --------- */
+    var tw = document.getElementById("v3-twk");
+    if (tw && d.block_rates && d.asymmetry_headline && d.changes_headline) {
+      var gpt = d.block_rates.pct && d.block_rates.pct.GPTBot;
+      var A = d.asymmetry_headline, C = d.changes_headline;
+      var card = function (fig, head, body) {
+        return '<div class="twkc"><div class="twkf">' + fig + '</div>' +
+          '<div class="twkh">' + head + '</div><div class="twkb">' + body + '</div></div>';
+      };
+      tw.innerHTML =
+        card(gpt != null ? gpt + "%" : "&mdash;",
+             "of sites refuse OpenAI&rsquo;s training crawler",
+             "Out of " + n(A.denominator) + " domains that serve a readable robots.txt. The most-refused crawler we track, and the one most people have heard of.") +
+        card(A.ratio + " : 1",
+             "they say no to training far more than to search",
+             n(A.blocks_training_role_only) + " domains block a training crawler while blocking no search crawler. Only " + n(A.blocks_search_role_only) + " do the reverse. Sites are not anti-robot; they are drawing a line about what the robot is for.") +
+        card(n(C.total),
+             "policy edits since the last edition",
+             "Across " + n(C.domains_changed) + " domains, " + n(C.more_restrictive) + " toward refusal and " + n(C.less_restrictive) + " away from it. A week that is not measured cannot be reconstructed later.");
+    }
+
+    var A = d.asymmetry_headline, ae = document.getElementById("v2-asym");
+    if (A && ae) {
+      var top = Math.max(A.blocks_training_role_only, A.blocks_search_role_only) || 1;
+      var left = '<div class="dv">' + head("The asymmetry", "crawlers", "Crawlers tab") +
+        '<div class="dvbig">' + A.ratio + ' : 1</div>' +
+        '<div class="dvbigl">Domains that draw a line between the two roles draw it against <b>training</b> this many times more often.</div>' +
+        '<div style="margin-top:12px">' +
+        bar({ k: 'Blocks a <b>training</b> crawler,<br>and no search crawler', v: n(A.blocks_training_role_only),
+              pct: A.blocks_training_role_only / top * 100, tone: 'a' }) +
+        bar({ k: 'Blocks a <b>search</b> crawler,<br>and no training crawler', v: n(A.blocks_search_role_only),
+              pct: A.blocks_search_role_only / top * 100, tone: 'b' }) +
+        '</div>' +
+        '<div class="dvf">Both bars on one scale, so the sliver is the finding. Of ' + n(A.denominator) +
+        ' domains serving a readable robots.txt.</div></div>';
+
+      var rates = (d.block_rates && d.block_rates.pct) || {};
+      var byRole = { "training": [], "search": [], "user-initiated": [] };
+      Object.keys(rates).forEach(function(c){
+        var m = META[c]; if (m && byRole[m[1]]) byRole[m[1]].push(rates[c]);
+      });
+      var roleRows = [
+        { k: "Training", r: "training", tone: "a", d: "ingests the page to train a model" },
+        { k: "Search", r: "search", tone: "b", d: "indexes it, and may send a reader back" },
+        { k: "User-initiated", r: "user-initiated", tone: "n", d: "fetches it because a person asked" }
+      ].filter(function(x){ return byRole[x.r].length; });
+      var roleMax = Math.max.apply(null, roleRows.map(function(x){ return median(byRole[x.r]); }).concat([1]));
+
+      // vendors that field BOTH a training and a non-training crawler: the
+      // comparison that controls for who is doing the crawling
+      var vend = {};
+      Object.keys(rates).forEach(function(c){
+        var m = META[c]; if (!m) return;
+        (vend[m[0]] = vend[m[0]] || []).push({ c: c, role: m[1], v: rates[c] });
+      });
+      var pairs = Object.keys(vend).filter(function(v){
+        var g = vend[v];
+        return g.some(function(x){ return x.role === "training"; }) &&
+               g.some(function(x){ return x.role !== "training"; });
+      }).sort(function(p, q){
+        var mx = function(g){ return Math.max.apply(null, vend[g].map(function(x){ return x.v; })); };
+        return mx(q) - mx(p);
+      });
+      var vmax = Math.max.apply(null, Object.keys(rates).map(function(c){ return rates[c]; }).concat([1]));
+      var mean = function(xs){ return xs.reduce(function(p, q){ return p + q; }, 0) / (xs.length || 1); };
+
+      // card 2 — the same question asked of every crawler we track
+      var mid = '<div class="dv">' + head("The gap, by role", "crawlers", "Crawlers tab") +
+        '<div style="font-size:12.5px;color:var(--dim);margin-bottom:6px">Median share of domains disallowing each crawler, grouped by what that crawler is for: <b>training</b> a model, <b>indexing</b> for search, or <b>fetching</b> because a person asked.</div>' +
+        roleRows.map(function(x){
+          var m = median(byRole[x.r]);
+          return bar({ k: x.k + ' <span style="color:var(--dim);font-size:11.5px">&middot; ' + byRole[x.r].length + ' crawlers</span>',
+                       v: m.toFixed(1) + "%", pct: m / roleMax * 100, tone: x.tone });
+        }).join('') +
+        '<div class="dvf">Median rather than mean, so one unusually walled crawler cannot carry a whole role.</div></div>';
+
+      var right = '<div class="dv">' + head("Vendor held constant", "crawlers", "Crawlers tab") +
+        '<div style="font-size:12.5px;color:var(--dim);margin-bottom:4px">The same robots.txt files, asked about two crawlers from the <em>same</em> company. Whatever a site thinks of the vendor is held constant; only the crawler&rsquo;s role changes.</div>' +
+        pairs.map(function(v){
+          var g = vend[v].slice().sort(function(p, q){ return q.v - p.v; });
+          var tr = g.filter(function(x){ return x.role === "training"; });
+          var ot = g.filter(function(x){ return x.role !== "training"; });
+          var ratio = mean(ot.map(function(x){ return x.v; })) ?
+            (mean(tr.map(function(x){ return x.v; })) / mean(ot.map(function(x){ return x.v; }))).toFixed(1) : null;
+          return '<div class="dvg"><div class="dvgh"><b>' + esc(v) + '</b>' +
+            (ratio ? '<em>' + ratio + '&times; harder on training</em>' : '') + '</div>' +
+            g.map(function(x){
+              return '<div class="dvp"><span class="pk">' + esc(x.c) + '</span>' +
+                '<span class="pt"><i class="' + (x.role === "training" ? "" : "b") +
+                  '" style="width:' + (x.v / vmax * 100).toFixed(1) + '%;background:' +
+                  (x.role === "training" ? "var(--amber)" : "var(--blue)") + '"></i></span>' +
+                '<span class="pv">' + x.v.toFixed(1) + '%</span></div>';
+            }).join('') + '</div>';
+        }).join('') +
+        '<div class="dvf">Share of domains with a readable robots.txt that disallow each named crawler. Role tags are labels for a crawler&rsquo;s stated function &mdash; not a claim about any company.</div></div>';
+
+      ae.innerHTML = left + mid + right;
+    }
+
+    /* ---- 3. What changed this week ----------------------------------- */
+    // "2026-08-15 -> 2026-08-17" is a machine string; show it as dates
+    var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    var dshort = function(iso){
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso).trim());
+      return m ? (+m[3]) + " " + MON[+m[2] - 1] : iso;
+    };
+    var interval = function(raw){
+      var p = String(raw).split(/\s*->\s*/);
+      return p.length === 2 ? dshort(p[0]) + " &rarr; " + dshort(p[1]) : esc(raw);
+    };
+    var C = d.changes_headline, ce = document.getElementById("v2-changes");
+    if (C && ce) {
+      var cmax = Math.max(C.more_restrictive, C.less_restrictive) || 1;
+      ce.innerHTML = '<div class="dv">' + head("Policy changes &middot; " + interval(C.interval), "changes", "Policy changes tab") +
+        '<div class="dvdl"><span>&larr; Away from restriction<b>' + n(C.less_restrictive) + '</b></span>' +
+        '<span class="rt">Toward restriction &rarr;<b>' + n(C.more_restrictive) + '</b></span></div>' +
+        '<div class="dvdiv"><i class="l" style="width:' + (C.less_restrictive / cmax * 50).toFixed(2) + '%"></i>' +
+        '<i class="r" style="width:' + (C.more_restrictive / cmax * 50).toFixed(2) + '%"></i>' +
+        '<span class="dvax"></span></div>' +
+        '<div style="margin-top:10px">' +
+        bar({ k: 'of the ' + n(C.less_restrictive) + ' that loosened, moved <b>off</b> an explicit block',
+              v: n(C.moved_off_a_block), pct: C.moved_off_a_block / (C.less_restrictive || 1) * 100,
+              tone: 'b', sub: true,
+              note: 'deliberate edits &mdash; the highest-signal rows in the file' }) +
+        '</div>' +
+        '<div class="dvpair" style="margin-top:14px">' +
+        '<div class="pc"><div class="pn">' + n(C.total) + '</div><div class="pl">domain&times;crawler edits</div></div>' +
+        '<div class="pc"><div class="pn">' + n(C.domains_changed) + '</div><div class="pl">separate domains behind them</div></div>' +
+        '</div>' +
+        '<div class="dvf">Both directions on one scale, either side of a common axis. A domain can move both ways at once &mdash; loosening for one crawler while tightening for another &mdash; which is why there are more edits than domains.</div></div>';
+    }
+
+    /* ---- 4. Declared versus enforced --------------------------------- */
+    var R = d.reachability_headline, re = document.getElementById("v2-reach");
+    if (R && re) {
+      var other = Math.max(0, R.frame - R.alive - R.dead_dns - R.timeout);
+      re.innerHTML = '<div class="dv">' + head("Frame reachability &middot; " + n(R.frame) + " domains", "detail", "Full detail tab") +
+        stack([
+          { k: "Answered", n: R.alive, c: "var(--signal)" },
+          { k: "Timed out", n: R.timeout, c: "var(--amber)" },
+          { k: "Name gone", n: R.dead_dns, c: "#B8B0A2" },
+          { k: "Other", n: other, c: "#E0DACF" }
+        ]) +
+        '<div style="margin-top:12px">' +
+        bar({ k: 'of the ' + n(R.alive) + ' that answered, served robots.txt <b>then refused</b> an identified crawler at the homepage',
+              v: n(R.bot_walled), pct: R.bot_walled / (R.alive || 1) * 100, tone: 'r', sub: true,
+              note: 'declared policy and enforced access diverging &mdash; ' + pct1(R.bot_walled, R.alive) + '% of the domains that answered' }) +
+        bar({ k: 'Disallow our crawler &mdash; we obey', v: n(R.disallowed_our_crawler),
+              pct: R.disallowed_our_crawler / R.frame * 100, tone: 'n',
+              note: 'excluded by their own instruction, ' + pct1(R.disallowed_our_crawler, R.frame) + '% of the frame' }) +
+        '</div>' +
+        '<div class="dvf">' + pct1(R.dead_dns + R.timeout, R.frame) +
+        '% of the ranked frame never answered at all &mdash; which is why the block rates on this page are quoted against the domains that did.</div></div>';
+    }
+
+    /* ---- 5. The machine market --------------------------------------- */
+    var B = d.bazaar_headline, be = document.getElementById("v2-bazaar");
+    if (B && be) {
+      var TY = B.by_type || {};
+      var lbl = { api: "Developer APIs", content: "Content", mcp: "MCP tools" };
+      var col = { api: "var(--blue)", content: "var(--signal)", mcp: "var(--amber)" };
+      var parts = Object.keys(TY).sort(function(p, q){ return TY[q] - TY[p]; })
+        .map(function(k){ return { k: lbl[k] || k, n: TY[k], c: col[k] || "#B8B0A2" }; });
+
+      var bleft = '<div class="dv">' + head("What the market is made of", "bazaar", "The Bazaar tab") +
+        '<div style="font-size:12.5px;color:var(--dim);margin-bottom:9px">' + n(B.endpoints_real_priced) +
+        ' endpoints advertising a machine-payable price, across ' + n(B.distinct_pay_to_addresses) +
+        ' distinct pay-to addresses.</div>' +
+        stack(parts) +
+        '<div class="dvpair" style="margin-top:12px">' +
+        '<div class="pc"><div class="pn">' + B.rail_share_pct + '%</div><div class="pl">on a single rail</div></div>' +
+        '<div class="pc"><div class="pn">' + B.asset_usdc_share_pct + '%</div><div class="pl">settled in one stablecoin</div></div>' +
+        '</div>' +
+        '<div class="dvf">Endpoint type is the registry&rsquo;s own declaration. &ldquo;Content&rdquo; here still means machine-readable feeds and datasets far more often than it means a page a person would read.</div></div>';
+
+      var obsRaw = (d.observed_prices_headline && d.observed_prices_headline[0] && d.observed_prices_headline[0].raw) || "";
+      var obsNum = parseFloat((obsRaw.match(/([0-9]*\.?[0-9]+)\s*$/) || [])[1]);
+      var pmax = Math.max(B.median_advertised_usd, obsNum || 0) || 1;
+
+      var bright = '<div class="dv">' + head("The price, and who is in it", "bazaar", "The Bazaar tab") +
+        (obsNum ? bar({ k: 'Highest posted per-crawl price on the <b>human</b> web',
+                        v: "$" + obsNum.toFixed(2), pct: obsNum / pmax * 100, tone: 'a',
+                        note: esc(String(obsRaw).split(":")[0]) + ' &mdash; the only posted price in our hand-probed exhibit set' }) : '') +
+        bar({ k: 'Median ask in the <b>machine</b> market', v: "$" + B.median_advertised_usd,
+              pct: B.median_advertised_usd / pmax * 100, tone: 'b',
+              note: 'across ' + n(B.endpoints_real_priced) + ' priced endpoints' }) +
+        bar({ k: 'Of our ' + n(R && R.frame ? R.frame : 50000) + ' ranked domains, how many take part',
+              v: n(B.in_frame_domains), pct: 1.2, tone: '',
+              note: pct1(B.in_frame_domains, (R && R.frame) || 50000) + '% of the frame &mdash; bar drawn at minimum width, the true share is too small to see' }) +
+        (B.in_frame_content != null ? bar({ k: 'of those, serving <b>content</b> rather than an API',
+              v: n(B.in_frame_content), pct: B.in_frame_content / (B.in_frame_domains || 1) * 100,
+              tone: '', sub: true }) : '') +
+        '<div class="dvf">Two different mechanisms, and the gap is the point: machines have a working market with a going rate, and it barely touches the web people read. Different rail from Cloudflare pay-per-crawl, though both return HTTP 402.</div></div>';
+
+      be.innerHTML = bleft + bright;
+    }
+  }).catch(function(){});
+})();
+</script>
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now. The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
+
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'explore')">
+        <input id="fsub-explore" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-explore"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script>
+</body>
+</html>

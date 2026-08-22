@@ -12,50 +12,63 @@
 <body class="prose">
 <div class="masthead"><div class="wrap">
   <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
-  <nav>
-    <a class="lnk" href="/check">Check a domain</a>
+  <nav class="navmid">
     <a class="lnk" href="/why">Why it matters</a>
-    <a class="lnk" href="/world">World editions</a>
-    <a class="lnk" href="/methodology" aria-current="page">Methodology</a>
-    <a class="ghost" href="/sample">Weekly email</a>
-    <a class="btn" href="/#access">Subscribe</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
   </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
 </div></div><header><div class="wrap">
   <p class="eyebrow">Status</p>
   <h1>Status &amp; coverage</h1>
-  <p style="margin:0;max-width:620px">What is in the current edition, how fresh it is, and what we know is imperfect about it. Generated automatically from the published dataset — this page cannot drift from reality.</p>
+  <p class="lede" style="margin:0">What is in the current edition, how fresh it is, and what we know is imperfect about it. Generated automatically from the published dataset — this page cannot drift from reality.</p>
 </div></header>
 <div class="wrap">
   <div class="band">
-    <div class="cell"><div class="n g">26,953</div><div class="k">domains parsed this edition</div></div>
+    <div class="cell"><div class="n g">27,975</div><div class="k">domains parsed this edition</div></div>
     <div class="cell"><div class="n">50,000</div><div class="k">Tranco frame</div></div>
-    <div class="cell"><div class="n">26,974</div><div class="k">per-domain rows published</div></div>
-    <div class="cell"><div class="n">53</div><div class="k">country editions</div></div>
+    <div class="cell"><div class="n">28,011</div><div class="k">per-domain rows published</div></div>
+    <div class="cell"><div class="n">54</div><div class="k">ccTLD editions</div></div>
   </div>
   <table>
     <tr><th>Item</th><th>Value</th></tr>
-    <tr><td>Edition generated</td><td class="mono">2026-08-15T10:32:09.050Z</td></tr>
-    <tr><td>Age</td><td class="mono ok">2.8 days (within the weekly cycle)</td></tr>
+    <tr><td>Edition generated</td><td class="mono">2026-08-17T23:26:13.299Z</td></tr>
+    <tr><td>Age</td><td class="mono ok">2.3 days (within the weekly cycle)</td></tr>
     <tr><td>Methodology version</td><td class="mono">2026-08-10.1</td></tr>
-    <tr><td>History span</td><td class="mono">2026-08-08 → 2026-08-09 (2 points)</td></tr>
-    <tr><td>Crawlers tracked</td><td class="mono">20</td></tr>
-    <tr><td>Publisher panel</td><td class="mono">49 domains</td></tr>
+    <tr><td>History span</td><td class="mono">2026-08-08 → 2026-08-17 (5 points)</td></tr>
+    <tr><td>Crawlers tracked</td><td class="mono">18</td></tr>
+    <tr><td>Publisher panel</td><td class="mono">64 domains</td></tr>
     <tr><td>Cadence</td><td>Weekly full sweep, automated</td></tr>
   </table>
 
-  <h2>Enforcement sample — read this before quoting it</h2>
-  <p>Current edition: <b class="mono">62.1%</b> of declared blocks were actually enforced, across <b class="mono">66</b> checks on the publisher panel.</p>
+  <h2>Probe-panel responses — counts only, and why there is no percentage here</h2>
+  <p>On the probe panel this edition, an identified crawler made <b class="mono">118</b> requests to domains whose robots.txt we had already read.
+  Where robots.txt declared a block, the server answered with a refusal (4xx or 5xx) <b class="mono">24</b> times and served the page <b class="mono">28</b> times.
+  Where robots.txt declared no block, the server refused anyway <b class="mono">23</b> times.</p>
   <div class="box">
-    <b>This figure moves between runs, and you should know why.</b> It is measured on a small panel (tens of checks, not thousands), and the denominator changes with how many panel domains responded to an identified crawler in that sweep. We have observed it between 50% and 62% on consecutive editions. Treat it as directional evidence that a substantial minority of declared AI blocks are not enforced — consistent with independent findings of roughly 40% — and always quote it with its n and date. It is not a precise population estimate, and we will not present it as one.
+    <b>These are counts, not a rate, and we will not turn them into one.</b>
+    robots.txt is an advisory instruction to crawlers, not a server-side access control. A site that disallows a crawler in robots.txt
+    and still serves a page to it is behaving exactly as the protocol expects — it has not "failed to enforce" anything, because there is
+    nothing there to enforce. Treating the ratio of these counts as an enforcement rate would measure a thing that does not exist.
+    <br><br>
+    These observations also come from one vantage point, one identified crawler, and a panel of a few dozen domains chosen for interest
+    rather than at random. They tell you a behaviour exists and roughly where. They cannot tell you how common it is, and they say nothing
+    at all about whether any <em>other</em> crawler honours any site's directives — we have no crawler-side logs and no way to observe that.
   </div>
 
   <h2>What we know is imperfect</h2>
   <ul>
-    <li><b>Declaration is not enforcement.</b> Headline block rates measure what sites publish, not what they do.</li>
+    <li><b>Declaration is not behaviour.</b> Block rates measure what sites publish in robots.txt, not what any crawler does.</li>
+    <li><b>We cannot see compliance.</b> We have no crawler-side logs. Nothing here shows whether a named crawler obeyed a directive.</li>
     <li><b>One vantage point.</b> We crawl from a single network; sites that vary by geography or ASN may look different elsewhere.</li>
     <li><b>Prices are sparse.</b> Very few sites quote a machine-readable price. We report the count rather than smoothing it.</li>
     <li><b>Not every domain answers.</b> Rates are always computed against domains parsed, never the nominal frame.</li>
-    <li><b>ccTLD is a proxy</b> for country, not a measure of publisher nationality or audience.</li>
+    <li><b>ccTLD is a domain suffix</b>, not a country. It is not operator location, ownership, audience or hosting, and generic suffixes (.com, .org, .io) carry no geography at all.</li>
   </ul>
 
   <h2>Corrections</h2>
@@ -65,5 +78,61 @@
   <p class="mono" style="font-size:14px">curl -s https://api.crawlpriceindex.com/v1/check?domain=context<br>
   curl -s https://api.crawlpriceindex.com/v1/methodology<br>
   curl -s https://crawlpriceindex.com/index.json</p>
-<footer>THE CRAWL PRICE INDEX · <a href="/methodology.html">methodology</a> · <a href="/privacy.html">privacy</a> · <a href="/security.html">security</a> · <a href="/terms.html">terms</a> · <a href="/">index</a></footer>
-</div></body></html>
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now. The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
+
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'status')">
+        <input id="fsub-status" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-status"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script></div></body></html>

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore — The Crawl Price Index</title>
+<meta name="description" content="Explore this week's AI-crawler policy data: block rates by crawler, the training-versus-traffic asymmetry, and a census of which ranked domains are still alive. Free headline tier.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<style>
+/* dashboard-only layout; palette + type inherited from theme.css */
+.dash-wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.dash-hero{padding:44px 0 22px;border-bottom:1px solid var(--line)}
+.dash-eyebrow{font-family:var(--sans);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--signal);font-weight:600}
+.dash-hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.4vw,46px);line-height:1.08;letter-spacing:-.015em;margin:.3em 0 .25em}
+.dash-hero h1 em{font-style:italic;color:var(--signal)}
+.dash-sub{color:var(--dim);max-width:60ch;font-size:16.5px}
+.asof{font-family:var(--sans);font-size:13px;color:var(--dim);margin-top:14px}
+
+.controls{display:flex;gap:10px;flex-wrap:wrap;padding:22px 0;border-bottom:1px solid var(--line);align-items:center}
+.controls label{font-size:12.5px;color:var(--dim);margin-right:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg button{font-family:var(--sans);font-size:13.5px;padding:8px 14px;background:#fff;border:0;border-right:1px solid var(--line);cursor:pointer;color:var(--fg)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--signal);color:#fff}
+.search{flex:1;min-width:220px;display:flex;position:relative}
+.search input{flex:1;font-family:var(--sans);font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:3px;background:#fff}
+.search input:focus{outline:none;border-color:var(--signal);box-shadow:0 0 0 3px rgba(28,93,74,.12)}
+
+.grid{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;padding:26px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:3px;box-shadow:var(--lift);padding:22px}
+.card h2{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 4px;border:0;padding:0}
+.card .hint{font-size:12.5px;color:var(--dim);margin-bottom:16px}
+
+/* bar chart */
+.bars{display:flex;flex-direction:column;gap:9px}
+.brow{display:grid;grid-template-columns:150px 1fr 46px;gap:12px;align-items:center;font-size:13.5px;cursor:default}
+.brow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:14px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.fill{height:100%;background:var(--signal);width:0;transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.brow .pc{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+.brow.dim{opacity:.4}
+
+/* price */
+.price-num{font-family:var(--serif);font-size:56px;line-height:.9;letter-spacing:-.03em;color:var(--signal)}
+.price-unit{font-size:14px;color:var(--dim)}
+.price-src{font-size:13px;color:var(--dim);margin-top:12px;line-height:1.5}
+.divider{border:0;border-top:1px solid var(--line);margin:20px 0}
+.stat{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0}
+.stat .k{font-size:13px;color:var(--dim)}
+.stat .v{font-family:var(--serif);font-size:20px}
+
+/* ccTLD */
+.cty{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line)}
+.cty:last-child{border-bottom:0}
+.cty .c{font-family:var(--serif);font-size:17px}
+.cty .n{font-size:12px;color:var(--dim);margin-left:8px}
+.cty .p{font-variant-numeric:tabular-nums;color:var(--signal);font-weight:600}
+
+/* gated teaser */
+.gate{margin-top:2px;padding:18px 20px;border:1px dashed var(--line);border-radius:3px;background:var(--sand)}
+.gate .lk{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:600}
+.gate p{margin:8px 0 14px;font-size:14px;color:var(--fg)}
+.gate a{display:inline-block;background:var(--signal);color:#fff;font-family:var(--sans);font-size:13.5px;font-weight:500;padding:10px 18px;border-radius:2px;text-decoration:none}
+.gate a:hover{background:#14483A}
+.searchresult{padding:16px 0 4px;font-size:14.5px;color:var(--fg)}
+.searchresult b{color:var(--signal)}
+
+@media (max-width:820px){.grid{grid-template-columns:1fr}.dash-wrap{padding:0 18px}.brow{grid-template-columns:120px 1fr 42px}}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav class="navmid">
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk on" aria-current="page" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
+  </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
+</div></div>
+
+<div class="dash-hero"><div class="dash-wrap">
+  <p class="dash-eyebrow">Free tool · headline tier</p>
+  <h1>Explore what the web charges <em>AI</em></h1>
+  <p class="dash-sub">This week's headline figures, live from the latest edition. Filter the crawlers, read the one observed price, and see how the frame itself measures up. Per-domain detail is in the full dataset.</p>
+  <p class="asof" id="asof">Loading this week's edition…</p>
+</div></div>
+
+<div class="dash-wrap">
+  <div class="controls">
+    <label>Show:</label>
+    <div class="seg" role="group" aria-label="Filter crawlers">
+      <span style="font-size:12.5px;color:var(--dim);align-self:center;margin-right:10px">Show:</span><button data-filter="all" aria-pressed="true">All 18 crawlers</button>
+      <button data-filter="training">Training bots</button>
+      <button data-filter="search">Search/answer</button>
+    </div>
+    <div class="search lookup-cta">
+      <a class="btn" href="/check" style="white-space:nowrap">Look up a single domain &mdash; free &rarr;</a>
+    </div>
+  </div>
+  <div class="searchresult" id="sresult" hidden></div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Robots.txt block rates</h2>
+      <div class="hint" id="brhint">Share of the scanned top 50,000 that disallow each crawler.</div>
+      <div class="bars" id="bars"></div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>The observed price</h2>
+        <div class="hint">The only machine-readable per-crawl price on the measurable web.</div>
+        <div><span class="price-num" id="price">—</span> <span class="price-unit">/ crawl</span></div>
+        <div class="price-src" id="pricesrc"></div>
+        <hr class="divider">
+        <div class="stat"><span class="k">Coverage (reachable)</span><span class="v" id="cov">—</span></div>
+        <div class="stat"><span class="k">Distinct wall types seen</span><span class="v" id="sig">—</span></div>
+      </div>
+
+      <div class="card" style="margin-top:22px">
+        <h2>Training versus traffic</h2>
+        <div class="hint">Crawlers that train a model and crawlers that send a reader are different propositions &mdash; and domains treat them differently.</div>
+        <div id="asym"></div>
+        <div style="margin-top:12px"><a class="lnk" href="https://app.crawlpriceindex.com" style="font-size:13.5px;color:var(--signal)">Per-vendor breakdown in the dashboard &rarr;</a></div>
+      </div>
+
+      <div class="card" style="margin-top:22px">
+        <h2>Is the ranked web even alive?</h2>
+        <div class="hint">A popularity ranking lists domains, not working websites. We census the frame itself, so every rate we publish has an honest denominator.</div>
+        <div id="reach"></div>
+        <div style="margin-top:12px"><a class="lnk" href="/methodology" style="font-size:13.5px;color:var(--signal)">How we measure this &rarr;</a></div>
+      </div>
+
+      <div class="card" style="margin-top:22px">
+        <h2>Suffix groups</h2>
+        <div class="hint">Block rates grouped by domain suffix. A suffix is not a country: it does not indicate operator location, ownership, audience or hosting &mdash; so this cut lives in the dashboard, where the caveats travel with the numbers.</div>
+        <div style="margin-top:12px"><a class="lnk" href="https://app.crawlpriceindex.com" style="font-size:13.5px;color:var(--signal)">Open Segments in the dashboard &rarr;</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate" id="gate" style="margin-bottom:40px">
+    <div class="lk">🔒 In the Terminal</div>
+    <p id="gatetext">Every domain &times; every crawler, suffix-group detail, the full price and wall-behaviour record, and week-over-week history &mdash; exportable as CSV.</p>
+    <a href="https://app.crawlpriceindex.com/dashboard.html#account">Unlock the Terminal — €49/mo →</a>
+  </div>
+</div>
+
+<script>
+const TRAINING = ["GPTBot","CCBot","Bytespider","ClaudeBot","Google-Extended","Amazonbot","meta-externalagent","Applebot-Extended","anthropic-ai","cohere-ai","Diffbot","Timpibot","AI2Bot"];
+const SEARCH = ["OAI-SearchBot","ChatGPT-User","Claude-Web","PerplexityBot","Perplexity-User"];
+
+let DATA = null, filter = "all";
+
+async function load(){
+  try{
+    const r = await fetch("/index.json", {cache:"no-store"});
+    DATA = await r.json();
+    render();
+  }catch(e){
+    document.getElementById("asof").textContent = "Couldn't load this week's edition. Refresh to try again.";
+  }
+}
+
+function render(){
+  const d = DATA;
+  const asof = (d.generated_utc||"").slice(0,10);
+  document.getElementById("asof").textContent = "Edition of " + asof + " · coverage " +
+    (d.coverage.robots_parsed).toLocaleString() + " of the Tranco top " + (d.coverage.tranco_top_n).toLocaleString() + " · at least weekly";
+
+  // bars
+  const rates = d.block_rates && d.block_rates.pct || d.block_rates_top2000 || {};
+  const entries = Object.entries(rates);
+  const max = Math.max(...entries.map(([,v])=>v));
+  const inFilter = b => filter==="all" || (filter==="training"?TRAINING:SEARCH).includes(b);
+  document.getElementById("brhint").textContent =
+    filter==="all" ? "Share of the top 2,000 that disallow each crawler, in robots.txt."
+    : filter==="training" ? "Training & data-collection crawlers only."
+    : "Search and answer crawlers only — the ones that send traffic back.";
+  document.getElementById("bars").innerHTML = entries.map(([b,v])=>
+    '<div class="brow'+(inFilter(b)?'':' dim')+'"><span class="nm">'+b+'</span>'+
+    '<span class="track"><span class="fill" data-w="'+Math.round(v/max*100)+'"></span></span>'+
+    '<span class="pc">'+v+'%</span></div>').join("");
+  requestAnimationFrame(()=>document.querySelectorAll(".fill").forEach(f=>f.style.width=f.dataset.w+"%"));
+
+  // price
+  const praw = (d.observed_prices_headline&&d.observed_prices_headline[0]&&d.observed_prices_headline[0].raw)||"";
+  const pm = praw.match(/([\d.]+)/);
+  document.getElementById("price").textContent = pm ? "$"+pm[1] : "—";
+  document.getElementById("pricesrc").innerHTML = praw
+    ? praw.split(":")[0]+" quotes this to ClaudeBot via Cloudflare pay-per-crawl — the only posted price we observe."
+    : "No machine-readable price observed this week.";
+
+  document.getElementById("cov").textContent = (d.coverage.robots_parsed).toLocaleString();
+  document.getElementById("sig").textContent = d.signal_classes_observed || "—";
+
+  // training vs traffic — the asymmetry
+  const A = d.asymmetry_headline;
+  if (A && document.getElementById("asym")) {
+    document.getElementById("asym").innerHTML =
+      '<div class="cty"><span><span class="c">Blocks a training crawler, no search crawler</span></span><span class="p">' + A.blocks_training_role_only.toLocaleString() + '</span></div>' +
+      '<div class="cty"><span><span class="c">Blocks a search crawler, no training crawler</span></span><span class="p">' + A.blocks_search_role_only.toLocaleString() + '</span></div>' +
+      '<div class="cty"><span><span class="c"><b>Ratio</b></span></span><span class="p"><b>' + A.ratio + ' to 1</b></span></div>' +
+      '<div class="hint" style="margin-top:8px">Of ' + A.denominator.toLocaleString() + ' domains with a readable robots.txt in the current frame. Declared policy only &mdash; not evidence of intent, and not proof any crawler was denied.</div>';
+  }
+
+  // frame reachability
+  const R = d.reachability_headline;
+  if (R && document.getElementById("reach")) {
+    const pc = n => (n / R.frame * 100).toFixed(1) + '%';
+    document.getElementById("reach").innerHTML =
+      '<div class="cty"><span><span class="c">Answered our crawler</span></span><span class="p">' + R.alive.toLocaleString() + ' &middot; ' + pc(R.alive) + '</span></div>' +
+      '<div class="cty"><span><span class="c">Name does not resolve</span></span><span class="p">' + R.dead_dns.toLocaleString() + ' &middot; ' + pc(R.dead_dns) + '</span></div>' +
+      '<div class="cty"><span><span class="c">No response in our window</span></span><span class="p">' + R.timeout.toLocaleString() + ' &middot; ' + pc(R.timeout) + '</span></div>' +
+      '<div class="cty"><span><span class="c">Serves robots.txt, refuses the homepage (403/429)</span></span><span class="p">' + R.bot_walled.toLocaleString() + ' &middot; ' + pc(R.bot_walled) + '</span></div>' +
+      '<div class="hint" style="margin-top:8px">Of the ' + R.frame.toLocaleString() + '-domain frame. The last row is a declared-versus-enforced divergence, not a robots.txt policy &mdash; it is never folded into a block rate.</div>';
+  }
+}
+
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true");
+  filter = b.dataset.filter; render();
+}));
+
+load();
+</script>
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now. The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
+
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'explore')">
+        <input id="fsub-explore" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-explore"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script>
+</body>
+</html>

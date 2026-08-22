@@ -20,14 +20,17 @@
 <body class="prose">
 <div class="masthead"><div class="wrap">
   <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
-  <nav>
-    <a class="lnk" href="/check">Check a domain</a>
+  <nav class="navmid">
     <a class="lnk" href="/why">Why it matters</a>
-    <a class="lnk" href="/world">World editions</a>
-    <a class="lnk" href="/methodology">Methodology</a>
-    <a class="ghost" href="/sample">Weekly email</a>
-    <a class="btn" href="/#access">Subscribe</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
   </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
 </div></div>
 <div class="page-open"><div class="wrap">
   <h1>Terms of Service &amp; Data Licence</h1>
@@ -37,7 +40,7 @@
 <div class="wrap"><div class="panels">
 <section class="panel">
   <div class="ix"><span class="lead-in">What we provide</span></div>
-<p>The Crawl Price Index ("the Service") publishes measurements of how the web responds to AI crawlers — block rates, observed pay-per-crawl prices, paywall signals, per-country breakdowns, and their movement over time. Headline figures are published freely. The full dataset, per-country editions, API access, and trend history ("the Dataset") are provided to paying subscribers ("Terminal") under the licence below.</p>
+<p>The Crawl Price Index ("the Service") publishes measurements of how the web responds to AI crawlers — block rates, observed pay-per-crawl prices, paywall signals, per-ccTLD-group breakdowns, and their movement over time. Headline figures are published freely. The full dataset, per-ccTLD-group editions, API access, and trend history ("the Dataset") are provided to paying subscribers ("Terminal") under the licence below.</p>
 
 </section>
 <section class="panel">
@@ -60,6 +63,7 @@
 <section class="panel">
   <div class="ix"><span class="lead-in">Billing</span></div>
 <p>Terminal is billed monthly via Stripe. VAT is handled by our payment provider as merchant of record where applicable. You may cancel at any time; access continues until the end of the paid period and your key is deactivated on lapse.</p>
+<p>Subscription pricing may change with at least 30 days&rsquo; notice by email before your next renewal. <b>Founding subscribers keep their sign-up rate for at least 24 months</b> from the date they first subscribe; any change after that period applies only from the next renewal following notice. We never change the price of a billing period you have already paid. A one-off Snapshot purchase is final and grants a single machine-readable download of the current edition, not ongoing access; its price may be credited toward a subsequent Terminal subscription.</p>
 
 </section>
 <section class="panel">
@@ -76,6 +80,62 @@
   <div class="ix"><span class="lead-in">Changes &amp; contact</span></div>
 <p>We may update these terms; material changes will be dated here. Questions, licensing enquiries, or bulk/enterprise access: <span class="mono">hello@crawlpriceindex.com</span>.</p></section>
 </div></div>
-<footer><div class="wrap">THE CRAWL PRICE INDEX · terms v1 · <a href="/methodology.html">methodology</a> · <a href="/">← index</a></div></footer>
-</body>
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now. The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
+
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'terms')">
+        <input id="fsub-terms" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-terms"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script></body>
 </html>

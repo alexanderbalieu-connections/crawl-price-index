@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Crawl Price Index — what the web charges AI to read it</title>
+<meta name="description" content="A weekly, independent measure of what the web charges AI crawlers: block rates, the one observed per-crawl price, and where the pay-per-crawl market is heading.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23FBFAF8%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%231C5D4A%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<style>
+.bignum{font-family:var(--serif);font-weight:400;font-size:clamp(52px,9vw,104px);line-height:.9;letter-spacing:-.03em;color:var(--signal)}
+.bignum .u{font-size:.28em;color:var(--dim);letter-spacing:0}
+.nprice{font-family:var(--sans);font-size:13px;color:var(--amber);font-weight:600;letter-spacing:.04em}
+.trend-svg{width:100%;height:auto;display:block;margin-top:6px;max-width:100%}
+.trend-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--dim)}
+.trend-legend b{display:inline-block;width:22px;height:2px;vertical-align:middle;margin-right:6px}
+.brow2{display:grid;grid-template-columns:150px 1fr 52px;gap:12px;align-items:center;font-size:13.5px;padding:4px 0}
+.brow2 .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brk{height:13px;background:var(--sand);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.brk>span{display:block;height:100%;background:var(--signal);width:0;transition:width .7s cubic-bezier(.2,.7,.2,1)}
+.brow2 .pc{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+.postgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.postcell{border:1px solid var(--line);border-radius:3px;padding:16px;background:var(--sand);min-width:0}
+.postcell.hi{border-left:3px solid var(--signal)}
+.postcell .pn{font-family:var(--serif);font-size:30px;color:var(--fg)}
+.postcell.hi .pn{color:var(--signal)}
+.postcell .pt{font-size:12.5px;color:var(--fg);font-weight:600;margin-top:2px}
+.postcell .pd{font-size:12px;color:var(--dim);margin-top:4px;line-height:1.4}
+.calc-out{font-family:var(--serif);font-size:clamp(34px,6vw,60px);line-height:.95;letter-spacing:-.02em;color:var(--signal);margin:2px 0}
+.slider{margin:16px 0}
+.slider label{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:8px;gap:10px}
+.slider label b{font-variant-numeric:tabular-nums;color:var(--signal);font-weight:600;white-space:nowrap}
+.slider input[type=range]{width:100%;accent-color:var(--signal)}
+.assume{font-size:12px;color:var(--dim);line-height:1.5;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.tick{display:flex;gap:10px;overflow-x:auto;padding:4px 0 2px;margin-top:10px}
+.tick .ti{flex:0 0 auto;border:1px solid var(--line);border-radius:3px;padding:8px 12px;font-size:12.5px;background:#fff;white-space:nowrap}
+.tick .ti b{color:var(--fg)}
+.tick .ti .tg{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-right:6px}
+.tg.PRICED{color:var(--signal)} .tg.GATED{color:var(--amber)} .tg.LICENSING{color:var(--blue)} .tg.FREE{color:var(--dim)}
+.subrow-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px}
+.subrow-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.subpanel{border:1px solid var(--line);border-radius:4px;padding:14px;background:var(--sand)}
+.subpanel.hi{border-left:3px solid var(--signal)}
+.subpanel .sublabel{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);font-weight:600;margin-bottom:10px}
+.slidernote{font-size:11px;color:var(--dim);margin-top:4px;line-height:1.4}
+@media(max-width:720px){.subrow-3,.subrow-2{grid-template-columns:1fr}}
+@media(max-width:640px){.postgrid{grid-template-columns:1fr}.brow2{grid-template-columns:110px 1fr 44px}}
+</style>
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav class="navmid">
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
+  </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
+</div></div>
+
+<div class="page-open"><div class="wrap">
+  <p class="eyebrow">Independent &middot; at least weekly &middot; edition of <span id="asof-eyebrow">&mdash;</span></p>
+  <h1>What the web charges <em>AI</em> to read it.</h1>
+  <p class="lede">Every edition we read the declared crawler policy of a ranked <span id="lede-topn">50,000</span>-domain frame, one domain at a time, and write down what each tells <b>18 named AI crawlers</b>. Independent, weekly, and denominator-first &mdash; every figure here states what it is a share of.</p>
+</div></div>
+
+<div class="wrap"><div class="panels">
+
+  <section class="panel wide" id="v3-explainer">
+    <div class="ix"><span class="lead-in">Start here</span></div>
+    <h2>Most of what reads your website now is software. It does not all want the same thing.</h2>
+    <div class="exsplit">
+      <div>
+        <p>A <b>crawler</b> is a program that fetches web pages automatically. There have always been crawlers &mdash; that is how search engines find anything &mdash; but what they are <em>for</em> has split in two, and the split is the whole reason this site exists.</p>
+        <p>A <b>training crawler</b> copies your page into the material a model is built from. You are not paid, and no reader arrives. A <b>search crawler</b> indexes your page so a person can find it, and sends that person to you. Same request, same protocol, completely different bargain.</p>
+        <p>A site answers both of them in one plain text file at its root, called <code>robots.txt</code>. It can name a crawler and say no. Almost nothing else on the web is as consequential and as little recorded.</p>
+        <p style="margin-bottom:0"><b>Nobody was writing the answers down.</b> So every week we ask 50,000 sites what they have said, one at a time, and keep the record. That record is this index.</p>
+      </div>
+      <div>
+        <div class="gcap">One page, one gate, three kinds of reader</div>
+        <div class="mech">
+          <div class="mrow">
+            <span class="mwho">A person</span>
+            <span class="marr" aria-hidden="true">&rarr;</span>
+            <span class="mgate">robots.txt<small>does not apply</small></span>
+            <span class="marr" aria-hidden="true">&rarr;</span>
+            <span class="mpage">your page</span>
+          </div>
+          <div class="mrow">
+            <span class="mwho">A <b>search</b> crawler<small>indexes it, may send a reader</small></span>
+            <span class="marr" aria-hidden="true">&rarr;</span>
+            <span class="mgate">robots.txt<small>allow or refuse</small></span>
+            <span class="marr" aria-hidden="true">&rarr;</span>
+            <span class="mpage">your page</span>
+          </div>
+          <div class="mrow hi">
+            <span class="mwho">A <b>training</b> crawler<small>copies it into a model</small></span>
+            <span class="marr" aria-hidden="true">&rarr;</span>
+            <span class="mgate">robots.txt<small>allow or refuse</small></span>
+            <span class="marr" aria-hidden="true">&rarr;</span>
+            <span class="mpage">your page</span>
+          </div>
+        </div>
+        <div class="mechnote"><b>robots.txt is a request, not a lock.</b> It states a policy; it does not enforce one. Whether the door behaves the same way is a separate measurement, and we keep the two apart everywhere on this site.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel wide" id="v2-census">
+    <div class="ix"><span class="lead-in">What we measure</span></div>
+    <h2>What we count, and what we count it against.</h2>
+<p>Every edition we read the <code>robots.txt</code> of a ranked 50,000-domain frame and record what each domain declares to <b>18 named AI crawlers</b>: blocked, allowed, partial, no instruction, or no file at all. Rates are quoted against the domains that actually serve a readable file &mdash; never against &ldquo;the web&rdquo;.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:18px" id="v2-census-nums">
+      <div style="min-width:0"><div class="bignum" style="font-size:clamp(26px,4vw,42px)"><span id="v2-parsed">&mdash;</span></div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">domains serving a readable robots.txt</div></div>
+      <div style="min-width:0"><div class="bignum" style="font-size:clamp(26px,4vw,42px)">18</div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">AI crawlers tracked by name</div></div>
+      <div style="min-width:0"><div class="bignum" style="font-size:clamp(26px,4vw,42px)"><span id="v2-frame">&mdash;</span></div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">domains in the ranked frame</div></div>
+    </div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:14px" id="v2-frameprov">&nbsp;</p>
+    <div class="alsogrid">
+      <div class="alsoc"><b>The declared layer</b><span>Every edition: 50,000 ranked domains &times; 18 named AI crawlers, read one domain at a time from <code>robots.txt</code>. Five states, never collapsed into &ldquo;blocked or not&rdquo;.</span></div>
+      <div class="alsoc"><b>Is the domain even there</b><span>The same frame is swept for whether it answers at all &mdash; alive, dead name, timeout, or serving a file then refusing an identified crawler at the door.</span></div>
+      <div class="alsoc"><b>What the door actually does</b><span>A hand-probed exhibit set, knocked on as an identified AI crawler, to see what comes back: a price, a payment wall, a token demand, or a refusal.</span></div>
+      <div class="alsoc"><b>The machine-payment registry</b><span>A public registry of endpoints advertising a price a machine can pay directly &mdash; captured alongside, because it is the same question asked from the other side.</span></div>
+    </div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:14px">Every rate on this site is quoted against the domains that actually served a readable file &mdash; never against &ldquo;the web&rdquo;. <a class="lnk" href="/methodology" style="color:var(--signal)">Full methodology &rarr;</a></p>
+  </section>
+
+  <section class="panel wide" id="v3-thisweek">
+    <div class="ix"><span class="lead-in">This week</span></div>
+    <h2>Three figures, in plain English.</h2>
+    <div class="twk" id="v3-twk"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:14px">Declared policy only. These are the figures the rest of this page unpacks &mdash; and they are free to cite with attribution.</p>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">Training versus traffic</span></div>
+    <h2>Sites treat the crawler that <em>trains</em> differently from the one that <em>sends a reader</em>.</h2>
+    <p>This is the most economically loaded thing in the dataset, and it does not show up in a headline block rate. A crawler that ingests your work to train a model and a crawler that might send you a visitor are different propositions &mdash; and domains that draw a line overwhelmingly draw it in one direction.</p>
+    <div id="v2-asym" class="dvtri"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">Declared robots.txt policy only. Role tags describe each crawler&rsquo;s stated function; this is not evidence of intent, and not proof any crawler was denied.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">What changed this week</span></div>
+    <h2>Policy is not settled.</h2>
+    <div id="v2-changes"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">One edition-over-edition comparison, not a trend. Domains entering or leaving the frame are excluded, so frame churn is never counted as a policy change.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">Declared versus enforced</span></div>
+    <h2>What a site says and what its front door does.</h2>
+    <div id="v2-reach"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">A popularity ranking lists domains, not working websites. We census the frame itself so every rate we publish has an honest denominator &mdash; and we keep declared policy and enforced access as separate measurements.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">Who gets blocked</span></div>
+    <h2>Not all crawlers are treated alike.</h2>
+    <p style="margin-bottom:12px">Share of domains with a readable robots.txt that disallow each crawler. Training bots are walled harder than the search crawlers that send traffic back.</p>
+    <div id="rates"></div>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The wall is rising</span></div>
+    <h2>Block rates, every edition since the baseline.</h2>
+    <p>Each edition we record the declared block rate for every tracked crawler and archive it. The series is short &mdash; five editions &mdash; so this chart shows movement between editions, not a trend, and we do not describe it as one anywhere on this site. The archive is the part a later entrant cannot reconstruct: a week not measured is gone.</p>
+    <div style="position:relative">
+      <svg class="trend-svg" id="trend" viewBox="0 0 800 260" preserveAspectRatio="xMidYMid meet" aria-label="Block rate trend"></svg>
+      <div id="trend-tip" style="position:absolute;display:none;pointer-events:none;background:var(--fg);color:#fff;font-family:var(--sans);font-size:12px;padding:6px 9px;border-radius:3px;white-space:nowrap;z-index:20"></div>
+    </div>
+    <div class="trend-legend" id="trend-legend"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px;line-height:1.5">This plots the <em>change</em> in each edition's block rate versus the one before, so a point below zero means that edition's rate ticked down, not that blocking reversed. Small dips (like 16 Aug) reflect coverage variation &mdash; each scan reaches a slightly different set of domains, so the reachable sample shifts a little edition to edition. The underlying level has risen across the series.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ix"><span class="lead-in">How the door answers</span></div>
+    <h2>Priced, gated, or blocked.</h2>
+    <p style="margin-bottom:4px">When an identified AI crawler knocks, the response falls into a few distinct behaviours &mdash; measured on the wire this edition.</p>
+    <div class="postgrid" id="posture"></div>
+    <div class="tick" id="board"></div>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The machine market</span></div>
+    <h2>Machines already pay each other. Almost none of it touches the web you read.</h2>
+    <p>Alongside the census we capture a public registry of endpoints advertising a price a machine can pay directly, settled in stablecoin. It is a real, working market &mdash; and it is almost entirely developer APIs and tools rather than the sites people visit.</p>
+    <div id="v2-bazaar" class="dvsplit"></div>
+    <p style="font-size:11.5px;color:var(--dim);margin-top:12px">Advertised, opt-in acceptance in a public registry &mdash; never transactions, volume or revenue. This is a stablecoin rail, distinct from Cloudflare pay-per-crawl, though both return HTTP 402.</p>
+  </section>
+
+  <section class="panel wide" id="v3-next">
+    <div class="ix"><span class="lead-in">Where to go next</span></div>
+    <h2>Three ways in, depending on what you came for.</h2>
+    <div class="nextgrid">
+      <a class="nextc" href="/why">
+        <span class="nk">The argument</span>
+        <b>Why it matters</b>
+        <span class="nd">What we think is happening to the web, the public evidence for it, and the evidence against it. Start here if you want the thesis rather than the numbers.</span>
+        <span class="ng">Read the case &rarr;</span>
+      </a>
+      <a class="nextc" href="/explore">
+        <span class="nk">The data</span>
+        <b>Explore the index</b>
+        <span class="nd">This edition&rsquo;s figures, every tracked crawler, and a look inside the full dashboard before you sign up for anything.</span>
+        <span class="ng">Open the data &rarr;</span>
+      </a>
+      <a class="nextc" href="/check">
+        <span class="nk">Your site</span>
+        <b>Check a domain</b>
+        <span class="nd">What one domain declares to all 18 crawlers, how that compares with its rank band, and how to publish your own terms. Free, no account.</span>
+        <span class="ng">Look up a domain &rarr;</span>
+      </a>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div></div>
+
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now. The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
+
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'index')">
+        <input id="fsub-index" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-index"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script><script id="data" type="application/json">{"asof":"17 Aug 2026, 23:26 UTC","robots_parsed":27975,"tranco_top_n":50000,"observed_price":"0.50","block_gpt":15.2,"pub_multiple":5.1,"signal_classes":6,"ticker":[["stackoverflow.com","PRICED","USD 0.5 / crawl"],["forbes.com","GATED","TollBit token wall"],["telegraph.co.uk","GATED","TollBit token wall"],["thespruce.com","LICENSING","402 → contentlicensing@"],["seriouseats.com","LICENSING","402 → contentlicensing@"],["investopedia.com","LICENSING","402 → contentlicensing@"],["wired.com","FREE","declares payment:free"]],"posture":[{"t":"Priced","n":"1","d":"named a per-crawl price in the response","hi":true},{"t":"Gated / paywalled","n":"8","d":"returned 402 or a token wall to crawlers"},{"t":"Bot-blocked","n":"11","d":"served humans but refused AI user-agents"}],"block_rows":[{"bot":"CCBot","rate":14.8},{"bot":"GPTBot","rate":15.2},{"bot":"Bytespider","rate":14.2},{"bot":"ClaudeBot","rate":13.4},{"bot":"Google-Extended","rate":12.2},{"bot":"PerplexityBot","rate":5},{"bot":"ChatGPT-User","rate":4.7},{"bot":"OAI-SearchBot","rate":3}],"history":[{"date":"8 Aug","rates":{"GPTBot":15.3,"ClaudeBot":13.4,"CCBot":14.9,"Google-Extended":12.3}},{"date":"9 Aug","rates":{"GPTBot":15.3,"ClaudeBot":13.4,"CCBot":14.9,"Google-Extended":12.3}},{"date":"15 Aug","rates":{"GPTBot":15.4,"ClaudeBot":13.6,"CCBot":15.1,"Google-Extended":12.4}},{"date":"16 Aug","rates":{"GPTBot":15.2,"ClaudeBot":13.4,"CCBot":14.8,"Google-Extended":12.2}},{"date":"17 Aug","rates":{"GPTBot":15.2,"ClaudeBot":13.4,"CCBot":14.8,"Google-Extended":12.2}}],"taxonomy":[{"t":"Cloudflare PPC","ex":"crawler-price: USD 0.5","d":"402 with an x402 price quote, settled on Cloudflare rails."},{"t":"TollBit token","ex":"x-tollbit-forwarded: true","d":"402 demanding a marketplace token."},{"t":"Licensing 402","ex":"402 → contentlicensing@","d":"Payment-required page routing to a sales contact."},{"t":"Declared free","ex":"payment: free","d":"Explicit header stating no charge — a posture signal."},{"t":"Bot block","ex":"403 / 406 / 429","d":"Content to browsers, refusal to AI user-agents."},{"t":"robots.txt opt-out","ex":"Disallow: / for GPTBot","d":"The declarative layer. Measured across the Tranco top-N every week."}]}</script>
+<script>
+function cpiSub(e){e.preventDefault();var m=document.getElementById('submsg');var em=(document.getElementById('subemail').value||'').trim();if(!em){return false;}m.style.color='var(--dim)';m.textContent='Signing you up…';fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})}).then(function(r){return r.json();}).then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You’re in — check your inbox for your free sample.';document.getElementById('subemail').value='';}).catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});return false;}
+var D = {};
+try { D = JSON.parse(document.getElementById('data').textContent || '{}'); } catch(e){ D = {}; }
+function $(s){ return document.querySelector(s); }
+function $$(s){ return document.querySelectorAll(s); }
+function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+
+set('asof-eyebrow', D.asof||'\u2014'); set('asof-foot', D.asof||'\u2014');
+set('lede-topn', (D.tranco_top_n||50000).toLocaleString());
+set('obs-price', D.observed_price!=null?D.observed_price:'\u2014');
+$$('.calc-price').forEach(function(e){ e.textContent=(D.observed_price||0.5).toFixed(2); });
+set('obs-domain', (D.ticker&&D.ticker[0]&&D.ticker[0][0])||'stackoverflow.com');
+/* the Coverage & method panel was removed; its figures live in "What we
+   measure" and "This week" now, so these setters have nothing to fill. */
+
+(function(){
+  var rows = D.block_rows||[]; if(!rows.length) return;
+  var max = Math.max.apply(null, rows.map(function(r){return r.rate;}));
+  $('#rates').innerHTML = rows.map(function(r){
+    return '<div class="brow2"><span class="nm">'+r.bot+'</span><span class="brk"><span data-w="'+Math.round(r.rate/max*100)+'"></span></span><span class="pc">'+r.rate+'%</span></div>';
+  }).join('');
+  requestAnimationFrame(function(){ $$('.brk>span').forEach(function(s){ s.style.width=s.dataset.w+'%'; }); });
+})();
+
+(function(){
+  var p = D.posture||[];
+  $('#posture').innerHTML = p.map(function(c){
+    return '<div class="postcell'+(c.hi?' hi':'')+'"><div class="pn">'+c.n+'</div><div class="pt">'+c.t+'</div><div class="pd">'+c.d+'</div></div>';
+  }).join('');
+  var t = D.ticker||[];
+  $('#board').innerHTML = t.map(function(x){
+    return '<div class="ti"><span class="tg '+x[1]+'">'+x[1]+'</span><b>'+x[0]+'</b> \u00b7 '+x[2]+'</div>';
+  }).join('');
+})();
+
+(function(){
+  var hist = D.history;
+  var svg = document.getElementById('trend');
+  var focus = ['GPTBot','ClaudeBot','CCBot','Google-Extended'];
+  var colors = {GPTBot:'#1C5D4A', ClaudeBot:'#8A6A1F', CCBot:'#1D4E6F', 'Google-Extended':'#A33A2A'};
+  if(!hist || hist.length<2){
+    svg.innerHTML = '<text x="400" y="130" text-anchor="middle" fill="#5F5B54" font-family="Archivo" font-size="14">Trend builds with each edition.</text>';
+    return;
+  }
+  var W=800,H=260,pad=40;
+  var series = focus.map(function(f){
+    return hist.map(function(h,i){
+      if(i===0) return 0;
+      var prev=hist[i-1].rates[f]||0, cur=h.rates[f]||0;
+      return prev? ((cur-prev)/prev*100) : 0;
+    });
+  });
+  var allv=[]; series.forEach(function(a){ a.forEach(function(v){ allv.push(v); }); });
+  var maxv=Math.max(2, Math.ceil(Math.max.apply(null,allv))); var minv=Math.min(0, Math.floor(Math.min.apply(null,allv)));
+  function x(i){ return pad + i*(W-2*pad)/(hist.length-1); }
+  function y(v){ return H-pad - ((v-minv)/(maxv-minv))*(H-2*pad); }
+  var g='';
+  for(var gv=minv; gv<=maxv; gv+=Math.max(1,Math.round((maxv-minv)/4))){
+    g+='<line x1="'+pad+'" y1="'+y(gv)+'" x2="'+(W-pad)+'" y2="'+y(gv)+'" stroke="'+(gv===0?'#B8B0A2':'#E7E1D7')+'" stroke-width="'+(gv===0?1.5:1)+'"/><text x="'+(pad-6)+'" y="'+(y(gv)+4)+'" text-anchor="end" fill="#5F5B54" font-size="11" font-family="Archivo">'+(gv>0?'+':'')+gv+'%</text>';
+  }
+  focus.forEach(function(f,fi){
+    var pts=series[fi].map(function(v,i){ return x(i)+','+y(v); }).join(' ');
+    g+='<polyline points="'+pts+'" fill="none" stroke="'+colors[f]+'" stroke-width="2.5" stroke-linejoin="round"/>';
+    series[fi].forEach(function(v,i){ g+='<circle class="tpt" data-f="'+f+'" data-d="'+hist[i].date+'" data-v="'+v.toFixed(1)+'" data-lvl="'+(hist[i].rates[f]||0)+'" cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="'+colors[f]+'" style="cursor:pointer"/>'; });
+  });
+  hist.forEach(function(h,i){ g+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle" fill="#5F5B54" font-size="11" font-family="Archivo">'+h.date+'</text>'; });
+  g+='<text x="'+pad+'" y="16" font-size="10.5" fill="#5F5B54" font-family="Archivo" letter-spacing="0.08em">CHANGE IN BLOCK RATE VS PREVIOUS EDITION</text>';
+  svg.innerHTML=g;
+  document.getElementById('trend-legend').innerHTML = focus.map(function(f){ return '<span><b style="background:'+colors[f]+'"></b>'+f+'</span>'; }).join('');
+  // tooltip
+  var tip=document.getElementById('trend-tip');
+  svg.querySelectorAll('.tpt').forEach(function(c){
+    c.addEventListener('mouseenter', function(e){
+      tip.style.display='block';
+      tip.innerHTML='<b>'+c.dataset.f+'</b> &middot; '+c.dataset.d+'<br>'+c.dataset.lvl+'% blocked ('+(c.dataset.v>=0?'+':'')+c.dataset.v+'% vs prev)';
+    });
+    c.addEventListener('mousemove', function(e){
+      var r=svg.getBoundingClientRect();
+      tip.style.left=(e.clientX - r.left + 12)+'px'; tip.style.top=(e.clientY - r.top - 10)+'px';
+    });
+    c.addEventListener('mouseleave', function(){ tip.style.display='none'; });
+  });
+})();
+
+
+</script>
+
+<script id="v2-loader">
+// Homepage v2 sections read the published feed, so they refresh with each edition.
+(function(){
+  var n = function(x){ return Number(x).toLocaleString(); };
+  var row = function(label, value, note){
+    return '<div style="display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid var(--line)">' +
+      '<span style="min-width:0">' + label + (note ? '<br><span style="font-size:11.5px;color:var(--dim)">' + note + '</span>' : '') + '</span>' +
+      '<span style="font-family:var(--mono,ui-monospace,monospace);white-space:nowrap;font-weight:600">' + value + '</span></div>';
+  };
+  fetch("/index.json", {cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+    var set = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+    if (d.coverage) { set("v2-parsed", n(d.coverage.robots_parsed)); set("v2-frame", n(d.coverage.tranco_top_n)); }
+
+    var F = d.frame_provenance, fp = document.getElementById("v2-frameprov");
+    if (F && fp) fp.innerHTML = "Frame: <b>" + F.name + "</b> — a custom " + F.source + " list (" +
+      F.inputs.join(" + ") + "), deliberately excluding " + F.excluded_inputs.join(" and ") +
+      " so no non-commercial or share-alike source sits under a dataset we sell. " +
+      '<a href="' + F.permalink + '" rel="noopener">Permalink</a> · <a href="/methodology">method</a>.';
+
+    /* --- dv-render: the four homepage sections, drawn the way the dashboard
+       draws them. Every number is read from the feed above. ------------- */
+    var APP = "https://app.crawlpriceindex.com/dashboard.html";
+    var esc = function(x){ return String(x).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); };
+    // adaptive: keeps significant digits as the share gets small, so the
+    // participation figure (23 of 50,000) reads 0.046% and not 0.0%
+    var pctS = function(x, of){
+      if (!of) return "0";
+      var v = x / of * 100;
+      return v >= 1 ? v.toFixed(1) : v >= 0.1 ? v.toFixed(2) : v.toFixed(3);
+    };
+    var pct1 = pctS;
+
+    var head = function(title, hash, linkText){
+      return '<div class="dvh"><b>' + title + '</b>' +
+        (hash ? '<a href="' + APP + '#' + hash + '">' + linkText + ' &rarr;</a>' : '') + '</div>';
+    };
+    // one ladder row: label, value, and a bar on a scale the caller controls
+    var bar = function(o){
+      return '<div class="dvr' + (o.sub ? ' dvsub' : '') + '">' +
+        '<span class="dvk">' + o.k + (o.note ? '<small>' + o.note + '</small>' : '') + '</span>' +
+        '<span class="dvv">' + o.v + '</span>' +
+        '<span class="dvt"><i class="' + (o.tone || '') + '" style="width:' +
+          Math.max(0, Math.min(100, o.pct)).toFixed(2) + '%"></i></span></div>';
+    };
+    var stack = function(parts){
+      var tot = parts.reduce(function(x, p){ return x + p.n; }, 0) || 1;
+      return '<div class="dvstack">' + parts.map(function(p){
+          return '<i style="width:' + (p.n / tot * 100).toFixed(3) + '%;background:' + p.c + '"></i>';
+        }).join('') + '</div><div class="dvkey">' + parts.map(function(p){
+          return '<span><b style="background:' + p.c + '"></b>' + p.k +
+            ' <em>' + n(p.n) + '</em> <span style="color:var(--dim)">&middot; ' + pct1(p.n, tot) + '%</span></span>';
+        }).join('') + '</div>';
+    };
+
+    /* ---- 2. Training versus traffic ---------------------------------- */
+    // role and vendor labels, copied from compute-dashboard.cjs. Labels only:
+    // they describe a crawler's stated function, never a company's behaviour.
+    var META = {
+      "GPTBot":["OpenAI","training"], "OAI-SearchBot":["OpenAI","search"], "ChatGPT-User":["OpenAI","user-initiated"],
+      "ClaudeBot":["Anthropic","training"], "Claude-Web":["Anthropic","user-initiated"], "anthropic-ai":["Anthropic","training"],
+      "PerplexityBot":["Perplexity","search"], "Perplexity-User":["Perplexity","user-initiated"],
+      "Google-Extended":["Google","training"], "CCBot":["Common Crawl","training"],
+      "Bytespider":["ByteDance","training"], "Amazonbot":["Amazon","search"],
+      "Applebot-Extended":["Apple","training"], "meta-externalagent":["Meta","training"],
+      "cohere-ai":["Cohere","training"], "AI2Bot":["AI2","training"],
+      "Timpibot":["Timpi","training"], "Diffbot":["Diffbot","training"]
+    };
+    var median = function(xs){
+      if (!xs.length) return 0;
+      var v = xs.slice().sort(function(p, q){ return p - q; }), m = v.length >> 1;
+      return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+    };
+
+
+    /* --- 03 This week: the headline figures, said in words first --------- */
+    var tw = document.getElementById("v3-twk");
+    if (tw && d.block_rates && d.asymmetry_headline && d.changes_headline) {
+      var gpt = d.block_rates.pct && d.block_rates.pct.GPTBot;
+      var A = d.asymmetry_headline, C = d.changes_headline;
+      var card = function (fig, head, body) {
+        return '<div class="twkc"><div class="twkf">' + fig + '</div>' +
+          '<div class="twkh">' + head + '</div><div class="twkb">' + body + '</div></div>';
+      };
+      tw.innerHTML =
+        card(gpt != null ? gpt + "%" : "&mdash;",
+             "of sites refuse OpenAI&rsquo;s training crawler",
+             "Out of " + n(A.denominator) + " domains that serve a readable robots.txt. The most-refused crawler we track, and the one most people have heard of.") +
+        card(A.ratio + " : 1",
+             "they say no to training far more than to search",
+             n(A.blocks_training_role_only) + " domains block a training crawler while blocking no search crawler. Only " + n(A.blocks_search_role_only) + " do the reverse. Sites are not anti-robot; they are drawing a line about what the robot is for.") +
+        card(n(C.total),
+             "policy edits since the last edition",
+             "Across " + n(C.domains_changed) + " domains, " + n(C.more_restrictive) + " toward refusal and " + n(C.less_restrictive) + " away from it. A week that is not measured cannot be reconstructed later.");
+    }
+
+    var A = d.asymmetry_headline, ae = document.getElementById("v2-asym");
+    if (A && ae) {
+      var top = Math.max(A.blocks_training_role_only, A.blocks_search_role_only) || 1;
+      var left = '<div class="dv">' + head("The asymmetry", "crawlers", "Crawlers tab") +
+        '<div class="dvbig">' + A.ratio + ' : 1</div>' +
+        '<div class="dvbigl">Domains that draw a line between the two roles draw it against <b>training</b> this many times more often.</div>' +
+        '<div style="margin-top:12px">' +
+        bar({ k: 'Blocks a <b>training</b> crawler,<br>and no search crawler', v: n(A.blocks_training_role_only),
+              pct: A.blocks_training_role_only / top * 100, tone: 'a' }) +
+        bar({ k: 'Blocks a <b>search</b> crawler,<br>and no training crawler', v: n(A.blocks_search_role_only),
+              pct: A.blocks_search_role_only / top * 100, tone: 'b' }) +
+        '</div>' +
+        '<div class="dvf">Both bars on one scale, so the sliver is the finding. Of ' + n(A.denominator) +
+        ' domains serving a readable robots.txt.</div></div>';
+
+      var rates = (d.block_rates && d.block_rates.pct) || {};
+      var byRole = { "training": [], "search": [], "user-initiated": [] };
+      Object.keys(rates).forEach(function(c){
+        var m = META[c]; if (m && byRole[m[1]]) byRole[m[1]].push(rates[c]);
+      });
+      var roleRows = [
+        { k: "Training", r: "training", tone: "a", d: "ingests the page to train a model" },
+        { k: "Search", r: "search", tone: "b", d: "indexes it, and may send a reader back" },
+        { k: "User-initiated", r: "user-initiated", tone: "n", d: "fetches it because a person asked" }
+      ].filter(function(x){ return byRole[x.r].length; });
+      var roleMax = Math.max.apply(null, roleRows.map(function(x){ return median(byRole[x.r]); }).concat([1]));
+
+      // vendors that field BOTH a training and a non-training crawler: the
+      // comparison that controls for who is doing the crawling
+      var vend = {};
+      Object.keys(rates).forEach(function(c){
+        var m = META[c]; if (!m) return;
+        (vend[m[0]] = vend[m[0]] || []).push({ c: c, role: m[1], v: rates[c] });
+      });
+      var pairs = Object.keys(vend).filter(function(v){
+        var g = vend[v];
+        return g.some(function(x){ return x.role === "training"; }) &&
+               g.some(function(x){ return x.role !== "training"; });
+      }).sort(function(p, q){
+        var mx = function(g){ return Math.max.apply(null, vend[g].map(function(x){ return x.v; })); };
+        return mx(q) - mx(p);
+      });
+      var vmax = Math.max.apply(null, Object.keys(rates).map(function(c){ return rates[c]; }).concat([1]));
+      var mean = function(xs){ return xs.reduce(function(p, q){ return p + q; }, 0) / (xs.length || 1); };
+
+      // card 2 — the same question asked of every crawler we track
+      var mid = '<div class="dv">' + head("The gap, by role", "crawlers", "Crawlers tab") +
+        '<div style="font-size:12.5px;color:var(--dim);margin-bottom:6px">Median share of domains disallowing each crawler, grouped by what that crawler is for: <b>training</b> a model, <b>indexing</b> for search, or <b>fetching</b> because a person asked.</div>' +
+        roleRows.map(function(x){
+          var m = median(byRole[x.r]);
+          return bar({ k: x.k + ' <span style="color:var(--dim);font-size:11.5px">&middot; ' + byRole[x.r].length + ' crawlers</span>',
+                       v: m.toFixed(1) + "%", pct: m / roleMax * 100, tone: x.tone });
+        }).join('') +
+        '<div class="dvf">Median rather than mean, so one unusually walled crawler cannot carry a whole role.</div></div>';
+
+      var right = '<div class="dv">' + head("Vendor held constant", "crawlers", "Crawlers tab") +
+        '<div style="font-size:12.5px;color:var(--dim);margin-bottom:4px">The same robots.txt files, asked about two crawlers from the <em>same</em> company. Whatever a site thinks of the vendor is held constant; only the crawler&rsquo;s role changes.</div>' +
+        pairs.map(function(v){
+          var g = vend[v].slice().sort(function(p, q){ return q.v - p.v; });
+          var tr = g.filter(function(x){ return x.role === "training"; });
+          var ot = g.filter(function(x){ return x.role !== "training"; });
+          var ratio = mean(ot.map(function(x){ return x.v; })) ?
+            (mean(tr.map(function(x){ return x.v; })) / mean(ot.map(function(x){ return x.v; }))).toFixed(1) : null;
+          return '<div class="dvg"><div class="dvgh"><b>' + esc(v) + '</b>' +
+            (ratio ? '<em>' + ratio + '&times; harder on training</em>' : '') + '</div>' +
+            g.map(function(x){
+              return '<div class="dvp"><span class="pk">' + esc(x.c) + '</span>' +
+                '<span class="pt"><i class="' + (x.role === "training" ? "" : "b") +
+                  '" style="width:' + (x.v / vmax * 100).toFixed(1) + '%;background:' +
+                  (x.role === "training" ? "var(--amber)" : "var(--blue)") + '"></i></span>' +
+                '<span class="pv">' + x.v.toFixed(1) + '%</span></div>';
+            }).join('') + '</div>';
+        }).join('') +
+        '<div class="dvf">Share of domains with a readable robots.txt that disallow each named crawler. Role tags are labels for a crawler&rsquo;s stated function &mdash; not a claim about any company.</div></div>';
+
+      ae.innerHTML = left + mid + right;
+    }
+
+    /* ---- 3. What changed this week ----------------------------------- */
+    // "2026-08-15 -> 2026-08-17" is a machine string; show it as dates
+    var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    var dshort = function(iso){
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso).trim());
+      return m ? (+m[3]) + " " + MON[+m[2] - 1] : iso;
+    };
+    var interval = function(raw){
+      var p = String(raw).split(/\s*->\s*/);
+      return p.length === 2 ? dshort(p[0]) + " &rarr; " + dshort(p[1]) : esc(raw);
+    };
+    var C = d.changes_headline, ce = document.getElementById("v2-changes");
+    if (C && ce) {
+      var cmax = Math.max(C.more_restrictive, C.less_restrictive) || 1;
+      ce.innerHTML = '<div class="dv">' + head("Policy changes &middot; " + interval(C.interval), "changes", "Policy changes tab") +
+        '<div class="dvdl"><span>&larr; Away from restriction<b>' + n(C.less_restrictive) + '</b></span>' +
+        '<span class="rt">Toward restriction &rarr;<b>' + n(C.more_restrictive) + '</b></span></div>' +
+        '<div class="dvdiv"><i class="l" style="width:' + (C.less_restrictive / cmax * 50).toFixed(2) + '%"></i>' +
+        '<i class="r" style="width:' + (C.more_restrictive / cmax * 50).toFixed(2) + '%"></i>' +
+        '<span class="dvax"></span></div>' +
+        '<div style="margin-top:10px">' +
+        bar({ k: 'of the ' + n(C.less_restrictive) + ' that loosened, moved <b>off</b> an explicit block',
+              v: n(C.moved_off_a_block), pct: C.moved_off_a_block / (C.less_restrictive || 1) * 100,
+              tone: 'b', sub: true,
+              note: 'deliberate edits &mdash; the highest-signal rows in the file' }) +
+        '</div>' +
+        '<div class="dvpair" style="margin-top:14px">' +
+        '<div class="pc"><div class="pn">' + n(C.total) + '</div><div class="pl">domain&times;crawler edits</div></div>' +
+        '<div class="pc"><div class="pn">' + n(C.domains_changed) + '</div><div class="pl">separate domains behind them</div></div>' +
+        '</div>' +
+        '<div class="dvf">Both directions on one scale, either side of a common axis. A domain can move both ways at once &mdash; loosening for one crawler while tightening for another &mdash; which is why there are more edits than domains.</div></div>';
+    }
+
+    /* ---- 4. Declared versus enforced --------------------------------- */
+    var R = d.reachability_headline, re = document.getElementById("v2-reach");
+    if (R && re) {
+      var other = Math.max(0, R.frame - R.alive - R.dead_dns - R.timeout);
+      re.innerHTML = '<div class="dv">' + head("Frame reachability &middot; " + n(R.frame) + " domains", "detail", "Full detail tab") +
+        stack([
+          { k: "Answered", n: R.alive, c: "var(--signal)" },
+          { k: "Timed out", n: R.timeout, c: "var(--amber)" },
+          { k: "Name gone", n: R.dead_dns, c: "#B8B0A2" },
+          { k: "Other", n: other, c: "#E0DACF" }
+        ]) +
+        '<div style="margin-top:12px">' +
+        bar({ k: 'of the ' + n(R.alive) + ' that answered, served robots.txt <b>then refused</b> an identified crawler at the homepage',
+              v: n(R.bot_walled), pct: R.bot_walled / (R.alive || 1) * 100, tone: 'r', sub: true,
+              note: 'declared policy and enforced access diverging &mdash; ' + pct1(R.bot_walled, R.alive) + '% of the domains that answered' }) +
+        bar({ k: 'Disallow our crawler &mdash; we obey', v: n(R.disallowed_our_crawler),
+              pct: R.disallowed_our_crawler / R.frame * 100, tone: 'n',
+              note: 'excluded by their own instruction, ' + pct1(R.disallowed_our_crawler, R.frame) + '% of the frame' }) +
+        '</div>' +
+        '<div class="dvf">' + pct1(R.dead_dns + R.timeout, R.frame) +
+        '% of the ranked frame never answered at all &mdash; which is why the block rates on this page are quoted against the domains that did.</div></div>';
+    }
+
+    /* ---- 5. The machine market --------------------------------------- */
+    var B = d.bazaar_headline, be = document.getElementById("v2-bazaar");
+    if (B && be) {
+      var TY = B.by_type || {};
+      var lbl = { api: "Developer APIs", content: "Content", mcp: "MCP tools" };
+      var col = { api: "var(--blue)", content: "var(--signal)", mcp: "var(--amber)" };
+      var parts = Object.keys(TY).sort(function(p, q){ return TY[q] - TY[p]; })
+        .map(function(k){ return { k: lbl[k] || k, n: TY[k], c: col[k] || "#B8B0A2" }; });
+
+      var bleft = '<div class="dv">' + head("What the market is made of", "bazaar", "The Bazaar tab") +
+        '<div style="font-size:12.5px;color:var(--dim);margin-bottom:9px">' + n(B.endpoints_real_priced) +
+        ' endpoints advertising a machine-payable price, across ' + n(B.distinct_pay_to_addresses) +
+        ' distinct pay-to addresses.</div>' +
+        stack(parts) +
+        '<div class="dvpair" style="margin-top:12px">' +
+        '<div class="pc"><div class="pn">' + B.rail_share_pct + '%</div><div class="pl">on a single rail</div></div>' +
+        '<div class="pc"><div class="pn">' + B.asset_usdc_share_pct + '%</div><div class="pl">settled in one stablecoin</div></div>' +
+        '</div>' +
+        '<div class="dvf">Endpoint type is the registry&rsquo;s own declaration. &ldquo;Content&rdquo; here still means machine-readable feeds and datasets far more often than it means a page a person would read.</div></div>';
+
+      var obsRaw = (d.observed_prices_headline && d.observed_prices_headline[0] && d.observed_prices_headline[0].raw) || "";
+      var obsNum = parseFloat((obsRaw.match(/([0-9]*\.?[0-9]+)\s*$/) || [])[1]);
+      var pmax = Math.max(B.median_advertised_usd, obsNum || 0) || 1;
+
+      var bright = '<div class="dv">' + head("The price, and who is in it", "bazaar", "The Bazaar tab") +
+        (obsNum ? bar({ k: 'Highest posted per-crawl price on the <b>human</b> web',
+                        v: "$" + obsNum.toFixed(2), pct: obsNum / pmax * 100, tone: 'a',
+                        note: esc(String(obsRaw).split(":")[0]) + ' &mdash; the only posted price in our hand-probed exhibit set' }) : '') +
+        bar({ k: 'Median ask in the <b>machine</b> market', v: "$" + B.median_advertised_usd,
+              pct: B.median_advertised_usd / pmax * 100, tone: 'b',
+              note: 'across ' + n(B.endpoints_real_priced) + ' priced endpoints' }) +
+        bar({ k: 'Of our ' + n(R && R.frame ? R.frame : 50000) + ' ranked domains, how many take part',
+              v: n(B.in_frame_domains), pct: 1.2, tone: '',
+              note: pct1(B.in_frame_domains, (R && R.frame) || 50000) + '% of the frame &mdash; bar drawn at minimum width, the true share is too small to see' }) +
+        (B.in_frame_content != null ? bar({ k: 'of those, serving <b>content</b> rather than an API',
+              v: n(B.in_frame_content), pct: B.in_frame_content / (B.in_frame_domains || 1) * 100,
+              tone: '', sub: true }) : '') +
+        '<div class="dvf">Two different mechanisms, and the gap is the point: machines have a working market with a going rate, and it barely touches the web people read. Different rail from Cloudflare pay-per-crawl, though both return HTTP 402.</div></div>';
+
+      be.innerHTML = bleft + bright;
+    }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

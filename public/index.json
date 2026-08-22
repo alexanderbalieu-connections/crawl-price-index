@@ -7,47 +7,124 @@
     "tranco_top_n": 50000,
     "robots_parsed": 27975
   },
-  "block_rates_top2000": {
-    "GPTBot": 15.2,
-    "CCBot": 14.8,
-    "Bytespider": 14.2,
-    "ClaudeBot": 13.4,
-    "Google-Extended": 12.2,
-    "meta-externalagent": 11.9,
-    "Amazonbot": 11.9,
-    "Applebot-Extended": 11.5,
-    "anthropic-ai": 5.6,
-    "PerplexityBot": 5,
-    "cohere-ai": 4.9,
-    "Diffbot": 4.9,
-    "ChatGPT-User": 4.7,
-    "Claude-Web": 4.4,
-    "Timpibot": 3.5,
-    "OAI-SearchBot": 3,
-    "AI2Bot": 2.5,
-    "Perplexity-User": 2
+  "block_rates": {
+    "basis": "domains with a readable robots.txt across the whole Tranco frame",
+    "denominator": 27975,
+    "frame": 50000,
+    "pct": {
+      "GPTBot": 15.2,
+      "CCBot": 14.8,
+      "Bytespider": 14.2,
+      "ClaudeBot": 13.4,
+      "Google-Extended": 12.2,
+      "meta-externalagent": 11.9,
+      "Amazonbot": 11.9,
+      "Applebot-Extended": 11.5,
+      "anthropic-ai": 5.6,
+      "PerplexityBot": 5,
+      "cohere-ai": 4.9,
+      "Diffbot": 4.9,
+      "ChatGPT-User": 4.7,
+      "Claude-Web": 4.4,
+      "Timpibot": 3.5,
+      "OAI-SearchBot": 3,
+      "AI2Bot": 2.5,
+      "Perplexity-User": 2
+    }
   },
   "observed_prices_headline": [
     {
       "raw": "stackoverflow.com: USD 0.5"
     }
   ],
+  "asymmetry_headline": {
+    "basis": "domains with a readable robots.txt in the current frame",
+    "denominator": 27975,
+    "blocks_training_role_only": 1571,
+    "blocks_search_role_only": 106,
+    "ratio": 14.8,
+    "note": "Role tags describe the crawler's stated function. Declared robots.txt policy only; not evidence of intent or of access actually denied."
+  },
+  "changes_headline": {
+    "interval": "2026-08-15 -> 2026-08-17",
+    "total": 161,
+    "domains_changed": 27,
+    "more_restrictive": 92,
+    "less_restrictive": 69,
+    "moved_off_a_block": 46,
+    "note": "One edition-over-edition comparison, not a trend. Domains entering or leaving the frame are excluded so frame churn is never counted as a policy change."
+  },
+  "reachability_headline": {
+    "frame": 50000,
+    "alive": 40272,
+    "dead_dns": 6318,
+    "timeout": 3046,
+    "bot_walled": 4902,
+    "disallowed_our_crawler": 1286,
+    "note": "Reachability of the ranked frame itself. bot_walled = serves robots.txt but refuses an identified crawler at the homepage (403/429): a declared-versus-enforced divergence, not a robots.txt policy."
+  },
+  "site_evidence_headline": {
+    "frame": 50000,
+    "has_ads_txt": 9637,
+    "platform_fingerprint": 7515,
+    "has_feed": 4498,
+    "schema_org_types": 10326,
+    "note": "Counts of self-declared, publicly served signals observed on each domain's own homepage. Observations, not classifications."
+  },
+  "bazaar_headline": {
+    "date": "2026-08-20",
+    "endpoints_real_priced": 14771,
+    "distinct_pay_to_addresses": 1150,
+    "median_advertised_usd": 0.01,
+    "by_type": {
+      "api": 8456,
+      "content": 5259,
+      "mcp": 1056
+    },
+    "rail_share_pct": 97.6,
+    "asset_usdc_share_pct": 99.9,
+    "in_frame_domains": 23,
+    "in_frame_content": 10,
+    "blocks_crawlers_yet_sells": 1,
+    "note": "Advertised, opt-in acceptance in a public machine-payment registry (x402). Never transactions, volume or revenue. Distinct from Cloudflare pay-per-crawl, which is a different rail that also returns HTTP 402."
+  },
+  "frame_provenance": {
+    "name": "CPI-50K v1",
+    "source": "Tranco",
+    "list_id": "Y8V2G",
+    "permalink": "https://tranco-list.eu/list/Y8V2G",
+    "inputs": [
+      "Cisco Umbrella",
+      "Majestic"
+    ],
+    "excluded_inputs": [
+      "Cloudflare Radar (CC BY-NC 4.0)",
+      "Chrome UX Report (CrUX) (CC BY-SA 4.0)"
+    ],
+    "excluded_rows": 167,
+    "attribution": "Tranco (Le Pochat et al., NDSS 2019), custom list Y8V2G; ranking inputs Cisco Umbrella and Majestic (Majestic data CC BY 3.0)."
+  },
   "signal_classes_observed": 6,
-  "country_headline": {
+  "suffix_group_headline": {
+    "basis": "domains with a readable robots.txt, grouped by domain suffix",
+    "caveat": "A ccTLD is a domain-suffix classification, not a country. It does not indicate operator location, ownership, audience or hosting.",
     "most_blocking": {
-      "country": "Norway",
-      "any_ai_block_pct": 37,
-      "n": 54
+      "cctld": ".co.uk",
+      "any_ai_block_pct": 42.1,
+      "n": 261
     },
     "least_blocking": {
-      "country": "China",
+      "cctld": ".cn",
       "any_ai_block_pct": 4,
       "n": 149
     }
   },
-  "enforcement_headline": {
-    "declared_blocks_enforced_pct": 46.2,
-    "panel_checks": 118
+  "probe_panel_observations": {
+    "checks": 118,
+    "declared_block_and_refused": 24,
+    "declared_block_and_served": 28,
+    "no_declared_block_and_refused": 23,
+    "note": "Probe-panel counts, never a rate. Declared = robots.txt directive we had already read. Refused = our identified crawler received 4xx/5xx. robots.txt is advisory, so 'declared block, page served' is protocol-normal behaviour and not a failure to comply. Says nothing about how any other crawler behaves — we have no crawler-side logs."
   },
   "tdmrep_headline": {
     "adoption_pct": 2.45,
@@ -55,7 +132,7 @@
   },
   "methodology_version": "2026-08-10.1",
   "freshness": {
-    "sweep_at": "2026-08-17T23:26:13.723Z",
+    "sweep_at": "2026-08-21T09:03:20.504Z",
     "rows_with_reading": 28011,
     "rows_without_reading": 22026,
     "note": "observed=no means the domain did not yield a robots.txt reading in this sweep. Rates are computed over rows_with_reading only."
@@ -69,15 +146,15 @@
     ],
     "derived": [
       "block rates",
-      "country editions",
-      "trends"
+      "suffix-group cuts",
+      "edition-over-edition comparisons"
     ],
     "inferred": [
       "suggested price bands (checker only)"
     ],
     "full_model": "https://api.crawlpriceindex.com/v1/methodology"
   },
-  "full_dataset": "gated — subscribe at https://crawlpriceindex.com/#access ; API at https://api.crawlpriceindex.com/v1/dataset",
-  "terms": "Headline figures free to cite with attribution. Full per-domain data, complete country editions, and weekly history require a Terminal subscription.",
+  "full_dataset": "gated — subscribe at https://app.crawlpriceindex.com/dashboard.html#account",
+  "terms": "Headline figures free to cite with attribution. Full per-domain data, suffix-group detail and weekly history require a subscription.",
   "license": "Headline figures CC-BY-4.0. Full dataset is licensed single-subscriber, redistribution prohibited."
 }

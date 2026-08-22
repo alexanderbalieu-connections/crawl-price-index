@@ -98,7 +98,7 @@ async function recoverKey(request, env, cors) {
 // ---- serve the gated dataset ----------------------------------------------
 async function serveDataset(request, env, url, cors) {
   const key = url.searchParams.get("key") || bearer(request);
-  if (!key) return new Response(JSON.stringify({ error: "payment required", subscribe: "https://crawlpriceindex.com/#access", crawler_price: "USD 20.00 per crawl - one weekly edition, priced at parity with the EUR 79/mo Terminal subscription", licence: "single-subscriber, redistribution prohibited, responses watermarked", terms: "https://crawlpriceindex.com/rsl.xml", ...crawlOffer(env) }), { status: 402, headers: { "Content-Type": "application/json", "crawler-price": "USD 20.00", "payment": "https://crawlpriceindex.com/#access", ...cors } });
+  if (!key) return new Response(JSON.stringify({ error: "payment required", subscribe: "https://app.crawlpriceindex.com", crawler_price: "USD 20.00 per crawl - one weekly edition, the EUR 49/mo Terminal subscription covers the full weekly dataset", licence: "single-subscriber, redistribution prohibited, responses watermarked", terms: "https://crawlpriceindex.com/rsl.xml", ...crawlOffer(env) }), { status: 402, headers: { "Content-Type": "application/json", "crawler-price": "USD 20.00", "payment": "https://app.crawlpriceindex.com", ...cors } });
 
   const rec = await env.KEYS.get(key, "json");
   if (!rec) return json({ error: "invalid key" }, 401, cors);
@@ -267,7 +267,7 @@ async function checkDomain(url, env, cors) {
 
 // ---- machine access: pay on-chain, redeem for a one-edition snapshot pass
 const CRAWL_PRICE_USDC = 20;                                    // default when CRAWL_PRICE_USDC is unset
-function crawlPrice(env) { const v = parseFloat(env.CRAWL_PRICE_USDC); return v > 0 ? v : CRAWL_PRICE_USDC; }                                    // parity: EUR 79/mo over ~4 weekly editions
+function crawlPrice(env) { const v = parseFloat(env.CRAWL_PRICE_USDC); return v > 0 ? v : CRAWL_PRICE_USDC; }                                    // machine per-crawl price; Terminal is EUR 49/mo for the full dataset
 const USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"; // USDC on Base
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 function payToAddr(env) { return String(env.X402_PAY_TO || "").toLowerCase(); }
@@ -344,7 +344,7 @@ async function redeemCrawl(url, env, cors) {
   const rec = { customer: "x402:" + tx.slice(0, 18), scope: "snapshot", status: "active", created: new Date().toISOString(), expires, month: new Date().toISOString().slice(0, 7), count: 0, emailed: true, paid_usdc: Number(paid) / 1e6 };
   await env.KEYS.put(key, JSON.stringify(rec));
   await env.KEYS.put("tx:" + tx, key, { expirationTtl: 2592000 });
-  return json({ key, scope: "snapshot", expires_utc: new Date(expires).toISOString(), pass_days: 7, dataset: "https://api.crawlpriceindex.com/v1/dataset?key=" + key, note: "This pass serves the current weekly edition. Trends, history, country editions and the movers feed are subscriber-only: https://crawlpriceindex.com/#access" }, 200, cors);
+  return json({ key, scope: "snapshot", expires_utc: new Date(expires).toISOString(), pass_days: 7, dataset: "https://api.crawlpriceindex.com/v1/dataset?key=" + key, note: "This pass serves the current weekly edition. Trends, history, country editions and the movers feed are subscriber-only: https://app.crawlpriceindex.com" }, 200, cors);
 }
 
 // ---- provenance: how we measure, machine-readable ------------------------
@@ -393,10 +393,10 @@ async function addWatch(request, env, cors) {
   const cUrl = "https://api.crawlpriceindex.com/v1/watch/confirm?e=" + encodeURIComponent(email) + "&d=" + encodeURIComponent(domain) + "&t=" + t;
   const xUrl = "https://api.crawlpriceindex.com/v1/watch/stop?e=" + encodeURIComponent(email) + "&d=" + encodeURIComponent(domain) + "&t=" + t;
   const txt = "Confirm alerts for " + domain + ".\n\nWe scan the web weekly. If any AI crawler's access to " + domain + " changes - a new block, an unblock, a price or paywall appearing - you get one email naming exactly what changed.\n\nConfirm: " + cUrl + "\n\nNot you? " + xUrl;
-  const htm = brandCard("<p style=\"margin:0 0 6px\"><b>Confirm alerts for " + domain + "</b></p>"
-    + "<p style=\"margin:0\">We scan the web every week. If any AI crawler&#39;s access to this domain changes &mdash; a new block, an unblock, a price or a paywall appearing &mdash; you get one email naming exactly what changed.</p>"
+  const htm = brandCard("<h1 style=\"margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:24px;line-height:1.15;color:#0d2b23\">Confirm alerts for " + domain + "</h1>"
+    + "<p style=\"margin:0\">We scan the web every week. If any AI crawler&rsquo;s access to this domain changes &mdash; a new block, an unblock, a price or a paywall appearing &mdash; you get one email naming exactly what changed.</p>"
     + btn(cUrl, "Confirm alerts")
-    + "<p style=\"font-size:11.5px;color:#6b787d;margin:0\">Not you? <a href=\"" + xUrl + "\" style=\"color:#6b787d\">Cancel this request</a>.</p>");
+    + "<p style=\"font-size:11.5px;color:#6b6152;margin:0\">Not you? <a href=\"" + xUrl + "\" style=\"color:#6b6152\">Cancel this request</a>.</p>");
   try { await sendListEmail(env, email, "Confirm alerts for " + domain, txt, htm); }
   catch (e) { console.error("watch confirm email FAILED", String(e)); }
   return json({ message: "Check your inbox to confirm alerts for " + domain + "." }, 200, cors);
@@ -476,19 +476,22 @@ async function subToken(env, email) {
   return [...new Uint8Array(m)].map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
 }
 function subPage(title, msg) {
-  const h = '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#0b0d0e;color:#d7dee1;font-family:ui-monospace,Menlo,monospace;display:flex;min-height:100vh;align-items:center;justify-content:center"><div style="max-width:480px;padding:32px;text-align:center"><div style="color:#3cf08a;font-size:13px;letter-spacing:.2em;text-transform:uppercase">The Crawl Price Index</div><h1 style="color:#f2f6f7;font-size:22px;margin:18px 0 10px">' + title + '</h1><p style="font-size:14px;line-height:1.6">' + msg + '</p><p style="margin-top:22px"><a href="https://crawlpriceindex.com" style="color:#3cf08a">&larr; crawlpriceindex.com</a></p></div>';
+  const h = '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#f5f1e8;color:#28352f;font-family:-apple-system,Segoe UI,Roboto,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center"><div style="max-width:480px;padding:32px;text-align:center"><div style="color:#1c5d4a;font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase">Crawl Price Index</div><h1 style="color:#0d2b23;font-family:Georgia,\'Times New Roman\',serif;font-weight:400;font-size:26px;margin:16px 0 10px">' + title + '</h1><p style="font-size:15px;line-height:1.6">' + msg + '</p><p style="margin-top:22px"><a href="https://crawlpriceindex.com" style="color:#1c5d4a">&larr; crawlpriceindex.com</a></p></div>';
   return new Response(h, { headers: { "Content-Type": "text/html;charset=utf-8" } });
 }
+// CPI-branded email shell — matches app/_worker.js mailShell (white bg, deep-green
+// header, gold rule, cream card, serif headline via <h1> in bodyHtml, mono labels).
 function brandCard(bodyHtml) {
-  return '<div style="background:#eef2f0;padding:24px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">'
-    + '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #dde4e1">'
-    + '<tr><td style="background:#0b0d0e;padding:18px 28px"><div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.22em;color:#3cf08a">THE WEEKLY CRAWL</div>'
-    + '<div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#6b787d;margin-top:4px">what the web charges AI to read it</div></td></tr>'
-    + '<tr><td style="padding:26px 28px;font-family:ui-monospace,Menlo,monospace;font-size:13.5px;color:#0b0d0e;line-height:1.7">' + bodyHtml + '</td></tr>'
-    + '<tr><td style="padding:0 28px 22px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#9aa5a1">The Crawl Price Index &middot; <a href="https://crawlpriceindex.com" style="color:#2e9e5b">crawlpriceindex.com</a></td></tr>'
-    + '</table></td></tr></table></div>';
+  return '<!doctype html><html><body style="margin:0;background:#ffffff;padding:28px 12px">'
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#f5f1e8;border:1px solid #e4dcc7;border-radius:4px;overflow:hidden">'
+    + '<tr><td style="background:#0d2b23;padding:22px 32px;border-bottom:3px solid #c9a24b">'
+    + '<span style="font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#f5f1e8">Crawl&nbsp;Price&nbsp;Index</span></td></tr>'
+    + '<tr><td style="padding:32px;font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;line-height:1.6;color:#28352f">' + bodyHtml + '</td></tr>'
+    + '<tr><td style="padding:20px 32px;background:#eee7d6;border-top:1px solid #ded4bd">'
+    + '<p style="margin:0;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.6;color:#6b6152">The Crawl Price Index &middot; a weekly census of how the top 50,000 domains declare policy toward AI crawlers.<br><a href="https://crawlpriceindex.com" style="color:#1c5d4a">crawlpriceindex.com</a></p></td></tr>'
+    + '</table></body></html>';
 }
-const btn = (href, label) => '<p style="margin:18px 0"><a href="' + href + '" style="display:inline-block;background:#2e9e5b;color:#ffffff;font-family:ui-monospace,Menlo,monospace;font-size:13px;padding:12px 22px;text-decoration:none">' + label + ' &rarr;</a></p>';
+const btn = (href, label) => '<p style="margin:22px 0"><a href="' + href + '" style="display:inline-block;background:#1c5d4a;color:#f5f1e8;font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:.03em;padding:13px 24px;text-decoration:none;border-radius:3px">' + label + ' &rarr;</a></p>';
 
 async function sendListEmail(env, to, subject, text, html) {
   if (!env.RESEND_API_KEY) throw new Error("no RESEND_API_KEY");
@@ -506,19 +509,28 @@ async function subscribe(request, env, cors) {
   if (!email || !email.includes("@") || email.length > 254) return json({ error: "valid email required" }, 400, cors);
   const existing = await env.KEYS.get("sub:" + email, "json");
   if (!existing || existing.status !== "active") {
-    await env.KEYS.put("sub:" + email, JSON.stringify({ status: "pending", created: new Date().toISOString() }), { metadata: { s: "pending" } });
-    const t = await subToken(env, email);
-    const cUrl = "https://api.crawlpriceindex.com/v1/confirm?e=" + encodeURIComponent(email) + "&t=" + t;
-    const xUrl = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + t;
-    const txt = "Confirm your free subscription to The Weekly Crawl.\n\nYou get: an instant free data sample (top-100 domains, full AI-crawler rows) + one email a week with the movers of the crawl economy.\n\nConfirm: " + cUrl + "\n\nNot you? Cancel: " + xUrl;
-    const htm = brandCard('<p style="margin:0 0 6px"><b>One click and you are in.</b></p>'
-      + '<p style="margin:0">Confirming gets you an <b>instant free data sample</b> &mdash; the top-100 domains&#39; complete AI-crawler rows &mdash; plus one email a week with the movers of the crawl economy.</p>'
-      + btn(cUrl, 'Confirm subscription')
-      + '<p style="font-size:11.5px;color:#6b787d;margin:0">If you did not request this, ignore this email or <a href="' + xUrl + '" style="color:#6b787d">cancel the request</a>.</p>');
-    try { await sendListEmail(env, email, "Confirm + get your free data sample", txt, htm); }
-    catch (e) { console.error("confirm email FAILED", String(e)); }
+    // Single opt-in: activate immediately and send one welcome + free-sample email.
+    const now = new Date().toISOString();
+    await env.KEYS.put("sub:" + email, JSON.stringify({ status: "active", created: now, confirmed: now }), { metadata: { s: "active" } });
+    try { await sendWelcomeSample(env, email); }
+    catch (e) { console.error("welcome email FAILED", String(e)); }
   }
-  return json({ message: "Check your inbox to confirm your subscription." }, 200, cors);
+  return json({ message: "You're in — check your inbox for your free sample." }, 200, cors);
+}
+// One branded welcome + free-sample email (used by single opt-in subscribe,
+// and still by the legacy confirm link for any pending signups).
+async function sendWelcomeSample(env, email) {
+  const st = await subToken(env, email);
+  const sUrl = "https://crawlpriceindex.com/sample.html?e=" + encodeURIComponent(email) + "&t=" + st;
+  const uUrl = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + st;
+  const wtxt = "You are in.\n\nYour free sample — the top 100 domains' complete AI-crawler rows, real data from the latest scan:\n" + sUrl + "\n\nEvery week: which domains changed their AI policy, block-rate shifts, observed crawl prices.\n\nFull dataset — every domain, weekly history and the change feed: the Terminal, €49/mo: https://app.crawlpriceindex.com\n\nUnsubscribe: " + uUrl;
+  const whtm = brandCard('<h1 style="margin:0 0 14px;font-family:Georgia,\'Times New Roman\',serif;font-weight:400;font-size:26px;line-height:1.15;color:#0d2b23">You are in.</h1>'
+    + '<p style="margin:0 0 4px">Here is your free sample &mdash; the top-100 domains&rsquo; complete AI-crawler rows, real data from the latest scan.</p>'
+    + btn(sUrl, 'Open your sample')
+    + '<p style="margin:0 0 4px">Every week from here: <b>which domains changed their AI policy</b>, block-rate shifts, and observed crawl prices.</p>'
+    + '<p style="margin:18px 0 0;padding:14px 16px;background:#efe8d7;border-left:3px solid #c9a24b;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.6;color:#6b6152">Want it all &mdash; every domain, weekly history and the change feed? The Terminal is &euro;49/mo: <a href="https://app.crawlpriceindex.com" style="color:#1c5d4a">app.crawlpriceindex.com</a></p>'
+    + '<p style="font-size:11px;margin:14px 0 0"><a href="' + uUrl + '" style="color:#9aa5a1">Unsubscribe anytime</a></p>');
+  await sendListEmail(env, email, "Your free Crawl Price Index sample", wtxt, whtm);
 }
 
 async function confirmSub(url, env) {
@@ -529,20 +541,8 @@ async function confirmSub(url, env) {
   if (!rec) return subPage("Invalid link", "This confirmation link is not valid.");
   rec.status = "active"; rec.confirmed = new Date().toISOString();
   await env.KEYS.put("sub:" + email, JSON.stringify(rec), { metadata: { s: "active" } });
-  // welcome email: instant free sample link (non-fatal)
-  try {
-    const st = await subToken(env, email);
-    const sUrl = "https://crawlpriceindex.com/sample.html?e=" + encodeURIComponent(email) + "&t=" + st;
-    const uUrl = "https://api.crawlpriceindex.com/v1/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + st;
-    const wtxt = "You are in.\n\nYour free sample — the top 100 domains' complete AI-crawler rows, real data from the latest scan:\n" + sUrl + "\n\nEvery week: which domains changed their AI policy, block-rate shifts, observed crawl prices.\n\nFull dataset — every domain, country editions, weekly history: https://crawlpriceindex.com/#access\n\nUnsubscribe: " + uUrl;
-    const whtm = brandCard('<p style="margin:0 0 6px"><b>You are in.</b></p>'
-      + '<p style="margin:0">Here is your free sample &mdash; the top-100 domains&#39; complete AI-crawler rows, real data from the latest scan:</p>'
-      + btn(sUrl, 'Open your sample')
-      + '<p style="margin:0 0 4px">Every week from here: <b>which domains changed their AI policy</b>, block-rate shifts, and observed crawl prices.</p>'
-      + '<p style="font-size:12px;color:#6b787d;margin:10px 0 0">Full dataset &mdash; every domain, country editions, weekly history: <a href="https://crawlpriceindex.com/#access" style="color:#2e9e5b">Terminal, &euro;79/mo</a></p>'
-      + '<p style="font-size:11px;margin:14px 0 0"><a href="' + uUrl + '" style="color:#9aa5a1">Unsubscribe anytime</a></p>');
-    await sendListEmail(env, email, "Your free Crawl Price Index sample", wtxt, whtm);
-  } catch (e) { console.error("welcome email FAILED", String(e)); }
+  try { await sendWelcomeSample(env, email); }   // legacy pending links → same welcome+sample
+  catch (e) { console.error("welcome email FAILED", String(e)); }
   return subPage("You are in.", "The Weekly Crawl lands in your inbox once a week - the headline numbers of what the web charges AI. Unsubscribe anytime from any email.");
 }
 async function unsubscribeSub(url, env) {
@@ -622,18 +622,13 @@ Lost your key later? https://crawlpriceindex.com/recover.html
 
 — The Crawl Price Index`;
 
-  const html =
-`<div style="font-family:ui-monospace,Menlo,monospace;max-width:560px;color:#0b0d0e">
-  <p>Welcome to the <b>Crawl Price Index Terminal</b>.</p>
-  <p style="font-size:12px;color:#6b787d;text-transform:uppercase;letter-spacing:.08em">Your API key</p>
-  <p style="font-size:18px;background:#f3f6f5;border:1px solid #d8dee1;border-radius:6px;padding:12px 14px;word-break:break-all">${key}</p>
-  <p>Full dataset (weekly, with trends & history):<br>
-     <a href="${apiUrl}" style="color:#2e9e5b">${apiUrl}</a></p>
-  <p style="font-size:13px;color:#6b787d">Or send header <code>Authorization: Bearer ${key}</code></p>
-  <p style="font-size:12px;color:#6b787d">Single-subscriber licence — redistribution prohibited &amp; traceable.
-     <a href="https://crawlpriceindex.com/terms.html" style="color:#2e9e5b">Terms</a> ·
-     <a href="https://crawlpriceindex.com/recover.html" style="color:#2e9e5b">Recover key</a></p>
-</div>`;
+  const html = brandCard(
+    '<h1 style="margin:0 0 14px;font-family:Georgia,\'Times New Roman\',serif;font-weight:400;font-size:26px;line-height:1.15;color:#0d2b23">Your API key</h1>'
+    + '<p style="margin:0 0 12px">Here is your Crawl Price Index API key for the full weekly dataset.</p>'
+    + '<p style="font-family:ui-monospace,Menlo,monospace;font-size:15px;background:#efe8d7;border:1px solid #ded4bd;border-radius:4px;padding:12px 14px;word-break:break-all;color:#0d2b23;margin:0 0 16px">' + key + '</p>'
+    + '<p style="margin:0 0 8px">Full dataset (weekly, with trends &amp; history):<br><a href="' + apiUrl + '" style="color:#1c5d4a;word-break:break-all">' + apiUrl + '</a></p>'
+    + '<p style="font-size:13px;color:#6b6152;margin:0 0 8px">Or send header <code>Authorization: Bearer ' + key + '</code></p>'
+    + '<p style="font-size:12px;color:#6b6152;margin:0">Single-subscriber licence &mdash; redistribution prohibited &amp; traceable. <a href="https://crawlpriceindex.com/terms.html" style="color:#1c5d4a">Terms</a> &middot; <a href="https://crawlpriceindex.com/recover.html" style="color:#1c5d4a">Recover key</a></p>');
 
   if (env.RESEND_API_KEY) {
     const r = await fetch("https://api.resend.com/emails", {

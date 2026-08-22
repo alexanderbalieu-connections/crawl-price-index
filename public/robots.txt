@@ -5,13 +5,13 @@
 # ai-input: real-time use as model input for generative answers (RAG, grounding).
 # ai-train: training or fine-tuning AI models.
 # We allow citation and search freely because citation is our distribution.
-# Training use is not granted free: see our pay-per-crawl price above.
+# Training use is not granted free: the price is in the licence below.
 User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Disallow: /index.json
 
-# Our machine-readable feed is available to AI agents via pay-per-crawl.
+# Our machine-readable feed is available to AI agents under the licence below.
 # Contact for licensing / bulk access: hello@crawlpriceindex.com
 Sitemap: https://crawlpriceindex.com/sitemap.xml
 

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World editions — The Crawl Price Index</title>
-<meta name="description" content="AI-crawler block rates by country, from a weekly scan of the Tranco top domains. Which countries gate their web from AI, and which leave it open.">
+<title>Suffix groups — The Crawl Price Index</title>
+<meta name="description" content="AI-crawler block rates grouped by domain suffix, from a weekly scan. A suffix is not a country — and suffix groups differ in rank composition, so read the distribution with the confound, not as a league table.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -16,7 +16,7 @@
   h2{font-size:clamp(24px,3.4vw,34px);font-weight:500;color:var(--bright);margin:0 0 .5em;letter-spacing:-.01em}
   p.body{max-width:40em;color:var(--fg)}
 
-  /* ranked country bars */
+  /* ranked ccTLD bars */
   .rank{display:flex;flex-direction:column;gap:2px;margin-top:10px}
   .row{display:grid;grid-template-columns:150px 1fr 62px;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
   .row .c{font-family:"Spline Sans Mono",monospace;font-size:14px;color:var(--bright);display:flex;align-items:baseline;gap:8px}
@@ -42,55 +42,123 @@
 <body>
 <div class="masthead"><div class="wrap">
   <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
-  <nav>
-    <a class="lnk" href="/check">Check a domain</a>
+  <nav class="navmid">
     <a class="lnk" href="/why">Why it matters</a>
-    <a class="lnk" href="/world" aria-current="page">World editions</a>
-    <a class="lnk" href="/methodology">Methodology</a>
-    <a class="ghost" href="/sample">Weekly email</a>
-    <a class="btn" href="/#access">Subscribe</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+    <a class="lnk" href="/about">About</a>
   </nav>
+  <div class="navend">
+    <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
 </div></div>
 <div class="page-open"><div class="wrap">
-  <div class="eyebrow">World editions</div>
-  <h1>Where the web is<br>building its <em>toll booth</em>.</h1>
-  <p class="lede">AI-crawler blocking is not global — it's national. The same scan shows some countries gating most of their web from AI while others leave it wide open. Here is the map, by country, refreshed with every edition.</p>
-  <div class="asof">Baseline · <span id="asof">—</span> · Tranco top 2,000, segmented by country-code domain</div>
+  <div class="eyebrow">Suffix groups</div>
+  <h1>Suffix groups &mdash; what a domain ending<br>does and <em>does not</em> tell you.</h1>
+  <p class="lede">Declared AI-crawler blocking varies widely across domain suffixes. It is tempting to read that as a map of national attitudes. It is not one, and this page is built so it cannot be read that way: the reasons a suffix group's rate moves are set out before the numbers, not after them.</p>
+  <div class="asof">Edition <span id="asof">&mdash;</span> &middot; grouped by domain suffix within the CPI-50K frame</div>
 </div></div>
 
 <div class="wrap"><div class="panels">
 
   <section class="panel wide">
-    <div class="ix"><span class="lead-in">The map</span></div>
-    <h2><span id="hl-top">—</span> leads. <span id="hl-bottom">—</span> barely bothers.</h2>
-    <p class="source" style="margin:0 0 18px">Share of sites blocking at least one AI crawler, by country.</p>
+    <div class="ix"><span class="lead-in">Read this first</span></div>
+    <h2>Three reasons a suffix group&rsquo;s rate moves &mdash; none of them national.</h2>
+    <ul style="margin:0 0 4px">
+      <li><b>A suffix is not a country.</b> It is a string at the end of a domain name. It does not establish where an operator is, who owns the site, where its audience is, or where it is hosted. Plenty of organisations never use the suffix of the place they operate from, and most suffixes can be registered by anyone, anywhere.</li>
+      <li><b>Suffix groups differ in rank composition.</b> Rank correlates with declared blocking in our own data. A group weighted toward higher-ranked domains will show a higher rate than one weighted toward the long tail, before any question of policy arises. Part of any gap you see below is rank, not attitude.</li>
+      <li><b>Sample sizes differ by an order of magnitude.</b> Groups here range from a few dozen domains to over a thousand. A small group moves several points when a handful of sites change a single line in a file.</li>
+    </ul>
+    <p class="source" style="margin:14px 0 0">The dashboard&rsquo;s Segments tab compares each group against the whole-index rate and against rank bands, which is the cut that begins to separate these effects. This page shows the raw distribution only.</p>
+  </section>
+
+  <section class="panel wide">
+    <div class="ix"><span class="lead-in">The distribution</span></div>
+    <h2>Declared blocking by suffix group.</h2>
+    <p class="source" style="margin:0 0 6px">Share of each group&rsquo;s domains that explicitly block at least one of the 18 tracked AI crawlers, among domains serving a readable robots.txt. Highest observed: <span id="hl-top">&mdash;</span>. Lowest: <span id="hl-bottom">&mdash;</span>. Neither is a ranking of anything but this measurement.</p>
+    <p class="source" style="margin:0 0 18px">Sample size (n) is shown for every group. Read it alongside every rate.</p>
     <div class="rank" id="rank"></div>
   </section>
 
   <section class="panel wide">
     <div class="ix"><span class="lead-in">The baseline</span></div>
-    <h2>The global floor.</h2>
-    <div class="baseline" style="margin-top:4px"><span class="dot"></span> Global baseline (.com/.org and other generic domains): <b id="gtld" style="color:var(--fg)">—</b></div>
+    <h2>The generic-suffix baseline.</h2>
+    <div class="baseline" style="margin-top:4px"><span class="dot"></span> Generic suffixes (.com, .org and similar), which carry no geography at all: <b id="gtld" style="color:var(--fg)">&mdash;</b></div>
     <div class="note" id="note" style="margin-top:14px">—</div>
   </section>
 
   <section class="panel wide">
     <div class="ix"><span class="lead-in">Per-crawler detail</span></div>
-    <h2>Who each country locks out.</h2>
-    <p>Block rates by individual crawler tell a sharper story than the headline: some countries gate training bots while leaving search crawlers alone, others block everything or nothing.</p>
+    <h2>Per-crawler detail by suffix group.</h2>
+    <p>The headline rate hides which crawler is being blocked. Some groups show a wider gap between training-role and search-role crawlers than others. The same three confounds above apply to every column.</p>
     <table id="detail">
-      <thead><tr><th>Country</th><th>GPTBot</th><th>ClaudeBot</th><th>Google-Ext.</th><th>Any AI</th></tr></thead>
+      <thead><tr><th>ccTLD</th><th>GPTBot</th><th>ClaudeBot</th><th>Google-Ext.</th><th>Any AI</th></tr></thead>
       <tbody></tbody>
     </table>
   </section>
 
 </div></div>
 
-<footer><div class="wrap">
-  THE CRAWL PRICE INDEX · World editions v1 · <a href="/methodology.html">methodology</a> · <a href="/index.json">data feed</a> · <a href="/">← index</a>
-</div></footer>
+<footer class="sitefoot"><div class="wrap">
+  <div class="footlede">
+    <h2>The market is being built now. The record starts <em>now</em> too.</h2>
+    <p>A week that isn&rsquo;t measured is gone &mdash; no one can reconstruct it later, including us. Every edition is archived the day it is taken.</p>
+  </div>
 
-<script id="data" type="application/json">{"asof":"18 Aug 2026","gtld_baseline":19,"rows":[{"country":"Norway","n":54,"any":37,"gpt":27.8,"claude":33.3,"ge":29.6},{"country":"Ireland","n":36,"any":36.1,"gpt":33.3,"claude":27.8,"ge":16.7},{"country":"New Zealand","n":32,"any":34.4,"gpt":25,"claude":21.9,"ge":21.9},{"country":"South Korea","n":74,"any":33.8,"gpt":25.7,"claude":20.3,"ge":13.5},{"country":"Portugal","n":47,"any":31.9,"gpt":29.8,"claude":19.1,"ge":25.5},{"country":"Germany","n":789,"any":30.3,"gpt":23.8,"claude":20.3,"ge":17.9},{"country":"France","n":352,"any":29.8,"gpt":21.3,"claude":18.5,"ge":19.9},{"country":"Spain","n":194,"any":28.9,"gpt":24.2,"claude":21.1,"ge":9.8},{"country":"Netherlands","n":190,"any":28.4,"gpt":24.2,"claude":20,"ge":20},{"country":"United Kingdom","n":447,"any":28,"gpt":22.4,"claude":21.5,"ge":13},{"country":"Finland","n":61,"any":27.9,"gpt":23,"claude":23,"ge":23},{"country":"Slovakia","n":43,"any":27.9,"gpt":18.6,"claude":14,"ge":16.3},{"country":"Switzerland","n":97,"any":27.8,"gpt":22.7,"claude":22.7,"ge":19.6},{"country":"Denmark","n":47,"any":27.7,"gpt":25.5,"claude":12.8,"ge":19.1},{"country":"South Africa","n":62,"any":27.4,"gpt":21,"claude":19.4,"ge":16.1},{"country":"Australia","n":147,"any":27.2,"gpt":17,"claude":10.9,"ge":15.6},{"country":"Austria","n":78,"any":26.9,"gpt":20.5,"claude":20.5,"ge":12.8},{"country":"Italy","n":248,"any":25.8,"gpt":16.9,"claude":17.7,"ge":15.3},{"country":"Poland","n":241,"any":25.7,"gpt":17.4,"claude":11.2,"ge":9.5},{"country":"Belgium","n":91,"any":25.3,"gpt":23.1,"claude":20.9,"ge":19.8},{"country":"Egypt","n":12,"any":25,"gpt":16.7,"claude":16.7,"ge":16.7},{"country":"Czechia","n":130,"any":22.3,"gpt":15.4,"claude":15.4,"ge":13.8},{"country":"Philippines","n":33,"any":21.2,"gpt":21.2,"claude":12.1,"ge":12.1},{"country":"Colombia","n":215,"any":20.9,"gpt":17.2,"claude":14.4,"ge":13.5},{"country":"Mexico","n":67,"any":20.9,"gpt":14.9,"claude":10.4,"ge":11.9},{"country":"Malaysia","n":44,"any":20.5,"gpt":18.2,"claude":18.2,"ge":18.2},{"country":"Greece","n":70,"any":20,"gpt":12.9,"claude":12.9,"ge":10},{"country":"Sweden","n":99,"any":19.2,"gpt":15.2,"claude":17.2,"ge":16.2},{"country":"India","n":180,"any":18.9,"gpt":13.3,"claude":12.8,"ge":12.8},{"country":"Turkey","n":99,"any":18.2,"gpt":11.1,"claude":12.1,"ge":5.1},{"country":"Japan","n":438,"any":18,"gpt":12.8,"claude":12.1,"ge":10.7},{"country":"Israel","n":28,"any":17.9,"gpt":14.3,"claude":10.7,"ge":14.3},{"country":"Bulgaria","n":29,"any":17.2,"gpt":13.8,"claude":10.3,"ge":10.3},{"country":"Indonesia","n":99,"any":16.2,"gpt":14.1,"claude":13.1,"ge":9.1},{"country":"Taiwan","n":69,"any":15.9,"gpt":14.5,"claude":15.9,"ge":11.6},{"country":"Argentina","n":59,"any":15.3,"gpt":8.5,"claude":5.1,"ge":5.1},{"country":"Romania","n":68,"any":14.7,"gpt":7.4,"claude":5.9,"ge":4.4},{"country":"Brazil","n":296,"any":14.5,"gpt":11.8,"claude":9.5,"ge":8.8},{"country":"Singapore","n":35,"any":14.3,"gpt":11.4,"claude":8.6,"ge":8.6},{"country":"Canada","n":156,"any":14.1,"gpt":11.5,"claude":9,"ge":7.7},{"country":"Hungary","n":70,"any":12.9,"gpt":12.9,"claude":7.1,"ge":10},{"country":"Ukraine","n":99,"any":12.1,"gpt":5.1,"claude":6.1,"ge":4},{"country":"Saudi Arabia","n":17,"any":11.8,"gpt":11.8,"claude":11.8,"ge":11.8},{"country":"Vietnam","n":88,"any":11.4,"gpt":8,"claude":9.1,"ge":8},{"country":"Chile","n":44,"any":11.4,"gpt":9.1,"claude":6.8,"ge":4.5},{"country":"Thailand","n":29,"any":10.3,"gpt":3.4,"claude":3.4,"ge":3.4},{"country":"Croatia","n":20,"any":10,"gpt":5,"claude":5,"ge":5},{"country":"Hong Kong","n":32,"any":9.4,"gpt":6.3,"claude":3.1,"ge":3.1},{"country":"Russia","n":1005,"any":8.5,"gpt":5.9,"claude":2.7,"ge":1.5},{"country":"UAE","n":12,"any":8.3,"gpt":8.3,"claude":8.3,"ge":8.3},{"country":"Iran","n":69,"any":4.3,"gpt":2.9,"claude":2.9,"ge":2.9},{"country":"Serbia","n":24,"any":4.2,"gpt":0,"claude":0,"ge":0},{"country":"China","n":149,"any":4,"gpt":3.4,"claude":2,"ge":1.3}],"note":"Directional. Samples are ccTLD domains carrying robots.txt within the Tranco top-N (n shown per country). Larger scans enlarge every sample."}</script>
+  <div class="footgrid">
+    <div class="footcard">
+      <div class="fk">Free</div>
+      <h3>The free edition</h3>
+      <p>Headline figures, the aggregate dashboard and every denominator behind them. Free to cite with attribution.</p>
+      <a class="btn ghostbox" href="https://app.crawlpriceindex.com">Open the free edition</a>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">Free &middot; weekly</div>
+      <h3>The Weekly Crawl</h3>
+      <p>One email a week: what changed, which way it moved, and the week&rsquo;s figures with their denominators. No forecasts.</p>
+      <form class="footform" onsubmit="return cpiSubFoot(event,'world')">
+        <input id="fsub-world" type="email" required autocomplete="email" placeholder="you@company.com">
+        <button class="btn" type="submit">Get it weekly</button>
+      </form>
+      <p class="fmsg" id="fmsg-world"></p>
+    </div>
+
+    <div class="footcard">
+      <div class="fk">&euro;49/mo</div>
+      <h3>The full dataset</h3>
+      <p>Every domain &times; every tracked crawler, weekly history, the change feed and CSV export. One-off snapshot &euro;29.</p>
+      <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+    </div>
+  </div>
+
+  <div class="footlinks">
+    <div><b>Index</b><a href="/">This edition</a><a href="/explore">Explore data</a><a href="/check">Check a domain</a><a href="/world">Suffix groups</a><a href="/estimate">Estimate the range</a></div>
+    <div><b>Method</b><a href="/methodology">Methodology</a><a href="/status">Status &amp; coverage</a><a href="/changelog">Changelog</a><a href="/sample">Free sample</a></div>
+    <div><b>Project</b><a href="/about">About</a><a href="/why">Why it matters</a><a href="mailto:hello@crawlpriceindex.com">Contact</a></div>
+    <div><b>Legal</b><a href="/terms">Terms &amp; data licence</a><a href="/privacy">Privacy</a><a href="/security">Security</a></div>
+  </div>
+
+  <div class="footbase">
+    <span>THE CRAWL PRICE INDEX &middot; independent observatory of the machine-readable web</span>
+    <span>Funded by subscriptions only &mdash; no money from any company in this dataset.</span>
+  </div>
+</div></footer>
+<script>
+function cpiSubFoot(e,id){
+  e.preventDefault();
+  var m=document.getElementById('fmsg-'+id), i=document.getElementById('fsub-'+id);
+  var em=(i&&i.value||'').trim(); if(!em) return false;
+  m.style.color='var(--dim)'; m.textContent='Signing you up…';
+  fetch('https://api.crawlpriceindex.com/v1/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+    .then(function(r){return r.json();})
+    .then(function(j){m.style.color='var(--signal)';m.textContent=(j&&j.message)||'You are in — check your inbox for the free sample.';i.value='';})
+    .catch(function(){m.style.color='#A33A2A';m.textContent='Something went wrong — try again in a moment.';});
+  return false;
+}
+</script><script id="data" type="application/json">{"asof":"17 Aug 2026","gtld_baseline":19,"rows":[{"cctld":".co.uk","n":261,"any":42.1,"gpt":33.7,"claude":32.6,"ge":18.4},{"cctld":".no","n":54,"any":37,"gpt":27.8,"claude":33.3,"ge":29.6},{"cctld":".ie","n":36,"any":36.1,"gpt":33.3,"claude":27.8,"ge":16.7},{"cctld":".nz","n":32,"any":34.4,"gpt":25,"claude":21.9,"ge":21.9},{"cctld":".kr","n":74,"any":33.8,"gpt":25.7,"claude":20.3,"ge":13.5},{"cctld":".pt","n":47,"any":31.9,"gpt":29.8,"claude":19.1,"ge":25.5},{"cctld":".de","n":789,"any":30.3,"gpt":23.8,"claude":20.3,"ge":17.9},{"cctld":".fr","n":352,"any":29.8,"gpt":21.3,"claude":18.5,"ge":19.9},{"cctld":".es","n":194,"any":28.9,"gpt":24.2,"claude":21.1,"ge":9.8},{"cctld":".nl","n":190,"any":28.4,"gpt":24.2,"claude":20,"ge":20},{"cctld":".fi","n":61,"any":27.9,"gpt":23,"claude":23,"ge":23},{"cctld":".sk","n":43,"any":27.9,"gpt":18.6,"claude":14,"ge":16.3},{"cctld":".ch","n":97,"any":27.8,"gpt":22.7,"claude":22.7,"ge":19.6},{"cctld":".dk","n":47,"any":27.7,"gpt":25.5,"claude":12.8,"ge":19.1},{"cctld":".za","n":62,"any":27.4,"gpt":21,"claude":19.4,"ge":16.1},{"cctld":".au","n":147,"any":27.2,"gpt":17,"claude":10.9,"ge":15.6},{"cctld":".at","n":78,"any":26.9,"gpt":20.5,"claude":20.5,"ge":12.8},{"cctld":".it","n":248,"any":25.8,"gpt":16.9,"claude":17.7,"ge":15.3},{"cctld":".pl","n":241,"any":25.7,"gpt":17.4,"claude":11.2,"ge":9.5},{"cctld":".be","n":91,"any":25.3,"gpt":23.1,"claude":20.9,"ge":19.8},{"cctld":".eg","n":12,"any":25,"gpt":16.7,"claude":16.7,"ge":16.7},{"cctld":".cz","n":130,"any":22.3,"gpt":15.4,"claude":15.4,"ge":13.8},{"cctld":".ph","n":33,"any":21.2,"gpt":21.2,"claude":12.1,"ge":12.1},{"cctld":".co","n":215,"any":20.9,"gpt":17.2,"claude":14.4,"ge":13.5},{"cctld":".mx","n":67,"any":20.9,"gpt":14.9,"claude":10.4,"ge":11.9},{"cctld":".my","n":44,"any":20.5,"gpt":18.2,"claude":18.2,"ge":18.2},{"cctld":".gr","n":70,"any":20,"gpt":12.9,"claude":12.9,"ge":10},{"cctld":".se","n":99,"any":19.2,"gpt":15.2,"claude":17.2,"ge":16.2},{"cctld":".in","n":180,"any":18.9,"gpt":13.3,"claude":12.8,"ge":12.8},{"cctld":".tr","n":99,"any":18.2,"gpt":11.1,"claude":12.1,"ge":5.1},{"cctld":".jp","n":438,"any":18,"gpt":12.8,"claude":12.1,"ge":10.7},{"cctld":".il","n":28,"any":17.9,"gpt":14.3,"claude":10.7,"ge":14.3},{"cctld":".bg","n":29,"any":17.2,"gpt":13.8,"claude":10.3,"ge":10.3},{"cctld":".id","n":99,"any":16.2,"gpt":14.1,"claude":13.1,"ge":9.1},{"cctld":".tw","n":69,"any":15.9,"gpt":14.5,"claude":15.9,"ge":11.6},{"cctld":".ar","n":59,"any":15.3,"gpt":8.5,"claude":5.1,"ge":5.1},{"cctld":".ro","n":68,"any":14.7,"gpt":7.4,"claude":5.9,"ge":4.4},{"cctld":".br","n":296,"any":14.5,"gpt":11.8,"claude":9.5,"ge":8.8},{"cctld":".sg","n":35,"any":14.3,"gpt":11.4,"claude":8.6,"ge":8.6},{"cctld":".ca","n":156,"any":14.1,"gpt":11.5,"claude":9,"ge":7.7},{"cctld":".hu","n":70,"any":12.9,"gpt":12.9,"claude":7.1,"ge":10},{"cctld":".ua","n":99,"any":12.1,"gpt":5.1,"claude":6.1,"ge":4},{"cctld":".sa","n":17,"any":11.8,"gpt":11.8,"claude":11.8,"ge":11.8},{"cctld":".vn","n":88,"any":11.4,"gpt":8,"claude":9.1,"ge":8},{"cctld":".cl","n":44,"any":11.4,"gpt":9.1,"claude":6.8,"ge":4.5},{"cctld":".th","n":29,"any":10.3,"gpt":3.4,"claude":3.4,"ge":3.4},{"cctld":".hr","n":20,"any":10,"gpt":5,"claude":5,"ge":5},{"cctld":".hk","n":32,"any":9.4,"gpt":6.3,"claude":3.1,"ge":3.1},{"cctld":".ru","n":1005,"any":8.5,"gpt":5.9,"claude":2.7,"ge":1.5},{"cctld":".ae","n":12,"any":8.3,"gpt":8.3,"claude":8.3,"ge":8.3},{"cctld":".uk","n":186,"any":8.1,"gpt":6.5,"claude":5.9,"ge":5.4},{"cctld":".ir","n":69,"any":4.3,"gpt":2.9,"claude":2.9,"ge":2.9},{"cctld":".rs","n":24,"any":4.2,"gpt":0,"claude":0,"ge":0},{"cctld":".cn","n":149,"any":4,"gpt":3.4,"claude":2,"ge":1.3}],"note":"Groups are domain suffixes, not countries: a suffix is not operator location, ownership, audience or hosting. Samples are domains carrying a readable robots.txt within the Tranco frame (n shown per group). Suffix groups also differ in rank composition, so part of any gap between them may be rank, not policy."}</script>
 <script>
   const D = JSON.parse(document.getElementById('data').textContent);
   const $=(s)=>document.querySelector(s);
@@ -104,36 +172,36 @@
     const solid = byRate.filter(r=>(r.n||0)>=20);
     const top = solid[0] || byRate[0];
     const bottom = solid[solid.length-1] || byRate[byRate.length-1];
-    if (top) document.getElementById('hl-top').textContent = top.country;
-    if (bottom) document.getElementById('hl-bottom').textContent = bottom.country;
+    if (top) document.getElementById('hl-top').textContent = top.cctld;
+    if (bottom) document.getElementById('hl-bottom').textContent = bottom.cctld;
   } catch(e){}
 
   const color=(v)=> v>=50?'var(--red)': v>=25?'var(--amber)':'var(--signal)';
   const max=Math.max(...D.rows.map(r=>r.any));
-  const FREE=3; // free preview: top-blocking country + 2 more; rest is gated
+  const FREE=3; // free preview: highest-rate group + 2 more; the rest is gated
   const free = D.rows.slice(0,FREE), locked = D.rows.length - FREE;
 
   // ranked bars: free ones shown, remainder collapsed into a locked teaser
   $('#rank').innerHTML = free.map(r=>`
     <div class="row">
-      <div class="c">${r.country}<span class="n">n=${r.n}</span></div>
+      <div class="c">${r.cctld}<span class="n">n=${r.n}</span></div>
       <div class="track"><i style="width:${(r.any/max*100).toFixed(0)}%;background:${color(r.any)}"></i></div>
       <div class="pct">${r.any}%</div>
     </div>`).join('') + (locked>0 ? `
     <div class="row" style="opacity:.55;filter:blur(.4px)">
-      <div class="c">+ ${locked} more countries<span class="n">locked</span></div>
+      <div class="c">+ ${locked} more suffix groups<span class="n">locked</span></div>
       <div class="track"><i style="width:40%;background:var(--dim)"></i></div>
       <div class="pct">••</div>
     </div>
     <div style="margin-top:16px;padding:16px 18px;border:1px solid var(--line);border-left:2px solid var(--signal);background:var(--panel);border-radius:2px">
-      <div style="font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--bright);margin-bottom:6px">🔒 Full country index is a Terminal feature</div>
-      <div style="font-size:14px;color:var(--fg);max-width:44em">All ${D.rows.length} countries, the per-crawler breakdown, and weekly history are part of the Terminal subscription. Free tier shows the top ${FREE}.
-      <a href="/#access" style="color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)">See Terminal access →</a></div>
+      <div style="font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--bright);margin-bottom:6px">Full suffix-group detail is part of the full dataset</div>
+      <div style="font-size:14px;color:var(--fg);max-width:44em">All ${D.rows.length} suffix groups, the per-crawler breakdown, and weekly history are part of the full dataset. The free tier shows ${FREE}.
+      <a href="https://app.crawlpriceindex.com/dashboard.html#account" style="color:var(--signal);text-decoration:none;border-bottom:1px solid rgba(60,240,138,.35)">See Terminal access →</a></div>
     </div>` : '');
 
   // per-crawler detail table: free rows shown, then a locked overlay row
   $('#detail tbody').innerHTML = free.map(r=>`
-    <tr><td class="c">${r.country} <span class="n">n=${r.n}</span></td>
+    <tr><td class="c">${r.cctld} <span class="n">n=${r.n}</span></td>
     <td>${r.gpt}%</td><td>${r.claude}%</td><td>${r.ge}%</td><td>${r.any}%</td></tr>`).join('')
     + (locked>0 ? `<tr style="opacity:.5"><td class="c">+ ${locked} more <span class="n">Terminal</span></td>
     <td>••</td><td>••</td><td>••</td><td>••</td></tr>` : '');

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methodology — The Crawl Price Index</title>
+<meta name="description" content="Exactly what we measure, how we measure it, what counts as observed versus inferred, what we deliberately do not measure, and how to reproduce our figures.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23FBFAF8%27/%3E%3Crect x=%276%27 y=%2714%27 width=%2720%27 height=%274%27 fill=%27%231C5D4A%27/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;font-size:17px;line-height:1.6}
+  a{color:var(--signal)}
+  h2{font-size:24px;font-weight:500;color:var(--bright);margin:44px 0 12px}
+  h3{font-family:"Spline Sans Mono",monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--signal);margin:26px 0 8px}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+  th,td{text-align:left;padding:10px 10px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:500}
+  .tag{font-family:"Spline Sans Mono",monospace;font-size:11px;padding:2px 7px;border:1px solid;white-space:nowrap}
+  .obs{color:var(--signal);border-color:var(--signal)}
+  .der{color:var(--amber);border-color:var(--amber)}
+  .inf{color:var(--red);border-color:var(--red)}
+  code{font-family:"Spline Sans Mono",monospace;font-size:13.5px;color:var(--bright);background:#161a1c;padding:1px 5px}
+  pre{background:#0f1214;border:1px solid var(--line);padding:14px;overflow:auto;font-family:"Spline Sans Mono",monospace;font-size:12.5px;line-height:1.55}
+  .box{background:var(--panel);border-left:3px solid var(--signal);padding:16px 18px;margin:20px 0}
+  .box.warn{border-left-color:var(--amber)}
+  ul{padding-left:22px}
+  li{margin-bottom:7px}
+  footer{margin-top:56px;padding:24px 0 60px;border-top:1px solid var(--line);font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--dim)}
+</style>
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/world">World editions</a>
+    <a class="lnk" href="/methodology" aria-current="page">Methodology</a>
+    <a class="ghost" href="/sample">Weekly email</a>
+    <a class="btn" href="/#access">Subscribe</a>
+  </nav>
+</div></div>
+<div class="page-open"><div class="wrap">
+  <p class="eyebrow">How we measure</p>
+  <h1>Methodology</h1>
+  <p style="max-width:640px;margin:0">What we measure, how we measure it, what counts as an observation versus an inference, what we deliberately do not measure, and how to check our work.</p>
+  <div class="meta">Methodology version <b class="mono">2026-08-10.1</b> · machine-readable at <a href="https://api.crawlpriceindex.com/v1/methodology">/v1/methodology</a></div>
+</div></div>
+
+<div class="wrap"><div class="panels">
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">The short version</span></div>
+  <h2>The short version</h2>
+<p>Once a week we read the <code>robots.txt</code> and homepage response headers of the Tranco top 50,000 domains using our own identified, cryptographically signed crawler. We record what each site tells AI crawlers: who is blocked, who is allowed, whether a price or payment wall is quoted, and what changed since last week. We publish the aggregates free and the per-domain detail to subscribers.</p>
+
+<div class="box">
+<b>The distinction that matters most.</b> “GPTBot is disallowed in this site’s robots.txt” is an <b>observation</b>. “15.2% of domains with a readable robots.txt block GPTBot” is a <b>derivation</b> from those observations. “A site of this size could charge $0.05 per crawl” is an <b>inference</b> — our judgement, not a measurement. We label all three differently everywhere they appear, and we never present the third as the first.
+</div>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">What we measure</span></div>
+  <h2>What we measure</h2>
+<table>
+  <tr><th>Signal</th><th>How</th><th>Type</th></tr>
+  <tr><td><b>Robots stance</b><br><span style="color:var(--dim);font-size:14px">per crawler, per domain</span></td><td>GET <code>/robots.txt</code> with our identified user agent; parse User-agent / Disallow / Allow groups. Values: blocked, allowed, partial, unlisted, no_robots.</td><td><span class="tag obs">observed</span></td></tr>
+  <tr><td><b>Observed price</b></td><td>Recorded only when a site returns a price in a machine-readable payment response — HTTP 402 with a <code>crawler-price</code> or payment header, or an equivalent x402 offer. We publish the quote and the domain that gave it.</td><td><span class="tag obs">observed</span></td></tr>
+  <tr><td><b>Payment signals</b></td><td>Status codes and headers on identified-crawler requests: 402 responses, TollBit-style token walls, licensing redirects, <code>payment:free</code> declarations.</td><td><span class="tag obs">observed</span></td></tr>
+  <tr><td><b>Enforcement</b></td><td>Compares a site’s declaration against what an identified crawler actually receives. Publisher panel only (~49 domains), so directional, not projectable.</td><td><span class="tag obs">observed<br>(panel)</span></td></tr>
+  <tr><td><b>Block rates</b></td><td>Share of parsed domains blocking each crawler. Denominator is domains successfully parsed, never the nominal top-N.</td><td><span class="tag der">derived</span></td></tr>
+  <tr><td><b>ccTLD editions</b></td><td>Segmented by country-code TLD suffix, published where at least 8 domains are present. A ccTLD is a domain suffix, not a country — not operator location, ownership, audience or hosting.</td><td><span class="tag der">derived</span></td></tr>
+  <tr><td><b>Trends &amp; movers</b></td><td>Difference between consecutive weekly snapshots in our archive.</td><td><span class="tag der">derived</span></td></tr>
+  <tr><td><b>Suggested price band</b><br><span style="color:var(--dim);font-size:14px">checker only</span></td><td>Our judgement, anchored to observed quotes and the domain’s rank. Labelled as judgement wherever it appears.</td><td><span class="tag inf">inferred</span></td></tr>
+</table>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">What we do not measure</span></div>
+  <h2>What we do not measure</h2>
+<div class="box warn">
+<ul style="margin:0">
+  <li>Revenue actually earned by any site.</li>
+  <li>Traffic volumes of any site. The revenue estimates in the checker come from figures <em>you</em> enter.</li>
+  <li>Prices for domains that do not publish one — we never model or extrapolate a price.</li>
+  <li>The value of private AI licensing deals.</li>
+  <li>Whether an AI company honoured a payment request after it was made.</li>
+</ul>
+</div>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">How we identify ourselves</span></div>
+  <h2>How we identify ourselves</h2>
+<p>Our crawler sends a truthful user agent and signs every request cryptographically, so any site can verify that traffic claiming to be ours really is:</p>
+<pre>User-Agent: CrawlPriceIndexBot/1.0 (crawl-economy measurement;
+            robots.txt study; contact: hello@crawlpriceindex.com)
+Signature-Agent: "https://crawlpriceindex.com"
+Signature-Input: sig=("@authority" "signature-agent");created=…;keyid="…";tag="web-bot-auth"</pre>
+<p>Signatures follow <a href="https://www.rfc-editor.org/rfc/rfc9421.html" rel="noopener">RFC 9421</a> under the Web Bot Auth profile. Our public key directory is served at <a href="/.well-known/http-message-signatures-directory">/.well-known/http-message-signatures-directory</a>. We have applied to Cloudflare’s verified bots programme using signature verification.</p>
+
+<h3>Crawl etiquette</h3>
+<ul>
+  <li>We request <code>robots.txt</code> and the homepage only. We do not crawl article pages and we store no page content.</li>
+  <li>Requests are rate-limited and back off automatically when a host signals pressure (429/403 rates above threshold reduce concurrency and increase spacing).</li>
+  <li>A sweep is spread over days rather than hammering hosts in a burst.</li>
+  <li>Spoofed crawler identities are used only on a small, documented publisher panel to observe identity-conditional responses — never at scale, and never to obtain content.</li>
+  <li>To be excluded from the index entirely, email <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> from a domain-verifiable address.</li>
+</ul>
+
+<!-- MethodV2Census -->
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Two probes, and how the panel is chosen</span></div>
+  <h2>Two probes, and how the panel is chosen</h2>
+<p>We measure crawler policy two ways, on purpose. The <b>wide honest probe</b> visits thousands of domains — the top by rank, plus every domain observed blocking any AI crawler — using only our own signed, identified user agent. It never pretends to be another crawler. It records what an honest, verifiable bot is shown: the HTTP status, payment or licensing headers, Cloudflare fronting, <code>X-Robots-Tag</code> directives, and whether a machine-readable <code>llms.txt</code> is served. Because it never impersonates, it can run at scale without misrepresenting anyone.</p>
+<p>The <b>identity matrix</b> is small and deliberately capped. For a limited panel it issues the same request under several identities — a browser, and the published user-agent strings of major AI crawlers — and compares the answers. This is the only way to observe <em>identity-conditional</em> behaviour: a site that serves one crawler and charges another. Because it sends another crawler's user-agent string, it is treated as a disclosed measurement study, kept to roughly ninety domains a week, and never scaled.</p>
+<p>The panel is assembled, not hand-picked. It has three parts: a fixed <b>spine</b> carried unchanged for continuity; a <b>signal</b> tier, where any domain the wide probe flags as showing payment or blocking behaviour is promoted automatically the following week and dropped after eight silent weeks; and a rotating <b>audit</b>, a small random sample from the full scan each week, so that a wall which fires only at AI crawlers — and shows our honest bot a clean page — is still sampled and its prevalence measured over time. The panel's full composition is published at <a href="/panel.json">/panel.json</a>.</p>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Coverage and freshness</span></div>
+  <h2>Coverage and freshness</h2>
+<ul>
+  <li><b>Frame:</b> the Tranco top 50,000 (a research ranking that aggregates several sources and resists manipulation), plus an identity-matrix panel of ~90 domains (a fixed spine, plus domains promoted from the wide probe, plus a rotating audit — see above).</li>
+  <li><b>Reached vs parsed:</b> the Tranco list ranks registrable domains, not working websites. A large share never answer — no DNS record, refused connections, dead TLS, or a timeout on both the bare domain and its <code>www</code> host. Of the 50,000-domain frame, about 28,000 serve a readable <code>robots.txt</code> — that parsed count is the denominator behind every rate we publish, and it is the same figure the dashboard uses. The rest either never answer (no DNS, refused, dead TLS, timeout) or serve no readable file; each is itemised by reason in a separate census. We never quote a rate as a share of “the web”. One finding falls straight out of it: a meaningful share of the busiest sites return an HTTP error to a crawler simply asking for their public <code>robots.txt</code>.</li>
+  <li><b>Cadence:</b> weekly full sweeps, run automatically.</li>
+  <li><b>History:</b> begins the week we first observed a signal. It cannot be backfilled — by us or by anyone.</li>
+</ul>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Known limitations</span></div>
+  <h2>Known limitations</h2>
+<ul>
+  <li><b>Declaration is not compliance.</b> Our block rates measure what sites <em>declare</em> in robots.txt — a request to crawlers, not an access control. On a small probe panel we also record what our own identified crawler is served, published as counts, never as an “enforcement rate”: robots.txt is advisory and we have no crawler-side logs to see what any other crawler does.</li>
+  <li><b>robots.txt is not the whole story.</b> Sites also gate crawlers at the edge, by ASN, by fingerprint or by CAPTCHA. We do not see those from a single identified request.</li>
+  <li><b>Prices are sparse.</b> Very few sites currently quote a machine-readable price. That sparsity is itself the finding, and we report the count rather than smoothing it.</li>
+  <li><b>ccTLD is a domain suffix, not a country.</b> A <code>.io</code> domain is rarely British Indian Ocean Territory, and <code>.com</code>/<code>.org</code>/<code>.io</code> carry no geography at all.</li>
+  <li><b>Panel size.</b> Probe-panel and payment-signal observations come from the identity panel (~49–90 domains). We report n every time.</li>
+  <li><b>One vantage point.</b> We crawl from one network. Sites that vary responses by geography or ASN may present differently elsewhere.</li>
+  <li><b>The honest probe has a blind spot.</b> Our wide probe uses one honest identity, so a wall that fires <em>only</em> at a named AI crawler — showing our identified bot an ordinary page — is invisible to it, and enters the record only through the rotating audit. Today's data suggests this is uncommon (most walls show the honest bot something: a 403, a redirect, a header), but it is a real limit, and the audit exists to size it rather than hide it.</li>
+</ul>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Corrections</span></div>
+  <h2>Corrections</h2>
+<p>If we get something wrong, we fix it in the next weekly edition and record it in the machine-readable <code>corrections</code> array with the date, what changed and why. We do not silently amend past editions. Report an error to <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> and it will be acknowledged in the next edition.</p>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Reproduce our work</span></div>
+  <h2>Reproduce our work</h2>
+<p>Every figure we publish is regenerated weekly from a full sweep. To check any headline number yourself:</p>
+<pre># the aggregates behind the homepage
+curl -s https://crawlpriceindex.com/index.json
+
+# how we measure, machine-readable
+curl -s https://api.crawlpriceindex.com/v1/methodology
+
+# any domain's stance, free
+curl -s "https://api.crawlpriceindex.com/v1/check?domain=example.com"
+
+# and the site's own robots.txt, to check us against the source
+curl -s https://example.com/robots.txt</pre>
+<p>If our stance for a domain disagrees with that site’s live <code>robots.txt</code>, that is a bug and we want to hear about it. Subscribers get the full per-domain dataset as JSON or CSV, with a per-customer watermark.</p>
+
+</section>
+<section class="panel wide">
+  <div class="ix"><span class="lead-in">Independence</span></div>
+  <h2>Independence</h2>
+<p>The Crawl Price Index is funded by subscriptions. We take no payment from AI companies, publishers, CDNs or licensing platforms in exchange for coverage, ranking or inclusion. We link to Cloudflare, TollBit and RSL as setup routes for site owners with no commercial relationship to any of them. Our own site publishes machine-readable licensing terms and charges AI training crawlers, at a price derived from the index itself — disclosed in <a href="/rsl.xml">rsl.xml</a>.</p>
+
+</section>
+</div></div>
+<footer>
+THE CRAWL PRICE INDEX · an independent observatory of the machine-readable web · <a href="mailto:hello@crawlpriceindex.com">hello@crawlpriceindex.com</a> · <a href="/terms.html">terms</a> · <a href="/">index</a>
+</footer>
+</div>
+</body>
+</html>

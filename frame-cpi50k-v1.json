@@ -1,0 +1,243 @@
+{
+ "frame": "CPI-50K v1",
+ "adopted_utc": "2026-08-21T08:51:53.980Z",
+ "source": {
+  "provider": "Tranco",
+  "list_id": "Y8V2G",
+  "permalink": "https://tranco-list.eu/list/Y8V2G",
+  "generated": "2026-08-21",
+  "inputs": [
+   "Cisco Umbrella",
+   "Majestic"
+  ],
+  "excluded_inputs": [
+   {
+    "name": "Cloudflare Radar",
+    "licence": "CC BY-NC 4.0",
+    "reason": "non-commercial clause incompatible with a paid dataset"
+   },
+   {
+    "name": "Chrome UX Report (CrUX)",
+    "licence": "CC BY-SA 4.0",
+    "reason": "share-alike could attach to the redistributed dataset"
+   }
+  ],
+  "config": {
+   "days": 30,
+   "end_date": "2026-08-20",
+   "combination": "harmonic (Dowdall)",
+   "aggregate_prefix": 1000000,
+   "pay_level_domains": true,
+   "other_filters": "none"
+  }
+ },
+ "size": 50000,
+ "excluded_total": 167,
+ "excluded_by_reason": {
+  "reverse_dns_zone": 167
+ },
+ "excluded_sample": [
+  {
+   "src_rank": 933,
+   "domain": "23.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1029,
+   "domain": "3.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1294,
+   "domain": "54.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1339,
+   "domain": "52.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1399,
+   "domain": "18.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1520,
+   "domain": "34.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1598,
+   "domain": "142.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1675,
+   "domain": "44.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1876,
+   "domain": "35.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 1915,
+   "domain": "13.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 2499,
+   "domain": "184.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 2679,
+   "domain": "173.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 2751,
+   "domain": "192.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 2964,
+   "domain": "100.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 3238,
+   "domain": "108.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 3401,
+   "domain": "64.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 3672,
+   "domain": "2.ip6.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 3768,
+   "domain": "216.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 3822,
+   "domain": "74.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 3893,
+   "domain": "51.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4092,
+   "domain": "98.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4174,
+   "domain": "8.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4259,
+   "domain": "32.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4518,
+   "domain": "2.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4528,
+   "domain": "99.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4715,
+   "domain": "63.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4834,
+   "domain": "146.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 4874,
+   "domain": "15.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 5073,
+   "domain": "50.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 5426,
+   "domain": "204.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 6133,
+   "domain": "69.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 6670,
+   "domain": "209.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 6685,
+   "domain": "16.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 6882,
+   "domain": "65.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 7122,
+   "domain": "107.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 7657,
+   "domain": "170.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 7773,
+   "domain": "72.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 7927,
+   "domain": "185.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 7983,
+   "domain": "68.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  },
+  {
+   "src_rank": 8260,
+   "domain": "255.in-addr.arpa",
+   "why": "reverse_dns_zone"
+  }
+ ],
+ "attribution": "Tranco (Le Pochat et al., NDSS 2019), custom list Y8V2G; ranking inputs Cisco Umbrella and Majestic (Majestic data CC BY 3.0).",
+ "note": "Infrastructure, CDN and parked domains are deliberately RETAINED — the share of a popularity ranking that is not a website is a published CPI finding. Only reverse-DNS zones and malformed labels are removed, and every removal is listed here."
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recover your key — The Crawl Price Index</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--ink);color:var(--fg);font-family:"Newsreader",Georgia,serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+  p{color:var(--fg);font-size:17px;line-height:1.6;margin-bottom:18px}
+  input{width:100%;font-family:"Spline Sans Mono",monospace;font-size:15px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--bright);margin-bottom:12px}
+  input:focus{outline:none;border-color:var(--signal)}
+  button{font-family:"Spline Sans Mono",monospace;font-size:14px;letter-spacing:.04em;padding:12px 20px;border:1px solid var(--signal);background:var(--signal);color:#000;border-radius:6px;cursor:pointer;font-weight:600}
+  button:disabled{opacity:.5;cursor:default}
+  .msg{margin-top:16px;font-family:"Spline Sans Mono",monospace;font-size:13px;color:var(--dim);line-height:1.6}
+</style>
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="prose">
+<div class="masthead"><div class="wrap">
+  <a class="mark" href="/">The Crawl Price Index<b>.</b></a>
+  <nav class="navmid">
+    <a class="lnk" href="/why">Why it matters</a>
+    <a class="lnk" href="/check">Check a domain</a>
+    <a class="lnk" href="/explore">Explore data</a>
+    <a class="lnk" href="/methodology">Method</a>
+  </nav>
+  <div class="navend">
+    <a class="lnk signin" href="https://app.crawlpriceindex.com">Sign in</a>
+    <a class="btn" href="https://app.crawlpriceindex.com/dashboard.html#account">Full dataset &mdash; &euro;49/mo</a>
+  </div>
+</div></div>
+  <div class="wrap">
+    <h1>Recover your API key</h1>
+    <p>Enter the email on your subscription. If it's active, we'll email your key to it.</p>
+    <input id="email" type="email" placeholder="you@company.com" autocomplete="email">
+    <button id="go">Send my key</button>
+    <div class="msg" id="msg"></div>
+  </div>
+<script>
+  const btn=document.getElementById('go'), msg=document.getElementById('msg');
+  btn.addEventListener('click', async ()=>{
+    const email=document.getElementById('email').value.trim();
+    if(!email||!email.includes('@')){msg.textContent='Enter a valid email.';return;}
+    btn.disabled=true; msg.textContent='Sending…';
+    try{
+      const r=await fetch('https://api.crawlpriceindex.com/v1/recover',{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})
+      });
+      const d=await r.json();
+      msg.textContent = d.message || 'If that email has an active subscription, its key has been sent.';
+    }catch(e){
+      msg.textContent='Something went wrong — email hello@crawlpriceindex.com and we\u2019ll sort it.';
+    }finally{ btn.disabled=false; }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+{
+ "generated_utc": "2026-08-22T13:19:28.626Z",
+ "edition": "2026-08-17",
+ "scope": "sample of 161",
+ "rechecked": 15,
+ "gap_seconds": 5,
+ "asymmetry": {
+  "rule_loss": 64,
+  "rule_gain": 94,
+  "other": 3,
+  "total": 161
+ },
+ "counts": {
+  "confirmed": 0,
+  "unconfirmed": 0,
+  "unstable": 0,
+  "unreachable": 15
+ },
+ "verdict": {
+  "confirmed": [],
+  "unconfirmed": [],
+  "unstable": [],
+  "unreachable": [
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "GPTBot",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "ClaudeBot",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "Google-Extended",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "CCBot",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "Bytespider",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "Amazonbot",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "Applebot-Extended",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "toyhou.se",
+    "rank": 1471,
+    "crawler": "meta-externalagent",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "filgoal.com",
+    "rank": 1954,
+    "crawler": "Bytespider",
+    "prev": "allowed",
+    "cur": "unlisted",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "filgoal.com",
+    "rank": 1954,
+    "crawler": "Amazonbot",
+    "prev": "allowed",
+    "cur": "unlisted",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "livemint.com",
+    "rank": 4207,
+    "crawler": "Google-Extended",
+    "prev": "allowed",
+    "cur": "partial",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "sandiegouniontribune.com",
+    "rank": 6523,
+    "crawler": "cohere-ai",
+    "prev": "unlisted",
+    "cur": "blocked",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "classificadosx.net",
+    "rank": 9515,
+    "crawler": "OAI-SearchBot",
+    "prev": "unlisted",
+    "cur": "allowed",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "classificadosx.net",
+    "rank": 9515,
+    "crawler": "ChatGPT-User",
+    "prev": "unlisted",
+    "cur": "allowed",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   },
+   {
+    "domain": "classificadosx.net",
+    "rank": 9515,
+    "crawler": "Google-Extended",
+    "prev": "unlisted",
+    "cur": "allowed",
+    "why": "EAI_AGAIN/EAI_AGAIN"
+   }
+  ]
+ }
+}
