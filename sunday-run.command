@@ -17,6 +17,28 @@ echo "  ============================================"
 echo "   CRAWL PRICE INDEX — Sunday edition"
 echo "  ============================================"
 echo ""
+# ---------------------------------------------------------------------------
+# SHADOW MODE.  CPI_SHADOW=1 ./sunday-run.command
+# Runs the scan, the rebuild and every guard. Publishes nothing: no deploy,
+# no KV push, no newsletter, no alerts, no commit. Used for the Pi parallel
+# run, where the Pi must prove it can produce an edition without being able
+# to publish one.
+# ---------------------------------------------------------------------------
+if [ "${CPI_SHADOW:-0}" = "1" ]; then
+  echo ""
+  echo "############################################################"
+  echo "#  SHADOW RUN — nothing will be published, sent or pushed. #"
+  echo "############################################################"
+  echo ""
+fi
+pub() {
+  if [ "${CPI_SHADOW:-0}" = "1" ]; then
+    echo "  [shadow] skipped: $*"
+    return 0
+  fi
+  "$@"
+}
+
 node where.cjs 2>/dev/null | sed -n '1,8p'
 echo ""
 
@@ -156,7 +178,7 @@ node check-deployable.cjs || { echo "DEPLOY BLOCKED — non-deployable files in 
 # measurement data came to exist in exactly one place on earth. Reports the
 # irreplaceable set and any pipeline code that is not committed to git.
 node check-backup.cjs || echo "WARN: files with no backup policy, or uncommitted pipeline code — see above"
-npx wrangler deploy || echo "WARN: site deploy failed"
+pub npx wrangler deploy || echo "WARN: site deploy failed"
 
 # ---- 5. the customer app (app.crawlpriceindex.com) --------------------------
 # compute-domains.cjs writes private/domains.json at the repo root; the Pages
@@ -169,7 +191,7 @@ if [ -f private/domains.json ]; then
 else
   echo "WARN: private/domains.json missing — app will serve stale per-domain data"
 fi
-APP_OUT=$(npx wrangler pages deploy app --project-name=cpi-app --commit-dirty=true 2>&1) || echo "WARN: app deploy failed"
+APP_OUT=$(pub npx wrangler pages deploy app --project-name=cpi-app --commit-dirty=true 2>&1) || echo "WARN: app deploy failed"
 echo "$APP_OUT" | tail -6
 # The gate lives in app/_worker.js. Pages only compiles it if it is inside the
 # deployed directory, and when it silently is not, the paid dataset goes public.
@@ -192,14 +214,18 @@ else
   echo ""
 fi
 
-node push-dataset.cjs || echo "WARN: dataset push failed"
-node push-sample.cjs || echo "WARN: sample push failed"
-node build-lookup.cjs || echo "WARN: lookup push failed"
-node push-snapshot.cjs || echo "WARN: snapshot push failed"
-node push-csv.cjs || echo "WARN: csv push failed"
-node send-weekly.cjs --send || echo "WARN: weekly email failed"
-node send-alerts.cjs --send || echo "WARN: alerts failed"
-git add -A && git commit -m "weekly edition $TODAY" 2>/dev/null && git push || echo "WARN: git push skipped/failed"
+pub node push-dataset.cjs || echo "WARN: dataset push failed"
+pub node push-sample.cjs || echo "WARN: sample push failed"
+pub node build-lookup.cjs || echo "WARN: lookup push failed"
+pub node push-snapshot.cjs || echo "WARN: snapshot push failed"
+pub node push-csv.cjs || echo "WARN: csv push failed"
+pub node send-weekly.cjs --send || echo "WARN: weekly email failed"
+pub node send-alerts.cjs --send || echo "WARN: alerts failed"
+if [ "${CPI_SHADOW:-0}" = "1" ]; then
+  echo "  [shadow] skipped: git commit + push"
+else
+  git add -A && git commit -m "weekly edition $TODAY" 2>/dev/null && git push || echo "WARN: git push skipped/failed"
+fi
 
 AFTER=$(node -pe 'try{JSON.parse(require("fs").readFileSync("history-index.json","utf8")).latest_snapshot}catch(e){"none"}' 2>/dev/null)
 echo ""

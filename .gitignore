@@ -19,3 +19,9 @@ dataset.csv
 .wba-private.pem
 .wba-private.b64
 runs.log
+
+# A scheduled GitHub Action that scans 2,000 domains every Monday and commits
+# index.json + scan-robots.csv back to main, deploying over the 50,000-domain
+# Sunday edition. It is inert only while uncommitted, and the weekly run ends
+# with 'git add -A' — which would otherwise commit and activate it.
+.github/

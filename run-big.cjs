@@ -30,7 +30,14 @@ const fs = require("fs");
 const { execSync } = require("child_process");
 
 const cfg = JSON.parse(fs.existsSync("scan-config.json") ? fs.readFileSync("scan-config.json", "utf8") : "{}");
-const TOP_N = cfg.top_n || 50000;
+// CPI_TOP bounds the frame for one run without editing scan-config.json —
+// the config is tracked in git, and two machines on different configs cannot
+// be compared. Unset, this is exactly cfg.top_n as before.
+const TOP_N = Number(process.env.CPI_TOP) || cfg.top_n || 50000;
+if (process.env.CPI_TOP) {
+  console.log("FRAME BOUNDED to " + TOP_N + " domains by CPI_TOP — this is a partial run.");
+  console.log("  It is NOT a full edition and must not be published as one.");
+}
 const CHUNK = cfg.chunk_size || 2500;
 let concurrency = cfg.concurrency || 10;
 let spacing = cfg.base_spacing_ms || 120;
